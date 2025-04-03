@@ -1,0 +1,41 @@
+[package]
+name        = "pie"
+version     = "0.1.0"
+description = "Created with Anchor"
+edition     = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name       = "pie"
+
+[features]
+default = []
+devnet = [
+"raydium-amm-cpi/devnet",
+"raydium-cpmm-cpi/devnet",
+"raydium-clmm-cpi/devnet",
+]
+cpi = ["no-entrypoint"]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
+
+[dependencies]
+anchor-lang = { version = "0.30.1", features = ["init-if-needed"] }
+anchor-spl  = { version = "0.30.1", features = ["metadata"] }
+
+raydium-amm-cpi = { path = "../../modules/amm-cpi", features = [
+"no-entrypoint",
+"cpi",
+] }
+
+raydium-cpmm-cpi = { path = "../../modules/cpmm-cpi", features = [
+"no-entrypoint",
+"cpi",
+] }
+
+raydium-clmm-cpi = { path = "../../modules/clmm-cpi", features = [
+"no-entrypoint",
+"cpi",
+] }
