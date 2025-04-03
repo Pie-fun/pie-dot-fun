@@ -1,0 +1,266 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "blast/v1/referral/referral.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "ReferralService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/users/-/referrals": {
+      "get": {
+        "summary": "ListReferrals\nreads across collections, reference: https://google.aip.dev/159",
+        "operationId": "ReferralService_ListReferrals",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/referralListReferralsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "pageSize",
+            "description": "The maximum number of users to return. The service may return fewer than\nthis value.\nIf unspecified, at most 50 rows will be returned.\nThe maximum value is 1024; values above 1024 will be coerced to 1024.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageToken",
+            "description": "Token of the page to retrieve. If not specified, the first\npage of results will be returned. Use the value obtained from\n`next_page_token` in the previous response in order to request\nthe next page of results.\n\nWhen paginating, all other parameters provided to `ListReferrals` must match\nthe call that provided the page token.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "filter",
+            "description": "Available Sequence and Operator\n* name\n  * `Equal`\n* user_address\n  * Equal`\n* state\n  * Equal`\n\nExamples\n* name=\"users/0x6F11EF2c07f2E381CbE514198DdE87A0c0a19442/referrals\"\n* user_address=\"0x6F11EF2c07f2E381CbE514198DdE87A0c0a19442\"\n* state=ACTIVATED",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ReferralService"
+        ]
+      }
+    },
+    "/v1/{referral}": {
+      "get": {
+        "summary": "GetReferral will return Referral.",
+        "operationId": "ReferralService_GetReferral",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/referralReferral"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "referral",
+            "description": "The name of the referral to retrieve.\nFormat: users/{address}/referrals",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "users/[^/]+/referrals"
+          }
+        ],
+        "tags": [
+          "ReferralService"
+        ]
+      }
+    },
+    "/v1/{referral}:referredBy": {
+      "post": {
+        "operationId": "ReferralService_ReferredBy",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/referralReferral"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "referral",
+            "description": "The name of the referral to retrieve.\nFormat: users/{address}/referrals",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "users/[^/]+/referrals"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string"
+                }
+              },
+              "title": "RefferedByRequest",
+              "required": [
+                "code"
+              ]
+            }
+          }
+        ],
+        "tags": [
+          "ReferralService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "referralListReferralsResponse": {
+      "type": "object",
+      "properties": {
+        "referrals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/referralReferral"
+          },
+          "description": "The list of rows that matched the query."
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Pagination token used to retrieve the next page of results.\nPass the content of this string as the `page_token` attribute of\nthe next request. `next_page_token` is not returned for the last\npage."
+        }
+      },
+      "title": "ListReferralsResponse\n(-- api-linter: core::0158::response-next-page-token-field=disabled\n    aip.dev/not-precedent: We need to do this because reasons. --)"
+    },
+    "referralReferral": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "The resource name of the Referral.\nFormat: users/{address}/referrals"
+        },
+        "userAddress": {
+          "type": "string",
+          "readOnly": true
+        },
+        "state": {
+          "$ref": "#/definitions/referralReferralState",
+          "readOnly": true
+        },
+        "collection": {
+          "type": "string",
+          "readOnly": true
+        },
+        "referredBy": {
+          "$ref": "#/definitions/referralReferredBy",
+          "readOnly": true
+        },
+        "referred": {
+          "$ref": "#/definitions/referralReferred",
+          "readOnly": true
+        }
+      }
+    },
+    "referralReferralState": {
+      "type": "string",
+      "enum": [
+        "STATE_UNSPECIFIED",
+        "DEACTIVATED",
+        "ACTIVATED"
+      ],
+      "default": "STATE_UNSPECIFIED",
+      "description": " - STATE_UNSPECIFIED: default value. this value is unused.\n - DEACTIVATED: Referral code was deactivated.\n - ACTIVATED: Referral code was activated."
+    },
+    "referralReferred": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "readOnly": true
+        },
+        "sameCollection": {
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        },
+        "otherCollection": {
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        }
+      }
+    },
+    "referralReferredBy": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "readOnly": true
+        },
+        "userAddress": {
+          "type": "string",
+          "readOnly": true
+        }
+      }
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

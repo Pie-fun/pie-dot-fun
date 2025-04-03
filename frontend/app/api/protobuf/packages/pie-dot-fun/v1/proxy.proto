@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package piedotfun.v1;
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/pie-dot-fun/v1;piedotfun";
+
+service ProxyService {
+
+  // SolranaRPC 
+  //
+  // Endpoint: 
+  //  /proxy/rpc/{chain_type}/{req_path=**}
+  // Example:
+  //  /proxy/rpc/SOLANA
+  //  /proxy/rpc/SOLANA_DEVNET/bar
+
+  // Dune
+  //
+  // Endpoint: 
+  //  /proxy/dune/{req_path=**}
+  // Example:
+  //  /proxy/dune/foo
+  //  /proxy/dune/api/echo/v1/foo/bar
+}

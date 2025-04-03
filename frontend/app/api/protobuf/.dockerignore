@@ -1,0 +1,13 @@
+.vscode
+.git
+.github
+.idea
+.gitignore
+.dockerignore
+
+build
+*.md
+go
+kotlin
+python
+openapiv2

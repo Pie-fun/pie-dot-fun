@@ -1,0 +1,110 @@
+syntax = "proto3";
+
+package ethereum.v1.chain;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/ethereum/v1/chain;chain";
+
+// ChainSignService is the service that handles signing messages.
+service ChainSignService {
+  // SignBadgeClaim signs a w key mint with the given EOA address.
+  //
+  // 403 error will be returned if the given EOA address is on the whitelist.
+  rpc SignWkeyMint(SignWKeyMintRequest) returns (SignatureResponse) {
+    option (google.api.http) = {
+      post: "/v1/chain:signWKeyMint"
+      body: "*"
+    };
+  };
+
+  // SignKeyMint signs a key mint with the given token id.
+  //
+  // 403 error will be returned if the given profile address not not eligible to mint the badge.
+  // 400 error will be returned if the given token id is invalid
+  rpc SignKeyMint(SignKeyMintRequest) returns (SignatureTypedResponse) {
+    option (google.api.http) = {
+      post: "/v1/chain:signKeyMint"
+      body: "*"
+    };
+  };
+
+  // SignScoreMint signs a score mint with the given profile address and score ID.
+  //
+  // Not implemented yet.
+  rpc SignScoreMint(SignScoreMintRequest) returns (SignatureResponse) {
+    option (google.api.http) = {
+      post: "/v1/chain:signScoreMint"
+      body: "*"
+    };
+  };
+
+  // SignMessage signs a message with arbitrary message.
+  //
+  // This rpc is not open to the public request and only used by the internal service.
+  rpc SignMessage(SignMessageRequest) returns (SignatureResponse) {
+    option (google.api.http) = {
+      post: "/v1/chain:signMessage"
+      body: "*"
+    };
+  };
+
+}
+
+message SignWKeyMintRequest {
+  string eoa_address = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message SignKeyMintRequest {
+  // This field will be injected from the auth token by Gateway, which means web client do not need to pass this field.
+  optional string profile_contract_address = 1;
+
+  // This field will be injected from the auth token by Gateway, which means web client do not need to pass this field.
+  optional string profile_token_id = 2;
+
+  // This field will be injected from the auth token by Gateway, which means web client do not need to pass this field.
+  optional string spaceship_token_id = 3;
+
+  string key_token_id = 4 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  string eth_contribution = 5 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+}
+
+message SignScoreMintRequest {
+  string profile_address = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  string score_id = 2 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message SignMessageRequest {
+  string message = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message SignatureResponse {
+  string signature = 1;
+  string message = 2;
+}
+
+message SignatureTypedResponse {
+  string signature = 1;
+  map<string, string> message = 2;
+}

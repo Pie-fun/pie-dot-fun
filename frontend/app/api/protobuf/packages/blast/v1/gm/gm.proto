@@ -1,0 +1,226 @@
+syntax = "proto3";
+
+package blast.v1.gm;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/blast/v1/gm;gm";
+
+// GMService contains the function to interact with the GM of the spacebar
+service GMService {
+  // GetGMStats returns the GM stats of the user.
+  rpc GetGMStats(GetGMStatsRequest) returns (GMStats) {
+    option (google.api.http) = {
+      get: "/v1/{user=users/*}/gmStats"
+    };
+    option (google.api.method_signature) = "user";
+  }
+
+  // SendGM send GM to another User.
+  rpc SendGM(SendGMRequest) returns (GM) {
+    option (google.api.http) = {
+      post: "/v1/gms"
+      body: "*"
+    };
+    option (google.api.method_signature) = "to";
+  }
+
+  // PreflightGM preflight GM to another User.
+  rpc PreflightGM(PreflightGMRequest) returns (PreflightGMResponse) {
+    option (google.api.http) = {
+      post: "/v1/gms:preflight"
+      body: "*"
+    };
+    option (google.api.method_signature) = "to";
+  }
+
+  // Lists GM messages based on "from" and/or "to" filters.
+  rpc ListGMs(ListGMsRequest) returns (ListGMsResponse) {
+    option (google.api.http) = {
+      get: "/v1/gms"
+    };
+    option (google.api.method_signature) = "from,to";
+  }
+}
+
+message GetGMStatsRequest {
+  // The user whom the GM stats should be retrieved.
+  // Format: users/{address}
+  string user = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/User"
+    }
+  ];
+}
+
+// SendGMRequest message represents the request to send a GM message.
+message SendGMRequest {
+  // The user whom the GM should be sent from.
+  // Format: users/{address}
+  string from = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/User"
+    }
+  ];
+
+  // The user whom the GM should be sent to.
+  // Format: users/{address}
+  string to = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/User"
+    }
+  ];
+}
+
+// Prefligjt GM Request message represents the request to preflight a GM message.
+message PreflightGMRequest {
+  // The user whom the GM should be sent from.
+  // Format: users/{address}
+  string from = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/User"
+    }
+  ];
+
+  // The user whom the GM should be sent to.
+  // Format: users/{address}
+  string to = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/User"
+    }
+  ];
+}
+
+message PreflightGMResponse {
+  bool can_send = 1;
+
+  // The reason why the GM cannot be sent.
+  // This field is only populated when can_send is false.
+  optional RejectPreflightGMCode reject_code = 2;
+}
+
+// Request message for ListGMs.
+message ListGMsRequest {
+  // The maximum number of gms to return. The service may return fewer than
+  // this value.
+  // If unspecified, at most 50 rows will be returned.
+  // The maximum value is 1024; values above 1024 will be coerced to 1024.
+  int32 page_size = 1;
+
+  // Token of the page to retrieve. If not specified, the first
+  // page of results will be returned. Use the value obtained from
+  // `next_page_token` in the previous response in order to request
+  // the next page of results.
+  //
+  // When paginating, all other parameters provided to `ListGMs` must match
+  // the call that provided the page token.
+  string page_token = 2;
+
+  // Available Sequence and Operator
+  // * from
+  //   * `=`
+  // * to
+  //   * `=`
+  //
+  // Examples
+  // * from="users/0x6F11EF2c07f2E381CbE514198DdE87A0c0a19442"
+  // * to="users/0x6F11EF2c07f2E381CbE514198DdE87A0c0a19442"
+  string filter = 3;
+
+  // One or more fields to compare and use to sort the output. (optional)
+  // Default order for a field is descending by id
+  // To specify ascending or descending order, append " asc" or " desc" to the field name. If not specified, the order is ascending.
+  //
+  // Reference
+  // * https://google.aip.dev/132#ordering.
+  //
+  // Supported Fields
+  // * "create_time"
+  //
+  // Examples
+  // * order_by=create_time desc
+  string order_by = 4;
+}
+
+// Response message for ListGMs.
+message ListGMsResponse {
+  // The list of GM messages that match the filters.
+  repeated GM gms = 1;
+
+  // Pagination token used to retrieve the next page of results.
+  string next_page_token = 2;
+}
+
+message GMStats {
+  option (google.api.resource) = {
+    type: "station.spacebarapis.xyz/GMStats",
+    pattern: "users/{user_address}/gmStats"
+  };
+
+  // The resource name of the GM message.
+  string name = 1;
+
+  // The user address of the user.
+  string user_address = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  uint32 sent_count = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  uint32 received_count = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}
+
+message GM {
+  option (google.api.resource) = {
+    type: "station.spacebarapis.xyz/GM",
+    pattern: "gms/{id}"
+  };
+
+  // The resource name of the GM message.
+  string name = 1;
+
+  // The user name of the sender.
+  string from = 3 [
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/User",
+    }
+  ];
+
+  // The user name of the receiver.
+  string to = 4 [
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/User",
+    }
+  ];
+
+  // The time when the message was sent or received.
+  google.protobuf.Timestamp create_time = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}
+
+enum RejectPreflightGMCode {
+  REJECT_PREFLIGHT_GM_CODE_UNSPECIFIED = 0;
+
+  // The GM has already been sent to same user.
+  REJECT_PREFLIGHT_GM_ALREADY_SENT_TO_SAME_USER = 1;
+
+  REJECT_PREFLIGHT_GM_EXCEED_QUOTA = 2;
+
+  REJECT_PREFLIGHT_GM_SELF_SEND = 3;
+}

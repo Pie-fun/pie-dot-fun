@@ -1,0 +1,314 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "ethereum/v1/key/key.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "KeyService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/keys": {
+      "get": {
+        "summary": "ListKeyValueObjects will return KeyVOs.",
+        "operationId": "KeyService_ListKeyValueObjects",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/keyListKeyVOsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "filter",
+            "description": "Available Sequence and Operator\n* primary_type\n  * `=`\n* secondary_type\n  * `=`\n\nExamples\n* primary_tupe=\"S_KEY\"\n* secondary_type=\"TIER_1\"",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "KeyService"
+        ]
+      }
+    },
+    "/v1/{profile}/keys": {
+      "get": {
+        "summary": "ListKeys will return Keys.",
+        "operationId": "KeyService_ListKeys",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/keyListKeysResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "profile",
+            "description": "The name of the profile.\nFormat: profiles/{address}\nWildcard \"profiles/*\" is supported.",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "profiles/[^/]+"
+          },
+          {
+            "name": "pageSize",
+            "description": "The maximum number of keys to return. The service may return fewer than\nthis value.\nIf unspecified, at most 50 rows will be returned.\nThe maximum value is 1024; values above 1024 will be coerced to 1024.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageToken",
+            "description": "Token of the page to retrieve. If not specified, the first\npage of results will be returned. Use the value obtained from\n`next_page_token` in the previous response in order to request\nthe next page of results.\n\nWhen paginating, all other parameters provided to `ListKeys` must match\nthe call that provided the page token.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "filter",
+            "description": "Available Sequence and Operator\n* name\n  * `Equal`\n* owner, profile\n  * `=`\n* state\n  * `=`\n* primary_type\n  * `=`\n* secondary_type\n  * `=`\n* create_time\n  * `\u003e`\n* minted\n  * Equal`\n\nExamples\n* filter=name=\"profiles/0x6F11EF2c07f2E381CbE514198DdE87A0c0a19442/keys/0x79FCDEF22feeD20eDDacbB2587640e45491b757f\"\n* filter=owner=\"profiles/0x6F11EF2c07f2E381CbE514198DdE87A0c0a19442\"\n* filter=profile=\"profiles/0x6F11EF2c07f2E381CbE514198DdE87A0c0a19442\"\n* filter=state=CREATED\n* filter=primary_tupe=A_KEY\n* filter=minted",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "orderBy",
+            "description": "One or more fields to compare and use to sort the output. (optional)\nDefault order for a field is descending by id\nTo specify ascending or descending order, append \" asc\" or \" desc\" to the field name. If not specified, the order is ascending.\n\nReference\n* https://google.aip.dev/132#ordering.\n\nSupported Fields\n* \"owner_address\", \"primary_type\", \"secondary_type\", \"token_id\", \"create_time\", \"mint_time\"\n\nExamples\n* order_by=mint_time asc\n* order_by=primary_type asc, secondary_type asc\n* order_by=token_id asc",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "KeyService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "keyKey": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "The resource name of the Key.\nFormat: profiles/{profile_address}/keys/{key_address}"
+        },
+        "address": {
+          "type": "string",
+          "description": "EIP-6551 TBA Address of the Key.",
+          "readOnly": true
+        },
+        "owner": {
+          "type": "string",
+          "title": "The owner of Key.\nFormat: profiles/{address}",
+          "readOnly": true
+        },
+        "state": {
+          "$ref": "#/definitions/keyState",
+          "title": "The state of Key",
+          "readOnly": true
+        },
+        "createTime": {
+          "type": "string",
+          "format": "date-time",
+          "title": "The created time of Key.\nRFC3339 format e.g. \"2006-01-02T15:04:05Z07:00\"",
+          "readOnly": true
+        },
+        "mintTime": {
+          "type": "string",
+          "format": "date-time",
+          "title": "The minted time of Key.\nThis field is only set when Key is minted. (optional)\nRFC3339 format e.g. \"2006-01-02T15:04:05Z07:00\"",
+          "readOnly": true
+        },
+        "mintTxHash": {
+          "type": "string",
+          "title": "The transaction hash for minting key.\nThis field is only set when Key is minted. (optional)",
+          "readOnly": true
+        },
+        "ethContribution": {
+          "type": "string",
+          "title": "The amount of Eth Contribution (nominated as wei)\nThis field is only set when Key is minted. (optional)",
+          "readOnly": true
+        },
+        "isMinted": {
+          "type": "boolean",
+          "title": "Whether Key finished tutorial or not",
+          "readOnly": true
+        },
+        "vo": {
+          "$ref": "#/definitions/keyKeyVO",
+          "title": "Key value object",
+          "readOnly": true
+        }
+      }
+    },
+    "keyKeyVO": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string",
+          "description": "EIP-6551 TBA Address of the Key VO.",
+          "readOnly": true
+        },
+        "tokenId": {
+          "type": "string",
+          "description": "Token ID of the Key VO.\nOutput only.",
+          "readOnly": true
+        },
+        "primaryType": {
+          "$ref": "#/definitions/keyPrimaryType",
+          "description": "The primary type of the Key VO.\nOutput only.",
+          "readOnly": true
+        },
+        "secondaryType": {
+          "$ref": "#/definitions/keySecondaryType",
+          "description": "The secondary type of the Key VO.\nOutput only.",
+          "readOnly": true
+        },
+        "cachedImageUri": {
+          "type": "string",
+          "description": "The cached URI of the Key VO's image.\nOutput only.",
+          "readOnly": true
+        },
+        "originalImageUri": {
+          "type": "string",
+          "description": "The original URI of the Key VO's image.\ne.g. ipfs://Qm...\nOutput only.",
+          "readOnly": true
+        },
+        "metadataUri": {
+          "type": "string",
+          "description": "The URI of the Key VO's image.\nOutput only.",
+          "readOnly": true
+        },
+        "contractAddress": {
+          "type": "string",
+          "description": "The contract that owns the Key VO.\nOutput only.",
+          "readOnly": true
+        }
+      }
+    },
+    "keyListKeyVOsResponse": {
+      "type": "object",
+      "properties": {
+        "keyValueObjects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/keyKeyVO"
+          },
+          "description": "The list of rows that matched the query."
+        }
+      }
+    },
+    "keyListKeysResponse": {
+      "type": "object",
+      "properties": {
+        "keys": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/keyKey"
+          },
+          "description": "The list of rows that matched the query."
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Pagination token used to retrieve the next page of results.\nPass the content of this string as the `page_token` attribute of\nthe next request. `next_page_token` is not returned for the last\npage."
+        },
+        "totalSize": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The total number of keys that matched with the filter query."
+        }
+      },
+      "title": "ListKeysResponse\n(-- api-linter: core::0158::response-next-page-token-field=disabled\n    aip.dev/not-precedent: We need to do this because reasons. --)"
+    },
+    "keyPrimaryType": {
+      "type": "string",
+      "enum": [
+        "PRIMARY_TYPE_UNSPECIFIED",
+        "W_KEY",
+        "G_KEY",
+        "A_KEY",
+        "H_KEY",
+        "R_KEY"
+      ],
+      "default": "PRIMARY_TYPE_UNSPECIFIED",
+      "title": "- PRIMARY_TYPE_UNSPECIFIED: default value. this value is unused.\n - W_KEY: Whitelist.\n - G_KEY: Star Gatherer\n - A_KEY: Doodle Artist\n - H_KEY: Star Hunter\n - R_KEY: Top Ranker"
+    },
+    "keySecondaryType": {
+      "type": "string",
+      "enum": [
+        "SECONDARY_TYPE_UNSPECIFIED",
+        "TIER_1",
+        "TIER_2",
+        "TIER_3",
+        "TIER_4",
+        "TIER_5"
+      ],
+      "default": "SECONDARY_TYPE_UNSPECIFIED"
+    },
+    "keyState": {
+      "type": "string",
+      "enum": [
+        "STATE_UNSPECIFIED",
+        "CREATED",
+        "MINTED"
+      ],
+      "default": "STATE_UNSPECIFIED",
+      "description": "- STATE_UNSPECIFIED: default value. this value is unused.\n - CREATED: Key was firstly created but not minted yet.\n - MINTED: Key was firstly created with base spaceship rental.",
+      "title": "The state of key"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

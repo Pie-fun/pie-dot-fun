@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+package piedotfun.v1.chain;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/pie-dot-fun/v1/chain;chain";
+
+
+// BasketComponent represents a component of a basket with its mint and ratio
+message BasketComponent {
+  string mint = 1;  // solana.PublicKey
+  string ratio = 2;
+}
+
+// CreateBasketEvent represents the event of creating a new basket
+message CreateBasketEvent {
+  uint64 basket_id = 1;
+  string name = 2;
+  string symbol = 3;
+  string uri = 4;
+  string creator = 5;  // solana.PublicKey
+  string mint = 6;     // solana.PublicKey
+  repeated BasketComponent components = 7;
+}
+
+// StartRebalancingEvent represents the event of starting basket rebalancing
+message StartRebalancingEvent {
+  uint64 basket_id = 1;
+  string mint = 2;     // solana.PublicKey
+  int64 timestamp = 3;
+}
+
+// StopRebalancingEvent represents the event of stopping basket rebalancing
+message StopRebalancingEvent {
+  uint64 basket_id = 1;
+  string mint = 2;     // solana.PublicKey
+  repeated BasketComponent components = 3;
+  int64 timestamp = 4;
+}
+
+// RedeemBasketTokenEvent represents the event of redeeming basket tokens
+message RedeemBasketTokenEvent {
+  uint64 basket_id = 1;
+  string user = 2;         // solana.PublicKey
+  string basket_mint = 3;  // solana.PublicKey
+  uint64 amount = 4;
+}
+
+// MintBasketTokenEvent represents the event of minting basket tokens
+message MintBasketTokenEvent {
+  uint64 basket_id = 1;
+  string user = 2;         // solana.PublicKey
+  string basket_mint = 3;  // solana.PublicKey
+  uint64 amount = 4;
+}
+
+// TransferBasketEvent represents the event of transferring basket tokens
+message TransferBasketEvent {
+  string basket_mint = 1;  // solana.PublicKey
+  string from = 2;         // solana.PublicKey
+  string to = 3;           // solana.PublicKey
+  uint64 amount = 4;
+}
+
+enum BasketEventExtraInfoKey {
+  BASKET_EXTRA_INFO_KEY_UNSPECIFIED = 0;
+  BASKET_EXTRA_INFO_KEY_VALUE_USDC = 1;
+  BASKET_EXTRA_INFO_KEY_VALUE_SOL = 2;
+}

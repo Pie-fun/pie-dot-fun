@@ -1,0 +1,917 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "ethereum/v1/leaderboard/leaderboard.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "LeaderboardService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/leaderboard/star_hunters/weekly": {
+      "get": {
+        "summary": "GetWeeklyStarHunterLeaderboard will return weekly top collectors.",
+        "operationId": "LeaderboardService_GetWeeklyStarHunterLeaderboard",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/leaderboardGetWeeklyStarHunterLeaderboardResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "pageSize",
+            "description": "The maximum number of scores to return. The service may return fewer than\nthis value.\nIf unspecified, at most 5 rows will be returned.\nThe maximum value is 1024; values above 1024 will be coerced to 1024.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageToken",
+            "description": "Token of the page to retrieve. If not specified, the first\npage of results will be returned. Use the value obtained from\n`next_page_token` in the previous response in order to request\nthe next page of results.\n\nWhen paginating, all other parameters provided to `ListWeeklytimeTopCollectors` must match\nthe call that provided the page token.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "week",
+            "description": "The corresponding week of leaderboard.\nIf unspecified, the current week will be used.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "season",
+            "description": "The corresponding season of leaderboard.\nThe default value is 1",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "LeaderboardService"
+        ]
+      }
+    },
+    "/v1/leaderboard/star_hunters/weekly/{profileAddress}": {
+      "get": {
+        "summary": "GetWeeklyStarHunter will return weekly top collector.",
+        "operationId": "LeaderboardService_GetWeeklyStarHunter",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/leaderboardStarHunter"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "profileAddress",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "[^/]+"
+          },
+          {
+            "name": "week",
+            "description": "The corresponding week of leaderboard.\nIf unspecified, the current week will be used.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "LeaderboardService"
+        ]
+      }
+    },
+    "/v1/leaderboard/star_hunters/weekly:render": {
+      "post": {
+        "summary": "RenderWeeklyStarHunterLeaderboard will render weekly top collectors image.",
+        "operationId": "LeaderboardService_RenderWeeklyStarHunterLeaderboard",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/leaderboardImageResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/leaderboardRenderWeeklyStarHunterLeaderboardRequest"
+            }
+          }
+        ],
+        "tags": [
+          "LeaderboardService"
+        ]
+      }
+    },
+    "/v1/leaderboard/top_collectors/all_time": {
+      "get": {
+        "summary": "GetAllTimeTopCollectorLeaderboard will return all time top collectors.",
+        "operationId": "LeaderboardService_GetAllTimeTopCollectorLeaderboard",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/leaderboardGetAllTimeTopCollectorLeaderboardResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "pageSize",
+            "description": "The maximum number of scores to return. The service may return fewer than\nthis value.\nIf unspecified, at most 5 rows will be returned.\nThe maximum value is 1024; values above 1024 will be coerced to 1024.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageToken",
+            "description": "Token of the page to retrieve. If not specified, the first\npage of results will be returned. Use the value obtained from\n`next_page_token` in the previous response in order to request\nthe next page of results.\n\nWhen paginating, all other parameters provided to `GetAllTimeTopCollectorLeaderboard` must match\nthe call that provided the page token.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "LeaderboardService"
+        ]
+      }
+    },
+    "/v1/leaderboard/top_collectors/weekly": {
+      "get": {
+        "summary": "GetWeeklyTopCollectorLeaderboard will return weekly top collectors.",
+        "operationId": "LeaderboardService_GetWeeklyTopCollectorLeaderboard",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/leaderboardGetWeeklyTopCollectorLeaderboardResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "pageSize",
+            "description": "The maximum number of scores to return. The service may return fewer than\nthis value.\nIf unspecified, at most 5 rows will be returned.\nThe maximum value is 1024; values above 1024 will be coerced to 1024.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageToken",
+            "description": "Token of the page to retrieve. If not specified, the first\npage of results will be returned. Use the value obtained from\n`next_page_token` in the previous response in order to request\nthe next page of results.\n\nWhen paginating, all other parameters provided to `ListWeeklytimeTopCollectors` must match\nthe call that provided the page token.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "week",
+            "description": "The corresponding week of leaderboard.\nIf unspecified, the current week will be used.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "season",
+            "description": "The corresponding season of leaderboard.\nThe default value is 1",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "LeaderboardService"
+        ]
+      }
+    },
+    "/v1/leaderboard/top_collectors/weekly/{profileAddress}": {
+      "get": {
+        "summary": "GetWeeklyTopCollector will return weekly top collector.",
+        "operationId": "LeaderboardService_GetWeeklyTopCollector",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/leaderboardStarHunter"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "profileAddress",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "[^/]+"
+          },
+          {
+            "name": "week",
+            "description": "The corresponding week of leaderboard.\nIf unspecified, the current week will be used.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "LeaderboardService"
+        ]
+      }
+    },
+    "/v1/leaderboard/top_collectors/weekly:render": {
+      "post": {
+        "summary": "RenderWeeklyTopCollectorLeaderboard will render weekly top collectors image.",
+        "operationId": "LeaderboardService_RenderWeeklyTopCollectorLeaderboard",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/leaderboardImageResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/leaderboardRenderWeeklyStarHunterLeaderboardRequest"
+            }
+          }
+        ],
+        "tags": [
+          "LeaderboardService"
+        ]
+      }
+    },
+    "/v1/leaderboard/top_rankers/weekly": {
+      "get": {
+        "summary": "GetTopRankerLeaderboard will return best score leaderboard",
+        "operationId": "LeaderboardService_GetTopRankerLeaderboard",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/leaderboardGetTopRankerLeaderboardResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "pageSize",
+            "description": "The maximum number of scores to return. The service may return fewer than\nthis value.\nIf unspecified, at most 5 rows will be returned.\nThe maximum value is 1024; values above 1024 will be coerced to 1024.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageToken",
+            "description": "Token of the page to retrieve. If not specified, the first\npage of results will be returned. Use the value obtained from\n`next_page_token` in the previous response in order to request\nthe next page of results.\n\nWhen paginating, all other parameters provided to `GetLeaderbaord` must match\nthe call that provided the page token.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "week",
+            "description": "The corresponding week of leaderboard.\nIf unspecified, the current week will be used.",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "season",
+            "description": "The corresponding season of leaderboard.\nThe default value is 1",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "playMode",
+            "description": "The corresponding play_mode of leaderboard.\nThe default value is \"TIME_ATTACK\"\n\n - PLAY_MODE_UNSPECIFIED: default value. this value is unused.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "PLAY_MODE_UNSPECIFIED",
+              "SINGLE_PLAYER"
+            ],
+            "default": "PLAY_MODE_UNSPECIFIED"
+          },
+          {
+            "name": "gameMode",
+            "description": "The corresponding game_mode of leaderboard.\nThe default value is \"SINGLE_PLAYER\"\n\n - GAME_MODE_UNSPECIFIED: default value. this value is unused.\n - TIME_ATTACK: time_attack",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "GAME_MODE_UNSPECIFIED",
+              "TIME_ATTACK"
+            ],
+            "default": "GAME_MODE_UNSPECIFIED"
+          }
+        ],
+        "tags": [
+          "LeaderboardService"
+        ]
+      }
+    },
+    "/v1/leaderboard/top_rankers/weekly/{profileAddress}": {
+      "get": {
+        "summary": "GetTopRanker will return weekly top collector.",
+        "operationId": "LeaderboardService_GetTopRanker",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/leaderboardTopRanker"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "profileAddress",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "[^/]+"
+          },
+          {
+            "name": "week",
+            "description": "The corresponding week of leaderboard.\nIf unspecified, the current week will be used.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "playMode",
+            "description": "The corresponding play_mode of leaderboard.\nThe default value is \"TIME_ATTACK\"\n\n - PLAY_MODE_UNSPECIFIED: default value. this value is unused.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "PLAY_MODE_UNSPECIFIED",
+              "SINGLE_PLAYER"
+            ],
+            "default": "PLAY_MODE_UNSPECIFIED"
+          },
+          {
+            "name": "gameMode",
+            "description": "The corresponding game_mode of leaderboard.\nThe default value is \"SINGLE_PLAYER\"\n\n - GAME_MODE_UNSPECIFIED: default value. this value is unused.\n - TIME_ATTACK: time_attack",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "GAME_MODE_UNSPECIFIED",
+              "TIME_ATTACK"
+            ],
+            "default": "GAME_MODE_UNSPECIFIED"
+          }
+        ],
+        "tags": [
+          "LeaderboardService"
+        ]
+      }
+    },
+    "/v1/leaderboard/top_rankers/weekly:render": {
+      "post": {
+        "summary": "RenderTopRankerLeaderboard will render weekly top collectors image.",
+        "operationId": "LeaderboardService_RenderTopRankerLeaderboard",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/leaderboardImageResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/leaderboardRenderTopRankerLeaderboardRequest"
+            }
+          }
+        ],
+        "tags": [
+          "LeaderboardService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "leaderboardGetAllTimeTopCollectorLeaderboardResponse": {
+      "type": "object",
+      "properties": {
+        "topCollectors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/leaderboardStarHunter"
+          }
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Pagination token used to retrieve the next page of results.\nPass the content of this string as the `page_token` attribute of\nthe next request. `next_page_token` is not returned for the last\npage."
+        }
+      }
+    },
+    "leaderboardGetTopRankerLeaderboardResponse": {
+      "type": "object",
+      "properties": {
+        "topRankers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/leaderboardTopRanker"
+          }
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Pagination token used to retrieve the next page of results.\nPass the content of this string as the `page_token` attribute of\nthe next request. `next_page_token` is not returned for the last\npage."
+        },
+        "deadline": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "leaderboardGetWeeklyStarHunterLeaderboardResponse": {
+      "type": "object",
+      "properties": {
+        "starHunters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/leaderboardStarHunter"
+          }
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Pagination token used to retrieve the next page of results.\nPass the content of this string as the `page_token` attribute of\nthe next request. `next_page_token` is not returned for the last\npage."
+        },
+        "deadline": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "leaderboardGetWeeklyTopCollectorLeaderboardResponse": {
+      "type": "object",
+      "properties": {
+        "topCollectors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/leaderboardStarHunter"
+          }
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Pagination token used to retrieve the next page of results.\nPass the content of this string as the `page_token` attribute of\nthe next request. `next_page_token` is not returned for the last\npage."
+        },
+        "deadline": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "leaderboardImageResponse": {
+      "type": "object",
+      "properties": {
+        "image": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "leaderboardRenderTopRankerLeaderboardRequest": {
+      "type": "object",
+      "properties": {
+        "week": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The corresponding week of leaderboard.\nIf unspecified, the current week will be used."
+        },
+        "season": {
+          "type": "integer",
+          "format": "int64",
+          "title": "The corresponding season of leaderboard.\nThe default value is 1"
+        },
+        "playMode": {
+          "$ref": "#/definitions/scorePlayMode",
+          "title": "The corresponding play_mode of leaderboard.\nThe default value is \"TIME_ATTACK\""
+        },
+        "gameMode": {
+          "$ref": "#/definitions/scoreGameMode",
+          "title": "The corresponding game_mode of leaderboard.\nThe default value is \"SINGLE_PLAYER\""
+        },
+        "me": {
+          "type": "string"
+        }
+      }
+    },
+    "leaderboardRenderWeeklyStarHunterLeaderboardRequest": {
+      "type": "object",
+      "properties": {
+        "week": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The corresponding week of leaderboard.\nIf unspecified, the current week will be used."
+        },
+        "season": {
+          "type": "integer",
+          "format": "int64",
+          "title": "The corresponding season of leaderboard.\nThe default value is 1"
+        },
+        "me": {
+          "type": "string"
+        }
+      }
+    },
+    "leaderboardStarHunter": {
+      "type": "object",
+      "properties": {
+        "rank": {
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        },
+        "profile": {
+          "$ref": "#/definitions/profileProfile",
+          "readOnly": true
+        },
+        "totalStars": {
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        }
+      }
+    },
+    "leaderboardTopRanker": {
+      "type": "object",
+      "properties": {
+        "rank": {
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        },
+        "profile": {
+          "$ref": "#/definitions/profileProfile",
+          "readOnly": true
+        },
+        "score": {
+          "$ref": "#/definitions/scoreScore",
+          "readOnly": true
+        }
+      }
+    },
+    "outpostChainType": {
+      "type": "string",
+      "enum": [
+        "CHAIN_UNSPECIFIED",
+        "ETHEREUM",
+        "POLYGON",
+        "ARBITRUM",
+        "OPTIMISM",
+        "BASE",
+        "BLAST",
+        "ETHEREUM_SEPOLIA",
+        "POLYGON_MUMBAI",
+        "BLAST_SEPOLIA"
+      ],
+      "default": "CHAIN_UNSPECIFIED",
+      "description": "- CHAIN_UNSPECIFIED: Unspecified blockchain type.\n - ETHEREUM: Ethereum Mainnet blockchain.\n - POLYGON: Polygon Mainnet blockchain.\n - ARBITRUM: Arbitrum Mainnet blockchain.\n - OPTIMISM: Optimism Mainnet blockchain.\n - BASE: Base Mainnet blockchain.\n - BLAST: Blast Mainnet blockchain.\n - ETHEREUM_SEPOLIA: Sepolia Testnet blockchain.\n - POLYGON_MUMBAI: Polygon Testnet blockchain.\n - BLAST_SEPOLIA: Blast Testnet blockchain.",
+      "title": "ChainType enumeration represents the type of blockchain.\nDoes not support optimism, zksync, bsc yet"
+    },
+    "profileProfile": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "The resource name of the Profile.\nFormat: profiles/{address}"
+        },
+        "address": {
+          "type": "string",
+          "description": "EIP-6551 TBA Address of the Profile NFT.",
+          "readOnly": true
+        },
+        "createTime": {
+          "type": "string",
+          "format": "date-time",
+          "title": "The created time of Profile.\nRFC3339 format e.g. \"2006-01-02T15:04:05Z07:00\"",
+          "readOnly": true
+        },
+        "updateTime": {
+          "type": "string",
+          "format": "date-time",
+          "title": "The last updated time of Profile.\nRFC3339 format e.g. \"2006-01-02T15:04:05Z07:00\"",
+          "readOnly": true
+        },
+        "number": {
+          "type": "string",
+          "format": "uint64",
+          "description": "The number of Profile.",
+          "readOnly": true
+        },
+        "state": {
+          "$ref": "#/definitions/profileProfileState",
+          "title": "The state of Profile",
+          "readOnly": true
+        },
+        "nft": {
+          "$ref": "#/definitions/profileProfileNFT",
+          "description": "The current pfp nft of Profile."
+        },
+        "starAccount": {
+          "$ref": "#/definitions/profileStarAccount",
+          "title": "The star account of Profile",
+          "readOnly": true
+        },
+        "ens": {
+          "type": "string",
+          "title": "The ens of profile\nThis field is optional",
+          "readOnly": true
+        },
+        "nickname": {
+          "type": "string",
+          "description": "The nickname of Profile.\nThis field is optional."
+        },
+        "isTutorialDone": {
+          "type": "boolean",
+          "title": "Whether Profile finished tutorial or not",
+          "readOnly": true
+        },
+        "isIdentified": {
+          "type": "boolean",
+          "title": "Whether Profile is identified or not",
+          "readOnly": true
+        }
+      }
+    },
+    "profileProfileNFT": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "The resource name of the NFT asset.\nFormat: nfts/{chain_type}/{contract_address}/{token_id}\nExamples: nfts/ETHEREUM/0x1f9090aaE28b8a3dCeaDf281B0F12828e676c326/1"
+        },
+        "tokenId": {
+          "type": "string",
+          "description": "Token ID of the NFT asset.",
+          "readOnly": true
+        },
+        "tokenName": {
+          "type": "string",
+          "description": "Token Name of the NFT asset.",
+          "readOnly": true
+        },
+        "imageUri": {
+          "type": "string",
+          "title": "The URI of the NFT asset's image.\nThis URI is cached version of image original URI\ne.g. \"https://cdn.spacebar.xyz/nfts/ethereum/0x79fcdef22feed20eddacbb2587640e45491b757f/609\"",
+          "readOnly": true
+        },
+        "contract": {
+          "$ref": "#/definitions/profileProfileNFTContract",
+          "description": "The contract that owns the NFT asset.\nOutput only.",
+          "readOnly": true
+        }
+      },
+      "description": "ProfileNFT message represents an Profile's NFT."
+    },
+    "profileProfileNFTContract": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string",
+          "description": "The address of the NFT contract.",
+          "readOnly": true
+        },
+        "displayName": {
+          "type": "string",
+          "description": "The name of the NFT contract schema.",
+          "readOnly": true
+        },
+        "symbol": {
+          "type": "string",
+          "description": "The symbol of the NFT contract.",
+          "readOnly": true
+        },
+        "chain": {
+          "$ref": "#/definitions/outpostChainType",
+          "description": "The blockchain on which the NFT contract resides.",
+          "readOnly": true
+        },
+        "imageUri": {
+          "type": "string",
+          "title": "The URI of the contract image",
+          "readOnly": true
+        }
+      },
+      "description": "NFTContract message represents an NFT contract."
+    },
+    "profileProfileState": {
+      "type": "string",
+      "enum": [
+        "STATE_UNSPECIFIED",
+        "CREATED",
+        "PROTOSHIP_MINTED",
+        "PROTOSHIP_BURNED",
+        "OWNERSHIP_ACQUIRED"
+      ],
+      "default": "STATE_UNSPECIFIED",
+      "description": "- STATE_UNSPECIFIED: default value. this value is unused.\n - CREATED: Profile was firstly created but not started to rent base spaceship.\nThis state is very transitory state because next transaction will change it to PROTOSHIP_MINTED or OWNERSHIP_ACQUIRED state immediately.\n - PROTOSHIP_MINTED: Profile was firstly created with base spaceship rental.\n - PROTOSHIP_BURNED: Profile was created with base spaceship rental but failed to acquire\n - OWNERSHIP_ACQUIRED: Profile has acquired ownership.",
+      "title": "The state of profile"
+    },
+    "profileStarAccount": {
+      "type": "object",
+      "properties": {
+        "balance": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The current balance of stars.",
+          "readOnly": true
+        },
+        "cumulativeTotal": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The cumulative total of stars.",
+          "readOnly": true
+        }
+      },
+      "description": "StarAccount message represents a balance of stars for a profile."
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "scoreGameMode": {
+      "type": "string",
+      "enum": [
+        "GAME_MODE_UNSPECIFIED",
+        "TIME_ATTACK"
+      ],
+      "default": "GAME_MODE_UNSPECIFIED",
+      "title": "- GAME_MODE_UNSPECIFIED: default value. this value is unused.\n - TIME_ATTACK: time_attack"
+    },
+    "scorePlayMode": {
+      "type": "string",
+      "enum": [
+        "PLAY_MODE_UNSPECIFIED",
+        "SINGLE_PLAYER"
+      ],
+      "default": "PLAY_MODE_UNSPECIFIED",
+      "description": " - PLAY_MODE_UNSPECIFIED: default value. this value is unused."
+    },
+    "scoreScore": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "The resource name of the Score.\nFormat: scores/{uuid}"
+        },
+        "profile": {
+          "type": "string",
+          "title": "The resource name of the owner Profile.\nFormat: profiles/{address}"
+        },
+        "createTime": {
+          "type": "string",
+          "format": "date-time",
+          "title": "created time of score",
+          "readOnly": true
+        },
+        "point": {
+          "type": "integer",
+          "format": "int64",
+          "title": "point of score"
+        },
+        "gameMode": {
+          "$ref": "#/definitions/scoreGameMode",
+          "description": "Game mode of score."
+        },
+        "playMode": {
+          "$ref": "#/definitions/scorePlayMode",
+          "description": "Play mode of score."
+        },
+        "week": {
+          "type": "integer",
+          "format": "int64",
+          "title": "week of score",
+          "readOnly": true
+        }
+      }
+    }
+  }
+}

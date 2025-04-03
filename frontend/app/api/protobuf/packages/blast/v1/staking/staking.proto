@@ -1,0 +1,160 @@
+syntax = "proto3";
+
+package blast.v1.staking;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+import "blast/v1/nft/nft.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/blast/v1/staking;staking";
+
+// StakingService contains the function to interact with the Staking of the spacebar
+service StakingService {
+  // GetStaking will return Staking.
+  rpc GetStaking(GetStakingRequest) returns (Staking) {
+    option (google.api.http) = {
+      get: "/v1/{staking=users/*/stakings}"
+    };
+    option (google.api.method_signature) = "staking";
+  }
+
+  // ListStakings will return Stakings.
+  // reads across collections, reference: https://google.aip.dev/159
+  rpc ListStakings(ListStakingsRequest) returns (ListStakingsResponse) {
+    option (google.api.http) = {
+      get: "/v1/users/-/stakings"
+    };
+    option (google.api.method_signature) = "";
+  }
+
+  // GetStakingTotalAmount will return total amount of all user's staking.
+  rpc GetStakingTotalAmount(GetStakingTotalAmountRequest) returns (GetStakingTotalAmountResponse) {
+    option (google.api.http) = {
+      get: "/v1/users/-/stakings/totalAmount"
+    };
+  }
+}
+
+message GetStakingRequest {
+  // The name of the staking to retrieve.
+  // Format: users/{user_address}/stakings
+  string staking = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Staking"
+    }];
+}
+
+
+// ListStakingsRequest payload
+// (-- api-linter: core::0158::request-page-token-field=disabled
+//     aip.dev/not-precedent: We need to do this because reasons. --)
+// (-- api-linter: core::0132::request-unknown-fields=disabled
+//     aip.dev/not-precedent: We really need this field because reasons. --)
+message ListStakingsRequest {
+  // The maximum number of points to return. The service may return fewer than
+  // this value.
+  // If unspecified, at most 50 rows will be returned.
+  // The maximum value is 1024; values above 1024 will be coerced to 1024.
+  int32 page_size = 1;
+
+  // Token of the page to retrieve. If not specified, the first
+  // page of results will be returned. Use the value obtained from
+  // `next_page_token` in the previous response in order to request
+  // the next page of results.
+  //
+  // When paginating, all other parameters provided to `ListStakings` must match
+  // the call that provided the page token.
+  string page_token = 2;
+
+  // Available Sequence and Operator
+  // * name
+  //   * `Equal`
+  // * user_address
+  //   * Equal`
+  //
+  // Examples
+  // * name="users/0x6F11EF2c07f2E381CbE514198DdE87A0c0a19442/stakings"
+  // * user_address="0x6F11EF2c07f2E381CbE514198DdE87A0c0a19442"
+  string filter = 3;
+}
+
+// ListStakingsResponse
+// (-- api-linter: core::0158::response-next-page-token-field=disabled
+//     aip.dev/not-precedent: We need to do this because reasons. --)
+message ListStakingsResponse {
+  // The list of rows that matched the query.
+  repeated Staking stakings = 1;
+
+  // Pagination token used to retrieve the next page of results.
+  // Pass the content of this string as the `page_token` attribute of
+  // the next request. `next_page_token` is not returned for the last
+  // page.
+  string next_page_token = 2;
+}
+
+message GetStakingTotalAmountRequest {}
+
+message GetStakingTotalAmountResponse {
+  // The total amount of the staking.
+  float total_amount = 1;
+}
+
+enum StakingCurrency {
+  // default value. this value is unused.
+  CURRENCY_UNSPECIFIED = 0;
+
+  ETH = 1;
+}
+
+// The state of staking
+enum StakingState {
+  // default value. this value is unused.
+  STATE_UNSPECIFIED = 0;
+
+  //
+  ACTIVE = 1;
+
+  //
+  INACTIVE = 2;
+
+}
+
+
+message Staking {
+  option (google.api.resource) = {
+    type: "station.spacebarapis.xyz/Staking",
+    pattern: "users/{address}/stakings"
+  };
+
+  // The resource name of the Staking.
+  // Format: users/{user_address}/stakings
+  string name = 1;
+
+  //
+  string user_address = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  //
+//  string square_address = 3 [
+//    (google.api.field_behavior) = OUTPUT_ONLY
+//  ];
+
+  //
+  StakingCurrency currency = 4;
+
+  //
+  float amount = 5;
+
+  //
+  StakingState state = 6;
+
+}
+

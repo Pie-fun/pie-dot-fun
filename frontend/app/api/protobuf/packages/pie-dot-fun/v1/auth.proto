@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+import "google/protobuf/descriptor.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/pie-dot-fun/v1;piedotfun";
+
+extend google.protobuf.MethodOptions {
+  // If true, the method can be called in gateway
+  bool gateway_registered = 50001;
+
+  // If true, the method can be called **without authentication** in gateway
+  bool allow_unauthenticated = 50002;
+
+  // 기본적으로 false인 경우, 내부 server 만 호출할 수 있다. (internal)
+  //  * api-key 사용
+  // true 인 경우, 외부 일반 유저가 호출할 수 있다.
+  // TODO: role 기능이 정립되면 이 옵션을 삭제하자.
+  bool external = 50003;
+
+  // If true, the method can be called only by admin (default: false)
+  bool admin_only = 50004;
+}

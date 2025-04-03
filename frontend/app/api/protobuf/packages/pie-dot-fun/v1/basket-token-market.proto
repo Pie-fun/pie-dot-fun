@@ -1,0 +1,369 @@
+syntax = "proto3";
+
+package piedotfun.v1;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+import "pie-dot-fun/v1/auth.proto";
+import "pie-dot-fun/v1/common.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/pie-dot-fun/v1;piedotfun";
+
+// BasketTokenMarketService contains the function to interact with the Market of the spacebar
+service BasketTokenMarketService {
+
+  // CreateBasketTokenMarket
+  // private
+  rpc CreateBasketTokenMarket(CreateBasketTokenMarketRequest) returns (BasketTokenMarket) {
+    option (google.api.http) = {
+      post: "/v1/basketTokens/-/-/markets" // e.g. POST v1/basketTokens/SOLANA/0x123123123/markets
+      body: "basket_token_market"
+    };
+    option (google.api.method_signature) = "";
+    option (gateway_registered) = true;
+    option (allow_unauthenticated) = false;
+    option (external) = false;
+  }
+
+  // CustomCreateBasketTokenMarket
+  // Create with components.
+  // private
+  rpc CustomCreateBasketTokenMarket(CustomCreateBasketTokenMarketRequest) returns (BasketTokenMarket) {
+    option (google.api.http) = {
+      post: "/v1/basketTokens/-/-/markets:create" // e.g. POST v1/basketTokens/-/-/markets:create
+      body: "*"
+    };
+    option (google.api.method_signature) = "";
+    option (gateway_registered) = true;
+    option (allow_unauthenticated) = false;
+    option (external) = false;
+  }
+
+  // GetBasketTokenMarket returns the market for the given basket token.
+  rpc GetBasketTokenMarket(GetBasketTokenMarketRequest) returns (BasketTokenMarket) {
+    option (google.api.http) = {
+      get: "/v1/{basket_token_market=basketTokens/*/*/market}" // e.g. GET v1/basketTokens/SOLANA/0x123123123/market
+    };
+    option (google.api.method_signature) = "basket_token_market";
+    option (gateway_registered) = true;
+    option (allow_unauthenticated) = true;
+    option (external) = true;
+  }
+
+  // ListBasketTokenMarkets returns the list of markets for the given basket tokens.
+  rpc ListBasketTokenMarkets(ListBasketTokensMarketsRequest) returns (ListBasketTokensMarketsResponse) {
+    option (google.api.http) = {
+      get: "/v1/basketTokens/-/-/markets" // GET /v1/basketTokens/-/-/markets
+    };
+    option (gateway_registered) = true;
+    option (allow_unauthenticated) = true;
+    option (external) = true;
+  }
+
+  // UpdateBasketTokenMarketComponents
+  // private
+  rpc UpdateBasketTokenMarketComponents(UpdateBasketTokenMarketComponentsRequest) returns (UpdateBasketTokenMarketComponentsResponse) {
+    option (google.api.http) = {
+      post: "/v1/{basket_token_market=basketTokens/*/*/market}:updateComponents" // POST /v1/basketTokens/SOLANA/0x123123123/market:updateComponents
+      body: "*"
+    };
+    option (google.api.method_signature) = "basket_token_market";
+    option (gateway_registered) = true;
+    option (allow_unauthenticated) = false;
+    option (external) = false;
+  }
+
+  // ListBasketTokenTicks returns the list of Ticks for the given basket tokens.
+  rpc ListBasketTokenTicks(ListBasketTokenTicksRequest) returns (ListBasketTokenTicksResponse) {
+    option (google.api.http) = {
+      get: "/v1/{parent=basketTokens/*/*}/ticks"
+    };
+    option (google.api.method_signature) = "parent";
+    option (gateway_registered) = true;
+    option (allow_unauthenticated) = true;
+    option (external) = true;
+  }
+}
+
+// BasketTokenMarket contains the market data for a basket token.
+message BasketTokenMarket {
+  option (google.api.resource) = {
+    type: "piedotfun.spacebarapis.xyz/BasketTokenMarket",
+    pattern: "basketTokens/{chain}/{address}/market"
+  };
+
+  string name = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  string basket_token = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.resource_reference) = {
+      type: "piedotfun.spacebarapis.xyz/BasketToken"
+    }
+  ];
+
+  // Native token symbol of the chain the basket-token belongs to.
+  // Not dollar(USDT, USDC), 
+  // and the prices and market cap fields will display dollar values together.
+  Currency native_currency = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  reserved 4; // total_supply
+
+  // Key is the currency enum string, 
+  // value is the INAV(Indicated Net Asset Value) with the currency.
+
+  map<string, Money> values = 5 [
+    deprecated = true,
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // Key is the currency enum string, 
+  // value is the market cap with the currency.
+  map<string, Money> market_caps = 6 [
+    deprecated = true,
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+
+  // Key is the currency enum string,
+  // value is the INAV changes with the currency.
+  // {
+  //   "CURRENCY_USDC": {
+  //     "PRICE_CHANGE_PERIOD_1_HOUR": {
+  //       "nominal_value": {
+  //         "currency": "CURRENCY_USDC",
+  //         "amount": 0.0001
+  //       },
+  //       "percentage_change": {
+  //         "value": 0.0001
+  //       },
+  //       "period": "PRICE_CHANGE_PERIOD_1_HOUR"
+  //     },
+  //     "CURRENTCY_SOL": { ... }
+  // }
+  // Support Periods
+  // * PRICE_CHANGE_PERIOD_1_HOUR
+  // * PRICE_CHANGE_PERIOD_24_HOUR
+  // * PRICE_CHANGE_PERIOD_7_DAY
+  // * PRICE_CHANGE_PERIOD_30_DAY
+  // * PRICE_CHANGE_PERIOD_ALL_TIME
+  map<string, PriceChangesByPeriod> value_changes = 7 [
+    deprecated = true, 
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // Percentage of lowest after the previous highest.
+  // {(`previous highest` - `lowest` after `previous highest`) / `previous highest`} * 100
+  Percentage maximum_draw_down = 8 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // Current NAV(Net Asset Value) per BasketToken.
+  Money value = 9 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+  // Market cap is based on the current NAV(Net Asset Value) per BasketToken.
+  Money market_cap = 10 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // Example
+  // {
+  //   "PRICE_CHANGE_PERIOD_1_HOUR": {
+  //       "nominal_value": {
+  //           "currency": "CURRENCY_USDC",
+  //           "amount": 0.0001
+  //       },
+  //       "percentage_change": {
+  //           "value": 0.0001
+  //       },
+  //       "period": "PRICE_CHANGE_PERIOD_1_HOUR"
+  //   },
+  //   "PRICE_CHANGE_PERIOD_24_HOUR": {...},
+  //   ...
+  // }
+  // Support Periods
+  // * PRICE_CHANGE_PERIOD_1_HOUR
+  // * PRICE_CHANGE_PERIOD_24_HOUR
+  // * PRICE_CHANGE_PERIOD_7_DAY
+  // * PRICE_CHANGE_PERIOD_30_DAY
+  // * PRICE_CHANGE_PERIOD_ALL_TIME
+  PriceChangesByPeriod value_change = 11 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}
+
+message CreateBasketTokenMarketRequest {
+  // The basket token market to create.
+  BasketTokenMarket basket_token_market = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // display_name
+  string display_name = 2;
+  // Symbol
+  string symbol = 3;
+}
+
+message CustomCreateBasketTokenMarketRequest {
+  // The basket token market to create.
+  BasketTokenMarket basket_token_market = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  message Component {
+    // The name of the fungible token.
+    // Format : "fungibleTokens/{chain}/{token_address}"
+    string fungible_token = 1;
+
+    // Number of component token per one BasketToken.
+    Quantity quantity = 2;
+  }
+  repeated Component components = 2;
+
+  // display_name
+  string display_name = 3;
+  // Symbol
+  string symbol = 4;
+}
+
+message GetBasketTokenMarketRequest {
+  // The name of the market  to retrieve.
+  // Format : "basketTokens/{chain}/{token_address}/market"
+  string basket_token_market = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "piedotfun.spacebarapis.xyz/BasketTokenMarket"
+    }
+  ];
+
+  // Display the price in this currency. Default is USD.
+  Currency currency = 2;
+}
+
+message ListBasketTokensMarketsRequest {
+  // If unspecified, at most 50 books will be returned.
+  // The maximum value is 1000; values above 1000 will be coerced to 1000.
+  int32 page_size = 1;
+
+  // Token of the page to retrieve. If not specified, the first
+  // page of results will be returned. Use the value obtained from
+  // `next_page_token` in the previous response in order to request
+  // the next page of results.
+  string page_token = 2;
+
+  // Available Sequence and Operator
+  // * name
+  //   * `=`
+  //
+  // Examples
+  // * name="basketTokens/SOLANA/FZ4MT1HYJHd9GK8D5mJ9f3r7irLaDL5NxBNLjGqrLqs9/market"
+  string filter = 3;
+
+  // One or more fields to compare and use to sort the output.
+  // To specify ascending or descending order, append " asc" or " desc" to the field name. If not specified, the order is ascending.
+  //
+  // Reference
+  // * https://google.aip.dev/132#ordering.
+  //
+  // Supported Fields
+  // * 
+  //
+  // Examples
+  // * 
+  string order_by = 4;
+
+  // Display the price in this currency. Default is USD.
+  Currency currency = 5;
+}
+
+message ListBasketTokensMarketsResponse {
+  repeated BasketTokenMarket basket_token_markets= 1;
+
+  // Pagination token used to retrieve the next page of results.
+  // Pass the content of this string as the `page_token` attribute of
+  // the next request. `next_page_token` is not returned for the last
+  // page.
+  string next_page_token = 2;
+}
+
+message UpdateBasketTokenMarketComponentsRequest {
+  // The name of the market to update.
+  // Format : "basketTokens/{chain}/{token_address}/market"
+  string basket_token_market = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "piedotfun.spacebarapis.xyz/BasketTokenMarket"
+    }
+  ];
+
+  message Component {
+    // The name of the fungible token.
+    // Format : "fungibleTokens/{chain}/{token_address}"
+    string fungible_token = 1;
+
+    // Number of component token per one BasketToken.
+    Quantity quantity = 2;
+  }
+  repeated Component components = 2;
+
+  // The block number to update the components.
+  uint64 updateBlockNumber = 3;
+}
+
+message UpdateBasketTokenMarketComponentsResponse {}
+
+message ListBasketTokenTicksRequest {
+  // Format : "basketTokens/{chain}/{token_address}"
+  string parent = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "piedotfun.spacebarapis.xyz/BasketToken"
+    }
+  ];
+
+  // If not set time, the current time will be used.
+  optional google.protobuf.Timestamp start_time = 2;
+  optional google.protobuf.Timestamp end_time = 3;
+  // default size: 200. Max size: 1000
+  optional int32 size = 4;
+
+  // Default is USD.
+  Currency currency = 5;
+
+  TickInterval interval = 6;
+}
+
+message ListBasketTokenTicksResponse {
+  repeated Tick ticks = 1;
+
+  Currency currency = 2;
+}
+
+message Tick {
+  google.protobuf.Timestamp open_time = 1;
+
+  double open = 2;
+  double high = 3;
+  double low = 4;
+  double close = 5;
+}
+
+enum TickInterval {
+  INTERVAL_UNSPECIFIED = 0;
+  INTERVAL_1_SECOND = 1 [deprecated = true];
+  INTERVAL_1_MINUTE = 2;
+  INTERVAL_15_MINUTES = 3;
+  INTERVAL_1_HOUR = 4;
+  INTERVAL_4_HOUR = 5;
+  INTERVAL_1_DAY = 6;
+}

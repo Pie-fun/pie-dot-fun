@@ -1,0 +1,342 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "blast/v1/score/invitational.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "InvitationalService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/invitationals/SSIndividual/events": {
+      "get": {
+        "summary": "ListSSIndividualInvitationals\nadmin",
+        "operationId": "InvitationalService_ListSSIndividualInvitationalEvents",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/scoreListSSIndividualInvitationalEventsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "pageSize",
+            "description": "page size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "InvitationalService"
+        ]
+      },
+      "post": {
+        "summary": "CreateSSIndividualInvitationalEvent\nadmin",
+        "operationId": "InvitationalService_CreateSSIndividualInvitationalEvent",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/scoreSSIndividualInvitationalEvent"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "invitationalEvent",
+            "description": "The SSIndividualInvitationalEvent to create.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/scoreSSIndividualInvitationalEvent",
+              "required": [
+                "invitationalEvent"
+              ]
+            }
+          }
+        ],
+        "tags": [
+          "InvitationalService"
+        ]
+      }
+    },
+    "/v1/invitationals/SSIndividual/letter": {
+      "get": {
+        "summary": "GetSSIndividualInvitationalLetter\nGet Active Invitational Letter\ndeprecated: use ListInvitationLetters",
+        "operationId": "InvitationalService_GetSSIndividualInvitationalLetter",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/scoreSSIndividualInvitationalLetter"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "InvitationalService"
+        ]
+      }
+    },
+    "/v1/invitationals/SSIndividuals": {
+      "get": {
+        "summary": "ListSSIndividualInvitationals\nadmin",
+        "operationId": "InvitationalService_ListSSIndividualInvitationalEvents2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/scoreListSSIndividualInvitationalEventsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "pageSize",
+            "description": "page size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "InvitationalService"
+        ]
+      }
+    },
+    "/v1/{invitationalEvent}:invite": {
+      "post": {
+        "summary": "InviteSSIndividualInvitationalEvent\nSend invitations based on past results.\nfor admin, not public api.",
+        "operationId": "InvitationalService_InviteSSIndividualInvitationalEvent",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/scoreInviteSSIndividualInvitationalEventResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "invitationalEvent",
+            "description": "The resource name of SSIndividualInvitationalEvent.\nFormat: invitationals/SSIndividual/events/{event}",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "invitationals/SSIndividual/events/[^/]+"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "invitees": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "title": "The list of invitees.\nFormat: users/{user}"
+                },
+                "viewableStartTime": {
+                  "type": "string",
+                  "format": "date-time",
+                  "title": "letter viewable start time"
+                },
+                "viewableEndTime": {
+                  "type": "string",
+                  "format": "date-time",
+                  "title": "letter viewable end time"
+                }
+              },
+              "title": "InviteSSIndividualInvitationalEventRequest"
+            }
+          }
+        ],
+        "tags": [
+          "InvitationalService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "scoreInviteSSIndividualInvitationalEventResponse": {
+      "type": "object",
+      "properties": {
+        "invitationalEvent": {
+          "type": "string",
+          "title": "The resource name of SSIndividualInvitationalEvent.\nFormat: invitationals/SSIndividual/events/{event}"
+        },
+        "invitees": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "The list of invitees.\nFormat: users/{user}"
+        },
+        "viewableStartTime": {
+          "type": "string",
+          "format": "date-time",
+          "title": "letter viewable start time",
+          "readOnly": true
+        },
+        "viewableEndTime": {
+          "type": "string",
+          "format": "date-time",
+          "title": "letter viewable end time",
+          "readOnly": true
+        }
+      },
+      "title": "InviteSSIndividualInvitationalEventResponse"
+    },
+    "scoreListSSIndividualInvitationalEventsResponse": {
+      "type": "object",
+      "properties": {
+        "invitationalEvents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/scoreSSIndividualInvitationalEvent"
+          },
+          "description": "The list of SSIndividualInvitationalEvents."
+        }
+      },
+      "title": "ListSSIndividualInvitationalEventsResponse"
+    },
+    "scoreSSIndividualInvitational": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "The resource name of SSIndividualInvitational.\nFormat: invitationals/SSIndividuals/{invitational}"
+        },
+        "yearMonth": {
+          "type": "string",
+          "title": "target year month.\nThis invitational is held monthly.\niso 8601 format. ex) 2024-02"
+        },
+        "startDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The invitational start date."
+        },
+        "endDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The invitational end date."
+        },
+        "formLink": {
+          "type": "string",
+          "description": "The user should write username in discord."
+        }
+      },
+      "title": "SSIndividualInvitational"
+    },
+    "scoreSSIndividualInvitationalEvent": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "The resource name of SSIndividualInvitationalEvent.\nFormat: invitationals/SSIndividual/events/{event}"
+        },
+        "yearMonth": {
+          "type": "string",
+          "title": "target year month.\nThis invitational event is held monthly.\niso 8601 format. ex) 2024-02"
+        },
+        "startDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The invitational event start date."
+        },
+        "endDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The invitational event end date."
+        },
+        "formLink": {
+          "type": "string",
+          "description": "The user should write username in discord."
+        }
+      },
+      "title": "SSIndividualInvitationalEvent"
+    },
+    "scoreSSIndividualInvitationalLetter": {
+      "type": "object",
+      "properties": {
+        "invitational": {
+          "$ref": "#/definitions/scoreSSIndividualInvitational",
+          "title": "invitational"
+        }
+      },
+      "title": "SSIndividualInvitationalLetter"
+    }
+  }
+}

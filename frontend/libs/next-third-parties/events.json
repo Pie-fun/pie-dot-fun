@@ -1,0 +1,8 @@
+{
+  "deposit_connectwalletbutton_click": "deposit_connectwalletbutton_click",
+  "bridge_modal_view": "bridge_modal_view",
+  "bridge_sourcechain_click": "bridge_sourcechain_click",
+  "bridge_sourcetoken_click": "bridge_sourcetoken_click",
+  "withdraw_modal_view": "withdraw_modal_view",
+  "tradingerror_modal_view": "tradingerror_modal_view"
+}

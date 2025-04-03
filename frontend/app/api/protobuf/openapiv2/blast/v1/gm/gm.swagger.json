@@ -1,0 +1,325 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "blast/v1/gm/gm.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "GMService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/gms": {
+      "get": {
+        "summary": "Lists GM messages based on \"from\" and/or \"to\" filters.",
+        "operationId": "GMService_ListGMs",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/gmListGMsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "pageSize",
+            "description": "The maximum number of gms to return. The service may return fewer than\nthis value.\nIf unspecified, at most 50 rows will be returned.\nThe maximum value is 1024; values above 1024 will be coerced to 1024.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageToken",
+            "description": "Token of the page to retrieve. If not specified, the first\npage of results will be returned. Use the value obtained from\n`next_page_token` in the previous response in order to request\nthe next page of results.\n\nWhen paginating, all other parameters provided to `ListGMs` must match\nthe call that provided the page token.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "filter",
+            "description": "Available Sequence and Operator\n* from\n  * `=`\n* to\n  * `=`\n\nExamples\n* from=\"users/0x6F11EF2c07f2E381CbE514198DdE87A0c0a19442\"\n* to=\"users/0x6F11EF2c07f2E381CbE514198DdE87A0c0a19442\"",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "orderBy",
+            "description": "One or more fields to compare and use to sort the output. (optional)\nDefault order for a field is descending by id\nTo specify ascending or descending order, append \" asc\" or \" desc\" to the field name. If not specified, the order is ascending.\n\nReference\n* https://google.aip.dev/132#ordering.\n\nSupported Fields\n* \"create_time\"\n\nExamples\n* order_by=create_time desc",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "GMService"
+        ]
+      },
+      "post": {
+        "summary": "SendGM send GM to another User.",
+        "operationId": "GMService_SendGM",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/gmGM"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "SendGMRequest message represents the request to send a GM message.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/gmSendGMRequest"
+            }
+          }
+        ],
+        "tags": [
+          "GMService"
+        ]
+      }
+    },
+    "/v1/gms:preflight": {
+      "post": {
+        "summary": "PreflightGM preflight GM to another User.",
+        "operationId": "GMService_PreflightGM",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/gmPreflightGMResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "Prefligjt GM Request message represents the request to preflight a GM message.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/gmPreflightGMRequest"
+            }
+          }
+        ],
+        "tags": [
+          "GMService"
+        ]
+      }
+    },
+    "/v1/{user}/gmStats": {
+      "get": {
+        "summary": "GetGMStats returns the GM stats of the user.",
+        "operationId": "GMService_GetGMStats",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/gmGMStats"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "user",
+            "description": "The user whom the GM stats should be retrieved.\nFormat: users/{address}",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "users/[^/]+"
+          }
+        ],
+        "tags": [
+          "GMService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "gmGM": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The resource name of the GM message."
+        },
+        "from": {
+          "type": "string",
+          "description": "The user name of the sender."
+        },
+        "to": {
+          "type": "string",
+          "description": "The user name of the receiver."
+        },
+        "createTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The time when the message was sent or received.",
+          "readOnly": true
+        }
+      }
+    },
+    "gmGMStats": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The resource name of the GM message."
+        },
+        "userAddress": {
+          "type": "string",
+          "description": "The user address of the user.",
+          "readOnly": true
+        },
+        "sentCount": {
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        },
+        "receivedCount": {
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        }
+      }
+    },
+    "gmListGMsResponse": {
+      "type": "object",
+      "properties": {
+        "gms": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/gmGM"
+          },
+          "description": "The list of GM messages that match the filters."
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Pagination token used to retrieve the next page of results."
+        }
+      },
+      "description": "Response message for ListGMs."
+    },
+    "gmPreflightGMRequest": {
+      "type": "object",
+      "properties": {
+        "from": {
+          "type": "string",
+          "title": "The user whom the GM should be sent from.\nFormat: users/{address}"
+        },
+        "to": {
+          "type": "string",
+          "title": "The user whom the GM should be sent to.\nFormat: users/{address}"
+        }
+      },
+      "description": "Prefligjt GM Request message represents the request to preflight a GM message.",
+      "required": [
+        "from",
+        "to"
+      ]
+    },
+    "gmPreflightGMResponse": {
+      "type": "object",
+      "properties": {
+        "canSend": {
+          "type": "boolean"
+        },
+        "rejectCode": {
+          "$ref": "#/definitions/gmRejectPreflightGMCode",
+          "description": "The reason why the GM cannot be sent.\nThis field is only populated when can_send is false."
+        }
+      }
+    },
+    "gmRejectPreflightGMCode": {
+      "type": "string",
+      "enum": [
+        "REJECT_PREFLIGHT_GM_CODE_UNSPECIFIED",
+        "REJECT_PREFLIGHT_GM_ALREADY_SENT_TO_SAME_USER",
+        "REJECT_PREFLIGHT_GM_EXCEED_QUOTA",
+        "REJECT_PREFLIGHT_GM_SELF_SEND"
+      ],
+      "default": "REJECT_PREFLIGHT_GM_CODE_UNSPECIFIED",
+      "description": " - REJECT_PREFLIGHT_GM_ALREADY_SENT_TO_SAME_USER: The GM has already been sent to same user."
+    },
+    "gmSendGMRequest": {
+      "type": "object",
+      "properties": {
+        "from": {
+          "type": "string",
+          "title": "The user whom the GM should be sent from.\nFormat: users/{address}"
+        },
+        "to": {
+          "type": "string",
+          "title": "The user whom the GM should be sent to.\nFormat: users/{address}"
+        }
+      },
+      "description": "SendGMRequest message represents the request to send a GM message.",
+      "required": [
+        "from",
+        "to"
+      ]
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

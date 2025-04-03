@@ -1,0 +1,256 @@
+syntax = "proto3";
+
+package ethereum.v1.station;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+import "ethereum/v1/outpost/nft.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/ethereum/v1/station;station";
+
+// SpaceshipService contains the function to interact with the Spaceship of the spacebar
+service SpaceshipService {
+  // ListSpaceships will return spaceships.
+  rpc ListSpaceships(ListSpaceshipsRequest) returns (ListSpaceshipsResponse) {
+    option (google.api.http) = {
+      get: "/v1/spaceships"
+    };
+    option (google.api.method_signature) = "";
+  }
+
+  // GetSpaceship
+  rpc GetSpaceship(GetSpaceshipRequest) returns (Spaceship) {
+    option (google.api.http) = {
+      get: "/v1/{spaceship=spaceships/*}"
+    };
+    option (google.api.method_signature) = "spaceship";
+  }
+
+  // UpdateSpaceship update Spaceship
+  rpc UpdateSpaceship(UpdateSpaceshipRequest) returns (Spaceship) {
+    option (google.api.http) = {
+      patch: "/v1/{spaceship.name=spaceships/*}"
+      body: "spaceship"
+    };
+    option (google.api.method_signature) = "spaceship,update_mask";
+  }
+}
+
+// CreateSpaceshipRequest
+message CreateSpaceshipRequest {
+  // spaceship to create
+  Spaceship spaceship = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+// GetSpaceshipRequest
+message GetSpaceshipRequest {
+  // The name of the spaceship to retrieve.
+  // Format: spaceships/{spaceship}
+  string spaceship = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Spaceship"
+    }
+  ];
+}
+
+// UpdateSpaceshipRequest
+message UpdateSpaceshipRequest {
+  // spaceship to update
+  Spaceship spaceship = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+  // Field mask that specifies the fields to update.
+  // If no field mask is set, all fields will be updated.
+  // Wildcards are supported.
+  // Examples
+  // ["*"]
+  // ["nft.metadata[left_wing]"]
+  // ["nickname", "nft.metadata"]
+  google.protobuf.FieldMask update_mask = 2;
+}
+
+// GetSpaceshipRequest
+message MintSpaceshipRequest {
+  //
+}
+
+// ListSpaceshipsRequest payload
+// (-- api-linter: core::0158::request-page-token-field=disabled
+//     aip.dev/not-precedent: We need to do this because reasons. --)
+// (-- api-linter: core::0132::request-unknown-fields=disabled
+//     aip.dev/not-precedent: We really need this field because reasons. --)
+message ListSpaceshipsRequest {
+  // The maximum number of spaceships to return. The service may return fewer than
+  // this value.
+  // If unspecified, at most 50 rows will be returned.
+  // The maximum value is 1024; values above 1024 will be coerced to 1024.
+  int32 page_size = 1;
+
+  // Token of the page to retrieve. If not specified, the first
+  // page of results will be returned. Use the value obtained from
+  // `next_page_token` in the previous response in order to request
+  // the next page of results.
+  //
+  // When paginating, all other parameters provided to `ListSpaceships` must match
+  // the call that provided the page token.
+  string page_token = 2;
+
+  // Available Sequence and Operator
+  // * name
+  //   * `equal`
+  // * profile
+  //   * `equal`
+  // * create_time
+  //   * `>`
+  // * title
+  //   * `contains`
+  // * state
+  //   * `equal`
+  // * type
+  //   * `equal`
+  // * is_upgraded
+  //   * `negation`
+  //
+  // Examples
+  // * filter=profile="profiles/0x927c3Ba1B0F8300E1Cc5DcA825411d756A8D4001"
+  // * filter=state=RENT_WAITING
+  // * filter=NOT rentable
+  // * filter=rentable
+  string filter = 3;
+}
+
+// ListSpaceshipsResponse
+// (-- api-linter: core::0158::response-next-page-token-field=disabled
+//     aip.dev/not-precedent: We need to do this because reasons. --)
+message ListSpaceshipsResponse {
+  // The list of rows that matched the query.
+  repeated Spaceship spaceships = 1;
+
+  // Pagination token used to retrieve the next page of results.
+  // Pass the content of this string as the `page_token` attribute of
+  // the next request. `next_page_token` is not returned for the last
+  // page.
+  string next_page_token = 2;
+}
+
+// SpaceshipState
+enum SpaceshipState {
+  // default value. this value is unused.
+  STATE_UNSPECIFIED = 0;
+  //
+  RENTED = 1;
+  //
+  BURNED = 2;
+  // means upgraded to ownership
+  UPGRADED = 3;
+}
+
+// SpaceshipType
+enum SpaceshipType {
+  // default value. this value is unused.
+  TYPE_UNSPECIFIED = 0;
+  //
+  PROTOSHIP = 1;
+  // Semantic lock for rent.
+  OWNERSHIP = 2;
+}
+
+// Spaceship is type of Spaceship
+message Spaceship {
+  option (google.api.resource) = {
+    type: "station.spacebarapis.xyz/Spaceship",
+    pattern: "spaceships/{spaceship}"
+  };
+  // The resource name of Spaceship.
+  // Format: spaceships/{address}
+  string name = 1;
+
+  // 6551 address of Spaceship NFT
+  string address = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The owner address of Spaceship.
+  // This address can be PFP NFT TBA or EOA.
+  // This field will be empty if the Spaceship is burned.
+  string owner_address = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Profile",
+    }
+  ];
+
+  // The created time of Spaceship
+  // RFC3339 format e.g. "2006-01-02T15:04:05Z07:00"
+  google.protobuf.Timestamp create_time = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The last updated time of Spaceship
+  // RFC3339 format e.g. "2006-01-02T15:04:05Z07:00"
+  google.protobuf.Timestamp update_time = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The nickname of Spaceship.
+  // Internship has null value.
+  // This field is optional
+  optional string nickname = 6;
+
+  // state of Spaceship
+  SpaceshipState state = 7 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  SpaceshipType type = 8 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // Whether the Spaceship is upgraded to Ownership
+  bool is_upgraded = 9 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // NFT of Spaceship
+  SpaceshipNFT nft = 10 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+}
+
+
+// SpaceshipNFT message represents an Spaceship's NFT.
+message SpaceshipNFT {
+  // The resource name of the NFT asset.
+  // Format: nfts/{chain_type}/{contract_address}/{token_id}
+  // Examples: nfts/ETHEREUM/0x1f9090aaE28b8a3dCeaDf281B0F12828e676c326/1
+  string name = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // Token ID of the NFT asset.
+  string token_id = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The URI of the NFT asset's image.
+  // This URI can be cached version of image original URI
+  // e.g. "https://i.seadn.io/gcs/files/f3564ef33373939b024fb791f21ec37b.png?w=500&auto=format"
+  string image_uri = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The Metadata URI of the NFT asset.
+  string metadata_uri = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}

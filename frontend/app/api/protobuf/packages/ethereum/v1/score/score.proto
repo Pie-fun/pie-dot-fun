@@ -1,0 +1,197 @@
+syntax = "proto3";
+
+package ethereum.v1.score;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+import "ethereum/v1/outpost/nft.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/ethereum/v1/score;score";
+
+// ScoreService contains the function to interact with the Score of the spacebar
+service ScoreService {
+  // CreateScore create Score with Score
+  rpc CreateScore(CreateScoreRequest) returns (Score) {
+    option (google.api.http) = {
+      post: "/v1/scores"
+      body: "score"
+    };
+    option (google.api.method_signature) = "score";
+  }
+
+  // ListScores will return scores.
+  rpc ListScores(ListScoresRequest) returns (ListScoresResponse) {
+    option (google.api.http) = {
+      get: "/v1/scores"
+    };
+    option (google.api.method_signature) = "";
+  }
+
+  // GetScore
+  rpc GetScore(GetScoreRequest) returns (Score) {
+    option (google.api.http) = {
+      get: "/v1/{score=scores/*}"
+    };
+    option (google.api.method_signature) = "score";
+  }
+
+  // UpdateScore update Score with UpdateScoreRequest
+  //  rpc UpdateScore(UpdateScoreRequest) returns (Score) {
+  //    option (google.api.http) = {
+  //      patch: "/v1/{score.name=scores/*}"
+  //      body: "score"
+  //    };
+  //    option (google.api.method_signature) = "score,update_mask";
+  //  }
+}
+
+// CreateScoreRequest
+message CreateScoreRequest {
+  // score to create
+  Score score = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+// ListScoresRequest payload
+// (-- api-linter: core::0158::request-page-token-field=disabled
+//     aip.dev/not-precedent: We need to do this because reasons. --)
+// (-- api-linter: core::0132::request-unknown-fields=disabled
+//     aip.dev/not-precedent: We really need this field because reasons. --)
+message ListScoresRequest {
+  // The maximum number of scores to return. The service may return fewer than
+  // this value.
+  // If unspecified, at most 50 rows will be returned.
+  // The maximum value is 1024; values above 1024 will be coerced to 1024.
+  int32 page_size = 1;
+
+  // Token of the page to retrieve. If not specified, the first
+  // page of results will be returned. Use the value obtained from
+  // `next_page_token` in the previous response in order to request
+  // the next page of results.
+  //
+  // When paginating, all other parameters provided to `ListScores` must match
+  // the call that provided the page token.
+  string page_token = 2;
+
+  // Available Sequence and Operator
+  // * point
+  //   * `>`, `>=`, `=`, `<=`, `<`
+  // * week
+  //   * `>`, `>=`, `=`, `<=`, `<`
+  // * minted
+  //   * `negation`
+  // * play_mode
+  //   * equal`
+  // * game_mode
+  //   * equal`
+  //
+  // Examples
+  // * filter=week=10
+  // * filter=point>300
+  // * filter=minted
+  // * filter=game_mode="SINGLE_PLAYER"
+  // * filter=play_mode="TIME_ATTACK"
+  // * filter=week=10 AND minted AND play_mode="TIME_ATTACK"
+  // * filter=week>10 AND week<20 AND minted AND play_mode="TIME_ATTACK"
+  string filter = 3;
+
+  // Optional. One or more fields to compare and use to sort the output.
+  // Default order for a field is descending by create_time
+  // Reference
+  // * https://google.aip.dev/132#ordering.
+  //
+  // Examples
+  // * order_by="point desc,create_time asc"
+  string order_by = 4 [
+    (google.api.field_behavior) = OPTIONAL
+  ];
+}
+
+// ListScoresResponse response
+// (-- api-linter: core::0158::response-next-page-token-field=disabled
+//     aip.dev/not-precedent: We need to do this because reasons. --)
+message ListScoresResponse {
+  // The list of rows that matched the query.
+  repeated Score scores = 1;
+
+  // Pagination token used to retrieve the next page of results.
+  // Pass the content of this string as the `page_token` attribute of
+  // the next request. `next_page_token` is not returned for the last
+  // page.
+  string next_page_token = 2;
+}
+
+message GetScoreRequest {
+  // The name of the score to retrieve.
+  // Format: scores/{score_uuid}
+  string score = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Score"
+    }];
+}
+
+
+
+enum GameMode {
+  // default value. this value is unused.
+  GAME_MODE_UNSPECIFIED = 0;
+
+  // time_attack
+  TIME_ATTACK = 1;
+}
+
+enum PlayMode {
+  // default value. this value is unused.
+  PLAY_MODE_UNSPECIFIED = 0;
+
+  //
+  SINGLE_PLAYER = 1;
+}
+
+message Score {
+  option (google.api.resource) = {
+    type: "station.spacebarapis.xyz/Score",
+    pattern: "scores/{score}"
+  };
+
+  // The resource name of the Score.
+  // Format: scores/{uuid}
+  string name = 1;
+
+  // The resource name of the owner Profile.
+  // Format: profiles/{address}
+  string profile = 2 [
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Profile",
+    }
+  ];
+
+  // created time of score
+  google.protobuf.Timestamp create_time = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // point of score
+  uint32 point = 4;
+
+  // Game mode of score.
+  GameMode game_mode = 5;
+
+  // Play mode of score.
+  PlayMode play_mode = 6;
+
+  // week of score
+  uint32 week = 7 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+}
+

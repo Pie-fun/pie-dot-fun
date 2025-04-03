@@ -1,0 +1,190 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "pie-dot-fun/v1/chain/query.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "ChainQueryService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/chain/query:fungible_token_decimals": {
+      "post": {
+        "operationId": "ChainQueryService_QueryFungibleTokenDecimals",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/chainQueryFungibleTokenDecimalsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/chainQueryFungibleTokenDecimalsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ChainQueryService"
+        ]
+      }
+    },
+    "/v1/chain/query:fungible_token_metadata": {
+      "post": {
+        "operationId": "ChainQueryService_QueryFungibleTokenMetadata",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/chainQueryFungibleTokenMetadataResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/chainQueryFungibleTokenMetadataRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ChainQueryService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "chainMetadata": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "image": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "oneLiner": {
+          "type": "string"
+        },
+        "website": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "twitter": {
+          "type": "string"
+        },
+        "telegram": {
+          "type": "string"
+        },
+        "discord": {
+          "type": "string"
+        }
+      }
+    },
+    "chainQueryFungibleTokenDecimalsRequest": {
+      "type": "object",
+      "properties": {
+        "fungibleToken": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "fungibleToken"
+      ]
+    },
+    "chainQueryFungibleTokenDecimalsResponse": {
+      "type": "object",
+      "properties": {
+        "decimals": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "chainQueryFungibleTokenMetadataRequest": {
+      "type": "object",
+      "properties": {
+        "fungibleToken": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "fungibleToken"
+      ]
+    },
+    "chainQueryFungibleTokenMetadataResponse": {
+      "type": "object",
+      "properties": {
+        "uri": {
+          "type": "string"
+        },
+        "metadata": {
+          "$ref": "#/definitions/chainMetadata"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "ethereum/v1/outpost/stardoodle.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "StarDoodleService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/star_doodles": {
+      "get": {
+        "operationId": "StarDoodleService_ListStarDoodles",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/outpostListStarDoodlesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "filter",
+            "description": "Available Sequence and Operator\n* location\n  * `Equal`\n\nExamples\n* filter=location=\"SQUARE\"\n* filter=location=\"BACKSPACE/0x06fAfC5d2fe61fF8d15A5Ca55FD6D3cf6069E2aB\"",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "StarDoodleService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "StarDoodleLocationType": {
+      "type": "string",
+      "enum": [
+        "TYPE_UNSPECIFIED",
+        "SQUARE",
+        "BACKSPACE"
+      ],
+      "default": "TYPE_UNSPECIFIED",
+      "description": " - TYPE_UNSPECIFIED: default value. this value is unused."
+    },
+    "outpostListStarDoodlesResponse": {
+      "type": "object",
+      "properties": {
+        "starDoodles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/outpostStarDoodle"
+          },
+          "description": "The list of StarDoodle messages that match the filters."
+        }
+      },
+      "description": "Response message for ListStarDoodles."
+    },
+    "outpostPosition": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The x coordinate of the star doodle."
+        },
+        "y": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The y coordinate of the star doodle."
+        }
+      }
+    },
+    "outpostStarDoodle": {
+      "type": "object",
+      "properties": {
+        "doodler": {
+          "type": "string",
+          "title": "The profile name of doodle the star\nFormat: profiles/{wallet_address}"
+        },
+        "locationType": {
+          "$ref": "#/definitions/StarDoodleLocationType",
+          "description": "To where the star is doodled."
+        },
+        "position": {
+          "$ref": "#/definitions/outpostPosition",
+          "description": "The coordinates of the star doodle."
+        }
+      },
+      "title": "StarDoodle message represents the star doodle"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

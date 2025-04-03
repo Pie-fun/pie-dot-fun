@@ -1,0 +1,421 @@
+syntax = "proto3";
+
+package blast.v1.blastpoints;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+import "blast/v1/nft/nft.proto";
+import "blast/v1/user/user.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/blast/v1/blastpoints;blastpoints";
+
+// PointsService contains the function to interact with the Points of the spacebar
+service PointsService {
+  // GetBlastPoints
+  rpc GetBlastPoints(GetBlastPointsRequest) returns (BlastPoints) {
+    option (google.api.http) = {
+      get: "/v1/{blast_points=users/*/blastPoints}"
+      additional_bindings {
+        get: "/v1/{blast_points=users/*/blast_points}"
+      }
+    };
+    option (google.api.method_signature) = "blastPoints";
+  }
+
+  // ListAllPendingTransferBatches
+  rpc ListAllPendingTransfers(ListAllPendingTransfersRequest) returns (ListAllPendingTransfersResponse) {
+    option (google.api.http) = {
+      get: "/v1/{blast_points=users/*/blastPoints}/transfers"
+      additional_bindings {
+        get: "/v1/{blast_points=users/*/blast_points}/blast_transfer_batches"
+      }
+    };
+    option (google.api.method_signature) = "blastPoints";
+  }
+
+  // GetBlastBalances
+  rpc GetBlastBalances(GetBlastBalanceRequest) returns (BlastBalance) {
+    option (google.api.http) = {
+      get: "/v1/{blast_balance=users/*/blastBalances}"
+    };
+    option (google.api.method_signature) = "blastBalances";
+  }
+
+  // BatchCreateBlastGoldReservations
+  rpc BatchCreateBlastGoldReservations(BatchCreateBlastGoldReservationsRequest) returns (BatchCreateBlastGoldReservationsResponse) {
+    option (google.api.http) = {
+      post: "/v1/blastGoldReservations:batchCreate"
+      body: "*"
+    };
+  }
+  //ListBlastGoldReservations
+  rpc ListBlastGoldReservations(ListBlastGoldReservationsRequest) returns (ListBlastGoldReservationsResponse) {
+    option (google.api.http) = {
+      get: "/v1/blastGoldReservations"
+    };
+  }
+
+  // TransferReservedBlastGolds
+  // Transfer gold by the reservations.
+  // admin api, not public
+  rpc TransferReservedBlastGolds(TransferReservedBlastGoldsRequest) returns (TransferReservedBlastGoldsResponse) {
+    option (google.api.http) = {
+      post: "/v1/blastGoldReservations:transfer"
+      body: "*"
+    };
+  }
+}
+
+message GetBlastPointsRequest {
+  // The name of the points to retrieve.
+  // Format: users/{address}/blastPoints
+  string blast_points = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/BlastPoints"
+    }
+  ];
+}
+
+// GetBlastBalanceRequest this rpc only can be accessed by the admin role
+message GetBlastBalanceRequest {
+  string blast_balance = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The contract address of the token.
+  // This field is required if the blast_balance has skipped the blast_points field.
+  string contract_address = 2;
+
+  // Which phase of blast points API
+  int32 phase = 3;
+}
+
+message ListAllPendingTransfersRequest {
+  // The name of the points to retrieve.
+  // Format: users/{address}/blastPoints
+  string blast_points = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/BlastPoints"
+    }
+  ];
+
+  // The type of the points to retrieve.
+  // IF not set, it will return LIQUIDITY points.
+  BlastPointsType points_type = 2;
+}
+
+message ListAllPendingTransfersResponse {
+  // The list of rows that matched the query.
+  repeated Transfer transfers = 1;
+}
+
+message BlastPoints {
+  option (google.api.resource) = {
+    type: "station.spacebarapis.xyz/BlastPoints",
+    pattern: "users/{address}/blastPoints"
+  };
+  // The resource name of the Points.
+  // Format: users/{address}/blastPoints
+  string name = 1;
+
+  //
+  string user_address = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  float liquidity_points = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];  // DEPRECATED in favor of phase1.liquidity_points
+
+  float developer_points = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];  // DEPRECATED in favor of phase1.developer_points
+
+  Points phase1 = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  Points phase2 = 6 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}
+
+message Points {
+  float liquidity_points = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  float developer_points = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}
+
+message Transfer {
+  //
+  string user_address = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  BlastPointsBatchState state = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  BlastPointsType points_type = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  float points = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  google.protobuf.Timestamp create_time = 6 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  int32 phase = 7 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  BlastPointsTransferType transfer_type = 8 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}
+
+message TransferBatch {
+
+  string batch_id = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  string contract_address = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  BlastPointsBatchState state = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  BlastPointsType points_type = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  repeated Transfer transfers = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  float total_points = 6 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  google.protobuf.Timestamp create_time = 7 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  int32 phase = 8 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+}
+
+
+enum BlastPointsType {
+  // default value. this value is unused.
+  TYPE_UNSPECIFIED = 0;
+
+  LIQUIDITY = 1;
+  DEVELOPER = 2;
+}
+
+enum BlastPointsTransferType {
+  // default value. this value is unused.
+  TRANSFER_UNSPECIFIED = 0;
+
+  POINTS_STAKING = 1;
+  GOLD_REFERRAL = 2;
+  GOLD_RAFFLE = 3;
+  GOLD_WEEKLY_SPACEBAR_POINTS = 4;
+  GOLD_SCORE_UPLOAD = 5;
+  GOLD_SCORE_RANKINGS_WINNER = 6;
+  GOLD_COMMUNITY_EVENT = 7;
+
+  GOLD_SS_CHALLENGE_WINNER = 100;
+
+  GOLD_SS_INVITATIONAL = 200;
+}
+
+enum BlastPointsBatchState {
+  // default value. this value is unused.
+  STATE_UNSPECIFIED = 0;
+
+  // The batch is pending.
+  PENDING = 1;
+  // The batch is cancelled.
+  CANCELLED = 2;
+  // The batch is finalizing.
+  FINALIZING = 3;
+  // The batch is finalized.
+  FINALIZED = 4;
+}
+
+message BlastBalance {
+  string address = 1;
+
+  Balance liquidity = 2;
+
+  Balance developer = 3;
+}
+
+message Balance {
+  string available = 1;
+  string pending_sent = 2;
+  string earned_cumulative = 3;
+  string received_cumulative = 4;
+  string finalized_sent_cumulative = 5;
+}
+
+enum ReservationType {
+  // default value. this value is unused.
+  RESERVATION_TYPE_UNSPECIFIED = 0;
+
+  WEEKLY_SPACEBAR_POINTS = 1;
+
+  REFERREE_WITH_STAKING = 2;
+
+  SCORE_RANKINGS_WINNER = 3;
+
+  SCORE_UPLOAD_BACKFILL = 4;
+
+  COMMUNITY_EVENT_WINNER = 5;
+
+  SS_CHALLENGE_WINNER = 6;
+  
+  SS_INVITATIONAL = 7;
+}
+
+enum ReservationState {
+  // default value. this value is unused.
+  RESERVATION_STATE_UNSPECIFIED = 0;
+
+  RESERVED = 1;
+
+  TRANSFERRED = 2;
+}
+
+// BlastGoldReservation
+message BlastGoldReservation {
+  // The resource name of the BlastGoldReservation.
+  // Format: blastGoldReservations/{blast_gold_reservation}
+  string name = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/BlastGoldReservation"
+    }
+  ];
+
+  // The user address of the user to reserve the points.
+  string user_address = 2;
+
+  // The amount of points to reserve.
+  string amount = 3;
+
+  // The type of the reservation.
+  ReservationType reservation_type = 4;
+
+  // The state of the reservation.
+  ReservationState state = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The create time of the reservation.
+  google.protobuf.Timestamp create_time = 6 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The transfer time of the reservation.
+  google.protobuf.Timestamp transfer_time = 7 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}
+
+// BatchCreateBlastGoldReservationsRequest
+message BatchCreateBlastGoldReservationsRequest {
+  repeated CreateBlastGoldReservationRequest requests = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+// CreateBlastGoldReservationRequest
+message CreateBlastGoldReservationRequest {
+  BlastGoldReservation reservation = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+// BatchCreateBlastGoldReservationsResponse
+message BatchCreateBlastGoldReservationsResponse {
+  repeated BlastGoldReservation reservations = 1;
+}
+
+// ListBlastGoldReservationsRequest
+message ListBlastGoldReservationsRequest {
+  // The maximum number of BlastGoldReservations to return. The service may return fewer than
+  // this value.
+  // If unspecified, at most 100 rows will be returned.
+  // The maximum value is 1000.
+  int32 page_size = 1;
+
+  // Token of the page to retrieve. If not specified, the first
+  // page of results will be returned. Use the value obtained from
+  // `next_page_token` in the previous response in order to request
+  // the next page of results.
+  //
+  // When paginating, all other parameters provided to `ListBlastGoldReservationsRequest` must match
+  // the call that provided the page token.
+  string page_token = 2;
+
+  // filter
+  string filter = 3;
+
+  // One or more fields to compare and use to sort the output. (optional)
+  // Default order for a field is ascending by create_time
+  // To specify ascending or descending order, append " asc" or " desc" to the field name. If not specified, the order is ascending.
+  //
+  // Reference
+  // * https://google.aip.dev/132#ordering.
+  //
+  // Supported Fields
+  // * "create_time"
+  //
+  // Examples
+  // * order_by=create_time desc
+  string order_by = 4;
+}
+
+// ListBlastGoldReservationsResponse
+message ListBlastGoldReservationsResponse {
+  // The list of rows that matched the query.
+  repeated BlastGoldReservation reservations = 1;
+
+  // The token to retrieve the next page of results, or empty if there are no more results.
+  string next_page_token = 2;
+}
+
+// TransferReservedBlastGoldsRequest
+message TransferReservedBlastGoldsRequest {
+  // type of the reservation to transfer
+  ReservationType reservation_type = 1;
+}
+
+// TransferReservedBlastGoldsResponse
+message TransferReservedBlastGoldsResponse {
+  // transfered reservations
+  repeated BlastGoldReservation reservations = 1;
+}

@@ -1,0 +1,40 @@
+services:
+  buf-lint:
+    image: "spacebarapis-buildenv"
+    build: "."
+    command: buf lint
+    volumes:
+      - .:/spacebar-apis
+      - bufcache:/root/.cache/buf
+  lint:
+    image: "spacebarapis-buildenv"
+    build: "."
+    command: sh -c 'buf build && /spacebar-apis/scripts/api-linter-all.sh ${SERVICE:-}'
+    volumes:
+      - .:/spacebar-apis
+      - bufcache:/root/.cache/buf
+
+  image:
+    image: "spacebarapis-buildenv"
+    command: sh -c 'buf build -o /spacebar-apis/image.bin``'
+    volumes:
+      - .:/spacebar-apis
+      - bufcache:/root/.cache/buf
+
+  buf-generate:
+    image: "spacebarapis-buildenv"
+    build: "."
+    command: buf generate
+    volumes:
+      - .:/spacebar-apis
+      - bufcache:/root/.cache/buf
+
+  openapi:
+    image: "spacebarapis-buildenv"
+    build: "."
+    command: buf generate --template buf.gen.openapi.yaml
+    volumes:
+      - .:/spacebar-apis
+      - bufcache:/root/.cache/buf
+volumes:
+  bufcache:

@@ -1,0 +1,169 @@
+syntax = "proto3";
+
+package blast.v1.auth;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/blast/v1/auth;auth";
+
+// AuthService contains the function to interact with the Auth of the spacebar
+service AuthService {
+  // Signin signs in a user and returns a session id.
+  rpc SignIn(SignInRequest) returns (SignInResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/signin"
+      body: "*"
+    };
+  }
+
+  // Refresh refreshes a session.
+  rpc Refresh(RefreshTokenRequest) returns (RefreshTokenResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/refresh"
+      body: "*"
+    };
+  }
+
+  // Signout signs out a user.
+  rpc SignOut(SignoutRequest) returns (SignoutResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/signout"
+      body: "*"
+    };
+  }
+
+  // Authenticate authenticates token
+  rpc Authenticate(AuthenticateRequest) returns (AuthenticateResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/authenticate"
+      body: "*"
+    };
+  }
+
+  // GetTempToken returns a short-lived token.
+  rpc GetTempToken(GetTempTokenRequest) returns (GetTempTokenResponse) {
+    option (google.api.http) = {
+      get: "/v1/auth/tempToken"
+    };
+  }
+
+  rpc Download(DownloadRequest) returns (DownloadResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/download"
+      body: "*"
+    };
+  }
+}
+
+message SignInRequest {
+  string eoa_address = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  uint64 timestamp = 2 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  string signature = 3 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message SignInResponse {
+  string access_token = 1;
+
+  string refresh_token = 2;
+
+  string eoa_address = 3;
+
+  bool has_spaceship = 4;
+
+  bool has_nickname = 5;
+
+  bool has_accepted_terms = 6;
+}
+
+message RefreshTokenRequest {}
+
+message RefreshTokenResponse {
+  optional string access_token = 1;
+
+  optional string refresh_token = 2;
+}
+
+message SignoutRequest {}
+
+message SignoutResponse {}
+
+message AuthenticateRequest {
+  string access_token = 1;
+}
+
+message AuthenticateResponse {
+  string eoa_address = 1;
+
+  bool has_spaceship = 2;
+
+  bool has_nickname = 3;
+
+  bool has_accepted_terms = 4;
+}
+
+message GetTempTokenRequest {}
+
+message GetTempTokenResponse {
+  string access_token = 1;
+}
+
+message DownloadRequest {
+  string url = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message DownloadResponse {
+  string header = 1;
+  string body = 2;
+}
+
+message AccessTokenClaim {
+  string session_id = 1;
+
+  string user_address = 2;
+
+  bool has_spaceship = 3;
+
+  bool has_nickname = 4;
+
+  bool has_accepted_terms = 5;
+
+  optional AuthRole role = 6;
+}
+
+enum AuthRole {
+  // default value. this value is unused.
+  ROLE_UNSPECIFIED = 0;
+
+  ADMIN = 1;
+
+  USER = 2;
+}
+
+enum AccessLogType {
+  // default value. this value is unused.
+  TYPE_UNSPECIFIED = 0;
+  //
+  SIGNIN = 1;
+  //
+  REFRESH = 2;
+  //
+  SIGNOUT = 3;
+}
+
+

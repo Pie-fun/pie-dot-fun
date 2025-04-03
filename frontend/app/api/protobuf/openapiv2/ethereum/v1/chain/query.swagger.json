@@ -1,0 +1,299 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "ethereum/v1/chain/query.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "ChainQueryService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/chain:queryDelegateCash": {
+      "post": {
+        "operationId": "ChainQueryService_QueryDelegateCash",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/chainQueryDelegateCashResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/chainQueryDelegateCashRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ChainQueryService"
+        ]
+      }
+    },
+    "/v1/chain:queryReceipt": {
+      "post": {
+        "operationId": "ChainQueryService_QueryReceipt",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/chainReceipt"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/chainQueryReceiptRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ChainQueryService"
+        ]
+      }
+    },
+    "/v1/chain:queryTransactionCount": {
+      "post": {
+        "operationId": "ChainQueryService_QueryTransactionCount",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/chainQueryQueryTransactionCountResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/chainQueryQueryTransactionCountRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ChainQueryService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "chainDelegate": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/chainDelegationType"
+        },
+        "from": {
+          "type": "string"
+        },
+        "to": {
+          "type": "string"
+        },
+        "contract": {
+          "type": "string"
+        },
+        "tokenId": {
+          "type": "string"
+        }
+      }
+    },
+    "chainDelegationType": {
+      "type": "string",
+      "enum": [
+        "DELEGATION_TYPE_UNSPECIFIED",
+        "DELEGATION_TYPE_ALL",
+        "DELEGATION_TYPE_CONTRACT",
+        "DELEGATION_TYPE_ERC721"
+      ],
+      "default": "DELEGATION_TYPE_UNSPECIFIED"
+    },
+    "chainQueryDelegateCashRequest": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string"
+        },
+        "chains": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/outpostChainType"
+          }
+        }
+      },
+      "required": [
+        "address",
+        "chains"
+      ]
+    },
+    "chainQueryDelegateCashResponse": {
+      "type": "object",
+      "properties": {
+        "delegates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/chainDelegate"
+          }
+        }
+      }
+    },
+    "chainQueryQueryTransactionCountRequest": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string"
+        },
+        "blockNumber": {
+          "type": "string",
+          "format": "uint64"
+        }
+      },
+      "required": [
+        "address"
+      ]
+    },
+    "chainQueryQueryTransactionCountResponse": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "chainQueryReceiptRequest": {
+      "type": "object",
+      "properties": {
+        "txHash": {
+          "type": "string"
+        },
+        "timeout": {
+          "type": "string",
+          "description": "The amount of time to wait for the transaction to be mined.\n\nIf the transaction is not mined within this time, server will return 504 Gateway Timeout(DEADLINE_EXCEEDED).\n\nThe default is 5 minutes.\n\nThe maximum allowed timeout is 30 minutes. If the value is greater than 30 minutes, server will automatically set it to 30 minutes.\n\nIf longer timeout is needed, please retry after the previous request times out.",
+          "title": "e.g. \"60s\", \"5m\", \"1h30m\""
+        }
+      },
+      "required": [
+        "txHash"
+      ]
+    },
+    "chainReceipt": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "$ref": "#/definitions/chainReceiptStatus"
+        },
+        "transactionHash": {
+          "type": "string"
+        },
+        "blockHash": {
+          "type": "string"
+        },
+        "blockNumber": {
+          "type": "string"
+        },
+        "cumulativeGasUsed": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "gasUsed": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "contractAddress": {
+          "type": "string"
+        }
+      }
+    },
+    "chainReceiptStatus": {
+      "type": "string",
+      "enum": [
+        "RECEIPT_STATUS_FAILED",
+        "RECEIPT_STATUS_SUCCESSFUL"
+      ],
+      "default": "RECEIPT_STATUS_FAILED",
+      "description": "The state of the transaction receipt.\n\n - RECEIPT_STATUS_FAILED: RECEIPT_STATUS_FAILED is the status code of a transaction if execution failed.\n - RECEIPT_STATUS_SUCCESSFUL: RECEIPT_STATUS_SUCCESSFUL is the status code of a transaction if execution succeeded."
+    },
+    "outpostChainType": {
+      "type": "string",
+      "enum": [
+        "CHAIN_UNSPECIFIED",
+        "ETHEREUM",
+        "POLYGON",
+        "ARBITRUM",
+        "OPTIMISM",
+        "BASE",
+        "BLAST",
+        "ETHEREUM_SEPOLIA",
+        "POLYGON_MUMBAI",
+        "BLAST_SEPOLIA"
+      ],
+      "default": "CHAIN_UNSPECIFIED",
+      "description": "- CHAIN_UNSPECIFIED: Unspecified blockchain type.\n - ETHEREUM: Ethereum Mainnet blockchain.\n - POLYGON: Polygon Mainnet blockchain.\n - ARBITRUM: Arbitrum Mainnet blockchain.\n - OPTIMISM: Optimism Mainnet blockchain.\n - BASE: Base Mainnet blockchain.\n - BLAST: Blast Mainnet blockchain.\n - ETHEREUM_SEPOLIA: Sepolia Testnet blockchain.\n - POLYGON_MUMBAI: Polygon Testnet blockchain.\n - BLAST_SEPOLIA: Blast Testnet blockchain.",
+      "title": "ChainType enumeration represents the type of blockchain.\nDoes not support optimism, zksync, bsc yet"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

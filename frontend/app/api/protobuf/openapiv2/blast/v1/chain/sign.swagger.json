@@ -1,0 +1,410 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "blast/v1/chain/sign.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "ChainSignService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/chain:signJoinSquare": {
+      "post": {
+        "summary": "SignJoinSquare signs a square mint with the given parameters.",
+        "operationId": "ChainSignService_SignJoinSquare",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/chainSignJoinSquareResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/chainSignJoinSquareRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ChainSignService"
+        ]
+      }
+    },
+    "/v1/chain:signMessage": {
+      "post": {
+        "summary": "SignMessage signs a message with arbitrary message.",
+        "description": "This rpc is not open to the public request and only used by the internal service.",
+        "operationId": "ChainSignService_SignMessage",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/chainSignatureResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/chainSignMessageRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ChainSignService"
+        ]
+      }
+    },
+    "/v1/chain:signMintSquare": {
+      "post": {
+        "summary": "SignMintSquare signs a square mint with the given parameters.",
+        "description": "403 error will be returned if the given owner address not not eligible to mint the square.",
+        "operationId": "ChainSignService_SignMintSquare",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/chainSignMintSquareResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/chainSignMintSquareRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ChainSignService"
+        ]
+      }
+    },
+    "/v1/chain:signTransferSquare": {
+      "post": {
+        "summary": "SignTransferSquare signs a square mint with the given parameters.",
+        "operationId": "ChainSignService_SignTransferSquare",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/chainSignTransferSquareResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/chainSignTransferSquareRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ChainSignService"
+        ]
+      }
+    },
+    "/v1/chain:signUploadScore": {
+      "post": {
+        "summary": "SignUploadScore signs a score creation with the given parameters.",
+        "operationId": "ChainSignService_SignUploadScore",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/chainSignUploadScoreResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/chainSignUploadScoreRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ChainSignService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "chainJoinSquareParams": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "type": "string"
+        },
+        "squareId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "timestamp": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "nonce": {
+          "type": "string"
+        }
+      }
+    },
+    "chainMintAndCreateSquareParams": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "type": "string"
+        },
+        "minStaking": {
+          "type": "string",
+          "title": "uint64 can be overflowed"
+        },
+        "signatureId": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "nonce": {
+          "type": "string"
+        }
+      }
+    },
+    "chainSignJoinSquareRequest": {
+      "type": "object",
+      "properties": {
+        "params": {
+          "$ref": "#/definitions/chainJoinSquareParams"
+        }
+      }
+    },
+    "chainSignJoinSquareResponse": {
+      "type": "object",
+      "properties": {
+        "signature": {
+          "type": "string"
+        },
+        "params": {
+          "$ref": "#/definitions/chainJoinSquareParams"
+        }
+      }
+    },
+    "chainSignMessageRequest": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "message"
+      ]
+    },
+    "chainSignMintSquareRequest": {
+      "type": "object",
+      "properties": {
+        "params": {
+          "$ref": "#/definitions/chainMintAndCreateSquareParams"
+        }
+      }
+    },
+    "chainSignMintSquareResponse": {
+      "type": "object",
+      "properties": {
+        "signature": {
+          "type": "string"
+        },
+        "params": {
+          "$ref": "#/definitions/chainMintAndCreateSquareParams"
+        }
+      }
+    },
+    "chainSignTransferSquareRequest": {
+      "type": "object",
+      "properties": {
+        "params": {
+          "$ref": "#/definitions/chainTransferSquareParams"
+        }
+      }
+    },
+    "chainSignTransferSquareResponse": {
+      "type": "object",
+      "properties": {
+        "signature": {
+          "type": "string"
+        },
+        "params": {
+          "$ref": "#/definitions/chainTransferSquareParams"
+        }
+      }
+    },
+    "chainSignUploadScoreRequest": {
+      "type": "object",
+      "properties": {
+        "params": {
+          "$ref": "#/definitions/chainUploadScoreParams"
+        }
+      }
+    },
+    "chainSignUploadScoreResponse": {
+      "type": "object",
+      "properties": {
+        "signature": {
+          "type": "string"
+        },
+        "params": {
+          "$ref": "#/definitions/chainUploadScoreParams"
+        }
+      }
+    },
+    "chainSignatureResponse": {
+      "type": "object",
+      "properties": {
+        "signature": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "chainTransferSquareParams": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "type": "string"
+        },
+        "from": {
+          "type": "integer",
+          "format": "int64",
+          "title": "token id of the user's current square"
+        },
+        "to": {
+          "type": "integer",
+          "format": "int64",
+          "title": "token id of the target square"
+        },
+        "timestamp": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "nonce": {
+          "type": "string"
+        }
+      }
+    },
+    "chainUploadScoreParams": {
+      "type": "object",
+      "properties": {
+        "player": {
+          "type": "string"
+        },
+        "gameCode": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "squareIdOrZero": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "score": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "gameId": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "nonce": {
+          "type": "string"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

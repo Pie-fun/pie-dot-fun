@@ -1,0 +1,217 @@
+syntax = "proto3";
+
+package piedotfun.v1;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+import "pie-dot-fun/v1/auth.proto";
+import "pie-dot-fun/v1/common.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/pie-dot-fun/v1;piedotfun";
+
+// FungibleTokenMarketService is the service for managing fungible token markets.
+service FungibleTokenMarketService {
+  // GetFungibleTokenMarket returns the market for the given fungible token.
+  rpc GetFungibleTokenMarket(GetFungibleTokenMarketRequest) returns (FungibleTokenMarket) {
+    option (google.api.http) = {
+      get: "/v1/{fungible_token_market=fungibleTokens/*/*/market}" // e.g. GET v1/fungibleTokens/SOLANA/0x123123123/market
+    };
+    option (google.api.method_signature) = "fungible_token_market";
+    option (gateway_registered) = true;
+    option (allow_unauthenticated) = true;
+    option (external) = true;
+  }
+
+  rpc GetOrCreateFungibleTokenMarket(GetFungibleTokenMarketRequest) returns (FungibleTokenMarket) {
+    option (google.api.http) = {
+      get: "/v1/{fungible_token_market=fungibleTokens/*/*/market}:getOrCreate"
+    };
+    option (google.api.method_signature) = "fungible_token_market";
+  }
+
+  // ListFungibleTokenMarkets returns the list of markets for the given fungible tokens.
+  rpc ListFungibleTokenMarkets(ListFungibleTokensMarketsRequest) returns (ListFungibleTokensMarketsResponse) {
+    option (google.api.http) = {
+      get: "/v1/fungibleTokens/-/-/markets" // GET /v1/fungibleTokens/-/-/markets
+    };
+    option (gateway_registered) = true;
+    option (allow_unauthenticated) = true;
+    option (external) = true;
+  }
+}
+
+// FungibleTokenMarket contains the market data for a fungible token.
+message FungibleTokenMarket {
+  option (google.api.resource) = {
+    type: "piedotfun.spacebarapis.xyz/FungibleTokenMarket",
+    pattern: "fungibleTokens/{chain}/{address}/market"
+  };
+
+  string name = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  string fungible_token = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.resource_reference) = {
+      type: "piedotfun.spacebarapis.xyz/FungibleToken"
+    }
+  ];
+
+  string display_name = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  string symbol = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // Native token symbol of the chain the fungible-token belongs to.
+  // Not dollar(USDT, USDC), 
+  // and the prices and market cap fields will display dollar values together.
+  Currency native_currency = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  reserved 6; // total_supply
+
+  // Key is the `Currency` enum string, 
+  // value is the price with the `Currency`.
+  map<string, Money> prices = 7 [
+    deprecated = true,
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // Key is the `Currency` enum string, 
+  // value is the market cap with the `Currency`.
+  map<string, Money> market_caps = 8 [
+    deprecated = true, // currently returning the `Fully Diluted Value`, so use the `fdvs` field.
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+
+  // Key is the `Currency` enum string,
+  // value is the price changes with the `Currency`.
+  // {
+  //   "CURRENCY_USDC": {
+  //     "PRICE_CHANGE_PERIOD_1_HOUR": {
+  //       "nominal_value": {
+  //         "currency": "CURRENCY_USDC",
+  //         "amount": 0.0001
+  //       },
+  //       "percentage_change": {
+  //         "value": 0.0001
+  //       },
+  //       "period": "PRICE_CHANGE_PERIOD_1_HOUR"
+  //     },
+  //     "CURRENCY_SOL": { ... }
+  // }
+  // Support Periods
+  // * PRICE_CHANGE_PERIOD_7_DAY
+  map<string, PriceChangesByPeriod> price_changes = 9 [
+    deprecated = true,
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // current price
+  Money price = 10 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+  // market cap
+  Money market_cap = 11 [
+    deprecated = true, // currently returning the `Fully Diluted Value`, so use the `fdvs`` field.
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // Example
+  // {
+  //   "PRICE_CHANGE_PERIOD_7_DAY": {
+  //       "nominal_value": {
+  //           "currency": "CURRENCY_USDC",
+  //           "amount": 0.0001
+  //       },
+  //       "percentage_change": {
+  //           "value": 0.0001
+  //       },
+  //       "period": "PRICE_CHANGE_PERIOD_7_DAY"
+  //   }
+  //   ...
+  // }
+  // Support Periods
+  // * PRICE_CHANGE_PERIOD_7_DAY
+  PriceChangesByPeriod price_change = 12 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // Fully Diluted Valuations
+  // Key is the `Currency` enum string, 
+  // value is the market cap with the `Currency`.
+  map<string, Money> fdvs = 13 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}
+
+message GetFungibleTokenMarketRequest {
+  // The name of the market  to retrieve.
+  // Format : "fungibleTokens/{chain}/{token_address}/market"
+  string fungible_token_market = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "piedotfun.spacebarapis.xyz/FungibleTokenMarket"
+    }
+  ];
+  // Display the price in this currency. Default is USD.
+  Currency currency = 2;
+}
+
+message ListFungibleTokensMarketsRequest {
+  // If unspecified, at most 50 books will be returned.
+  // The maximum value is 1000; values above 1000 will be coerced to 1000.
+  int32 page_size = 1;
+
+  // Token of the page to retrieve. If not specified, the first
+  // page of results will be returned. Use the value obtained from
+  // `next_page_token` in the previous response in order to request
+  // the next page of results.
+  string page_token = 2;
+
+  // Available Sequence and Operator
+  // * name
+  //   * `=`
+  //
+  // Examples
+  // * name="fungibleTokens/SOLANA/FZ4MT1HYJHd9GK8D5mJ9f3r7irLaDL5NxBNLjGqrLqs9/market"
+  string filter = 3;
+
+  // One or more fields to compare and use to sort the output.
+  // To specify ascending or descending order, append " asc" or " desc" to the field name. If not specified, the order is ascending.
+  //
+  // Reference
+  // * https://google.aip.dev/132#ordering.
+  //
+  // Supported Fields
+  // * 
+  //
+  // Examples
+  // * 
+  string order_by = 4;
+
+  // Display the price in this currency. Default is USD.
+  Currency currency = 5;
+}
+
+message ListFungibleTokensMarketsResponse {
+  repeated FungibleTokenMarket fungible_token_markets= 1;
+
+  // Pagination token used to retrieve the next page of results.
+  // Pass the content of this string as the `page_token` attribute of
+  // the next request. `next_page_token` is not returned for the last
+  // page.
+  string next_page_token = 2;
+}

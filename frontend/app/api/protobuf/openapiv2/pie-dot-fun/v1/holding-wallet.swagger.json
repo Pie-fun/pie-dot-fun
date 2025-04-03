@@ -1,0 +1,170 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "pie-dot-fun/v1/holding-wallet.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "HoldingWalletService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/holdingWallets": {
+      "get": {
+        "operationId": "HoldingWalletService_ListHoldingWallets",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListHoldingWalletsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "pageSize",
+            "description": "The maximum number of holdings to return. The service may return fewer than\nthis value.\nIf unspecified, at most 50 rows will be returned.\nThe maximum value is 1024; values above 1024 will be coerced to 1024.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageToken",
+            "description": "Token of the page to retrieve. If not specified, the first\npage of results will be returned. Use the value obtained from\n`next_page_token` in the previous response in order to request\nthe next page of results.\n\nWhen paginating, all other parameters provided to `ListHoldingWallets` must match\nthe call that provided the page token.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "filter",
+            "description": "Available Sequence and Operator\n* user\n  * `=`\n\n* user=\"users/1\"\n* market_value_sol\u003e=10",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "HoldingWalletService"
+        ]
+      }
+    },
+    "/v1/{holdingWallet}": {
+      "get": {
+        "operationId": "HoldingWalletService_GetHoldingWallet",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1HoldingWallet"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "holdingWallet",
+            "description": "The name of the holding_wallet to retrieve.\nFormat: holdingWallets/{vm_type}/{address}",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "holdingWallets/[^/]+/[^/]+"
+          }
+        ],
+        "tags": [
+          "HoldingWalletService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1HoldingWallet": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "The name of the holding_wallet.\nFormat: holdingWallets/{vm_type}/{address}"
+        },
+        "vmType": {
+          "$ref": "#/definitions/v1VMType"
+        },
+        "address": {
+          "type": "string"
+        },
+        "user": {
+          "type": "string"
+        }
+      }
+    },
+    "v1ListHoldingWalletsResponse": {
+      "type": "object",
+      "properties": {
+        "holdingWallets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1HoldingWallet"
+          }
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Pagination token used to retrieve the next page of results.\nPass the content of this string as the `page_token` attribute of\nthe next request. `next_page_token` is not returned for the last\npage."
+        }
+      }
+    },
+    "v1VMType": {
+      "type": "string",
+      "enum": [
+        "VM_UNSPECIFIED",
+        "SVM",
+        "EVM"
+      ],
+      "default": "VM_UNSPECIFIED",
+      "description": " - VM_UNSPECIFIED: Unspecified VM type.\n - SVM: Solana Virtual Machine.\n - EVM: Ethereum Virtual Machine."
+    }
+  }
+}

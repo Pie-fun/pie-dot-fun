@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package ethereum.v1.profile;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/ethereum/v1/profile;profile";
+
+service DailyStarRewardService {
+
+  // GetDailyStarReward will return the Profile's DailyStarReward
+  rpc GetDailyStarReward(GetDailyStarRewardRequest) returns (DailyStarReward) {
+    option (google.api.http) = {
+      get: "/v1/{profile=profiles/*}/daily_star_reward"
+    };
+    option (google.api.method_signature) = "profile";
+  }
+
+  // ClaimMyDailyStarReward will claim the Profile's DailyStarReward
+  rpc ClaimMyDailyStarReward(ClaimMyDailyStarRewardRequest) returns (DailyStarReward) {
+    option (google.api.http) = {
+      post: "/v1/profiles/me/daily_star_reward:claim"
+    };
+  }
+
+}
+
+
+message GetDailyStarRewardRequest {
+  // Format: profiles/{address}
+  // Resource name alias "profiles/me" is supported.
+  string profile = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Profile"
+    }
+  ];
+}
+
+message ClaimMyDailyStarRewardRequest {
+}
+
+
+message DailyStarReward {
+  string profile = 1 [
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Profile",
+    }
+  ];
+
+  uint32 current_streak = 2;
+
+  bool is_claimable = 3;
+
+  uint32 star_reward = 4;
+
+  DailyStarRewardClaim last_claim = 5;
+}
+
+message DailyStarRewardClaim {
+  uint32 streak = 1;
+
+  google.protobuf.Timestamp claim_time = 2;
+}

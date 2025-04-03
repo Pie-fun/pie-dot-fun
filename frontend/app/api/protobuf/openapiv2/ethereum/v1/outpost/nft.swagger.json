@@ -1,0 +1,582 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "ethereum/v1/outpost/nft.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "NFTService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/nfts": {
+      "get": {
+        "summary": "ListNFTs will return NFTs.",
+        "operationId": "NFTService_ListNFTs",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/outpostListNFTsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "ownerAddress",
+            "description": "The owner address of the profile.\nThis field is required if `sync_onchain` is true.\nWhen `sync_onchain` is true, only EOA address is supported.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "pageSize",
+            "description": "The maximum number of nfts to return. The service may return fewer than\nthis value.\nIf unspecified, at most 50 rows will be returned.\nThe maximum value is 1024; values above 1024 will be coerced to 1024.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageToken",
+            "description": "Token of the page to retrieve. If not specified, the first\npage of results will be returned. Use the value obtained from\n`next_page_token` in the previous response in order to request\nthe next page of results.\n\nWhen page token is not specified, nft assets are synced with the blockchain. If\npage token is specified, nft assets are not synced with the blockchain and retrieved from the database.\n\nThe page token is valid for only 2 hours.\n\nWhen paginating, all other parameters provided to `ListNFTs` must match\nthe call that provided the page token.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "filter",
+            "description": "Available Sequence and Operator\n* name\n  * `equal`\n* has_image\n  * `negation`\n* address\n  * `equal`\n* contract.address\n  * `equal`\n* contract.display_name\n  * `equal`\n* contract.chain\n  * supported value is [ETHEREUM, POLYGON, ARBITRUM, OPTIMISM, BASE, STARKNET, ETHEREUM_SEPOLIA, POLYGON_MUMBAI]\n  * `equal`\n* contract.type\n  * `equal`\n\nExamples\n* filter=name=\"nfts/MUMBAI/0xb4Afd0Ecb77460f0d8F93E7Fba93D7c18491f7a3/424\"\n* filter=has_image\n* filter=address=\"0xa3d8090e4ea02d4cc76ecb2e8b09ab140cd11dee\"\n* filter=contract.address=\"0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d\"\n* filter=contract.display_name=\"CryptoKitties\"\n* filter=contract.chain=ETHEREUM\n* filter=contract.type=ERC721",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "syncOnchain",
+            "description": "Supported value is [\"true\", \"1\", \"yes\", \"y\"], other then all this value will be treated as false.\nIf true, the service will fetch assets using third party NFT APIs.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "NFTService"
+        ]
+      }
+    },
+    "/v1/nfts/delegate": {
+      "get": {
+        "summary": "ListNFTsDelegate will return NFTs using Delegate Cash.",
+        "operationId": "NFTService_ListNFTsDelegate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/outpostListNFTsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "ownerAddress",
+            "description": "The owner address of the profile.\nThis field is required if `sync_onchain` is true.\nWhen `sync_onchain` is true, only EOA address is supported.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "NFTService"
+        ]
+      }
+    },
+    "/v1/nfts/owner": {
+      "get": {
+        "summary": "ListOwners will return the owner of the NFT.",
+        "operationId": "NFTService_ListOwners",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/outpostListOwnersResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "nfts",
+            "in": "query",
+            "required": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "tags": [
+          "NFTService"
+        ]
+      }
+    },
+    "/v1/{nftContract}": {
+      "get": {
+        "summary": "GetContract will return NFTContract.",
+        "operationId": "NFTService_GetContract",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/outpostNFTContract"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "nftContract",
+            "description": "The resource name of the nft contract to retrieve.\nFormat: nfts/{chain_type}/{contract_address}\nExamples: nfts/ETHEREUM/0x1f9090aaE28b8a3dCeaDf281B0F12828e676c326",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "nfts/[^/]+/[^/]+"
+          }
+        ],
+        "tags": [
+          "NFTService"
+        ]
+      }
+    },
+    "/v1/{nftContract}:checkOwner": {
+      "post": {
+        "summary": "CheckHolderOfContract will check if the wallet address is the holder of the contract.",
+        "operationId": "NFTService_CheckHolderOfContract",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/outpostCheckHolderOfContractResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "nftContract",
+            "description": "The resource name of the nft contract to retrieve.\nFormat: nfts/{chain_type}/{contract_address}\nExamples: nfts/ETHEREUM/0x1f9090aaE28b8a3dCeaDf281B0F12828e676c326",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "nfts/[^/]+/[^/]+"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "walletAddress": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "walletAddress"
+              ]
+            }
+          }
+        ],
+        "tags": [
+          "NFTService"
+        ]
+      }
+    },
+    "/v1/{nft}": {
+      "get": {
+        "summary": "GetNFT will return NFT.",
+        "operationId": "NFTService_GetNFT",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/outpostNFT"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "nft",
+            "description": "The resource name of the nft to retrieve.\nFormat: nfts/{chain_type}/{contract_address}/{token_id}\nExamples: nfts/ETHEREUM/0x1f9090aaE28b8a3dCeaDf281B0F12828e676c326/1",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "nfts/[^/]+/[^/]+/[^/]+"
+          }
+        ],
+        "tags": [
+          "NFTService"
+        ]
+      }
+    },
+    "/v1/{nft}:validate": {
+      "post": {
+        "summary": "ValidateNFT will validate given NFT is valid and image is available.",
+        "operationId": "NFTService_ValidateNFT",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/outpostValidateNFTResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "nft",
+            "description": "The resource name of the nft to retrieve.\nFormat: nfts/{chain_type}/{contract_address}/{token_id}\nExamples: nfts/ETHEREUM/0x1f9090aaE28b8a3dCeaDf281B0F12828e676c326/1",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "nfts/[^/]+/[^/]+/[^/]+"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "title": "ValidateNFTRequest"
+            }
+          }
+        ],
+        "tags": [
+          "NFTService"
+        ]
+      }
+    },
+    "/v1/{nft}:validateAccess": {
+      "post": {
+        "summary": "ValidateNFTAccessRequest will validate user address access to the NFT.",
+        "operationId": "NFTService_ValidateNFTAccess",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/outpostValidateNFTAccessResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "nft",
+            "description": "The resource name of the nft to retrieve.\nFormat: nfts/{chain_type}/{contract_address}/{token_id}\nExamples: nfts/ETHEREUM/0x1f9090aaE28b8a3dCeaDf281B0F12828e676c326/1",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "nfts/[^/]+/[^/]+/[^/]+"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ownerAddress": {
+                  "type": "string",
+                  "description": "The owner address of the NFT asset."
+                }
+              },
+              "title": "ValidateNFTAccessRequest",
+              "required": [
+                "ownerAddress"
+              ]
+            }
+          }
+        ],
+        "tags": [
+          "NFTService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "ListOwnersResponseNFTs": {
+      "type": "object",
+      "properties": {
+        "nfts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "outpostChainType": {
+      "type": "string",
+      "enum": [
+        "CHAIN_UNSPECIFIED",
+        "ETHEREUM",
+        "POLYGON",
+        "ARBITRUM",
+        "OPTIMISM",
+        "BASE",
+        "BLAST",
+        "ETHEREUM_SEPOLIA",
+        "POLYGON_MUMBAI",
+        "BLAST_SEPOLIA"
+      ],
+      "default": "CHAIN_UNSPECIFIED",
+      "description": "- CHAIN_UNSPECIFIED: Unspecified blockchain type.\n - ETHEREUM: Ethereum Mainnet blockchain.\n - POLYGON: Polygon Mainnet blockchain.\n - ARBITRUM: Arbitrum Mainnet blockchain.\n - OPTIMISM: Optimism Mainnet blockchain.\n - BASE: Base Mainnet blockchain.\n - BLAST: Blast Mainnet blockchain.\n - ETHEREUM_SEPOLIA: Sepolia Testnet blockchain.\n - POLYGON_MUMBAI: Polygon Testnet blockchain.\n - BLAST_SEPOLIA: Blast Testnet blockchain.",
+      "title": "ChainType enumeration represents the type of blockchain.\nDoes not support optimism, zksync, bsc yet"
+    },
+    "outpostCheckHolderOfContractResponse": {
+      "type": "object",
+      "properties": {
+        "isHolder": {
+          "type": "boolean"
+        }
+      }
+    },
+    "outpostContractType": {
+      "type": "string",
+      "enum": [
+        "CONTRACT_TYPE_UNSPECIFIED",
+        "ERC721",
+        "ERC1155"
+      ],
+      "default": "CONTRACT_TYPE_UNSPECIFIED",
+      "description": " - CONTRACT_TYPE_UNSPECIFIED: Unspecified contract type.\n - ERC721: ERC721 contract type.\n - ERC1155: ERC1155 contract type."
+    },
+    "outpostListNFTsResponse": {
+      "type": "object",
+      "properties": {
+        "nfts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/outpostNFT"
+          },
+          "description": "The list of rows that matched the query."
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Pagination token used to retrieve the next page of results.\nPass the content of this string as the `page_token` attribute of\nthe next request. `next_page_token` is not returned for the last\npage."
+        }
+      },
+      "title": "ListNFTsResponse response\n(-- api-linter: core::0158::response-next-page-token-field=disabled\n    aip.dev/not-precedent: We need to do this because reasons. --)"
+    },
+    "outpostListOwnersResponse": {
+      "type": "object",
+      "properties": {
+        "owners": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ListOwnersResponseNFTs"
+          }
+        }
+      },
+      "required": [
+        "owners"
+      ]
+    },
+    "outpostNFT": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "The resource name of the NFT asset.\nFormat: nfts/{chain_type}/{contract_address}/{token_id}\nExamples: nfts/ETHEREUM/0x1f9090aaE28b8a3dCeaDf281B0F12828e676c326/1"
+        },
+        "address": {
+          "type": "string",
+          "description": "EIP-6551 TBA Address of the NFT asset.",
+          "readOnly": true
+        },
+        "tokenId": {
+          "type": "string",
+          "description": "Token ID of the NFT asset.",
+          "readOnly": true
+        },
+        "tokenName": {
+          "type": "string",
+          "description": "Token Name of the NFT asset.",
+          "readOnly": true
+        },
+        "imageUri": {
+          "type": "string",
+          "title": "The URI of the NFT asset's image.\nThis URI can be cached version of image original URI\ne.g. \"https://i.seadn.io/gcs/files/f3564ef33373939b024fb791f21ec37b.png?w=500\u0026auto=format\"",
+          "readOnly": true
+        },
+        "imageOriginalUri": {
+          "type": "string",
+          "title": "The URI of the NFT asset's original image.\ne.g. \"https://www.larvalabs.com/cryptopunks/cryptopunk1.png\"",
+          "readOnly": true
+        },
+        "animationUri": {
+          "type": "string",
+          "title": "The URI of the NFT asset's animation.\nThis URI can be cached version of animation original URI\nThis field is optional",
+          "readOnly": true
+        },
+        "animationOriginalUri": {
+          "type": "string",
+          "title": "The URI of the NFT asset's original animation.\nThis field is optional",
+          "readOnly": true
+        },
+        "metadataUri": {
+          "type": "string",
+          "description": "Additional metadata about the NFT asset.",
+          "readOnly": true
+        },
+        "ownerAddress": {
+          "type": "string",
+          "title": "The owner address of the NFT asset.\nThis field is optional",
+          "readOnly": true
+        },
+        "contract": {
+          "$ref": "#/definitions/outpostNFTContract",
+          "description": "The contract that owns the NFT asset.\nOutput only.",
+          "readOnly": true
+        }
+      },
+      "description": "NFT message represents an NFT asset."
+    },
+    "outpostNFTContract": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "The resource name of the nft contract.\nFormat: nfts/{chain_type}/{contract_address}\nExamples: nfts/ETHEREUM/0x1f9090aaE28b8a3dCeaDf281B0F12828e676c326"
+        },
+        "address": {
+          "type": "string",
+          "description": "The address of the NFT contract.",
+          "readOnly": true
+        },
+        "displayName": {
+          "type": "string",
+          "description": "The display name of the NFT contract.",
+          "readOnly": true
+        },
+        "symbol": {
+          "type": "string",
+          "description": "The symbol of the NFT contract.",
+          "readOnly": true
+        },
+        "chain": {
+          "$ref": "#/definitions/outpostChainType",
+          "description": "The blockchain on which the NFT contract resides.",
+          "readOnly": true
+        },
+        "type": {
+          "$ref": "#/definitions/outpostContractType",
+          "description": "The type of the NFT contract.",
+          "readOnly": true
+        },
+        "imageUri": {
+          "type": "string",
+          "title": "The URI of the contract image",
+          "readOnly": true
+        }
+      },
+      "description": "NFTContract message represents an NFT contract."
+    },
+    "outpostValidateNFTAccessResponse": {
+      "type": "object",
+      "properties": {
+        "nft": {
+          "$ref": "#/definitions/outpostNFT"
+        },
+        "access": {
+          "type": "boolean"
+        }
+      }
+    },
+    "outpostValidateNFTResponse": {
+      "type": "object",
+      "properties": {
+        "valid": {
+          "type": "boolean"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

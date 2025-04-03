@@ -1,0 +1,143 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "ethereum/v1/profile/backspace.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "BackspaceService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/{backspace.name}": {
+      "patch": {
+        "operationId": "BackspaceService_UpdateBackspace",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/profileBackspace"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "backspace.name",
+            "description": "The resource name of the Backspace.\nFormat: profiles/{address}/backspace",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "profiles/[^/]+/backspace"
+          },
+          {
+            "name": "backspace",
+            "description": "Backspace to update",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "introductionChat": {
+                  "type": "string",
+                  "description": "Introduction chat message of the Backspace."
+                }
+              },
+              "title": "Backspace to update"
+            }
+          }
+        ],
+        "tags": [
+          "BackspaceService"
+        ]
+      }
+    },
+    "/v1/{profile}/backspace": {
+      "get": {
+        "summary": "GetBackspace will return Backspace.",
+        "operationId": "BackspaceService_GetBackspace",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/profileBackspace"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "profile",
+            "description": "The name of the profile to retrieve.\nFormat: profiles/{address}\nWildcard (*) is not allowed.",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "profiles/[^/]+"
+          }
+        ],
+        "tags": [
+          "BackspaceService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "profileBackspace": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "The resource name of the Backspace.\nFormat: profiles/{address}/backspace"
+        },
+        "introductionChat": {
+          "type": "string",
+          "description": "Introduction chat message of the Backspace."
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

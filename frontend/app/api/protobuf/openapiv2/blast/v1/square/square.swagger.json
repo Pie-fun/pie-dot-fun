@@ -1,0 +1,1458 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "blast/v1/square/square.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "SquareService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/squares": {
+      "get": {
+        "summary": "ListSquares will return Squares.",
+        "operationId": "SquareService_ListSquares",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/squareListSquaresResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "pageSize",
+            "description": "The maximum number of squares to return. The service may return fewer than\nthis value.\nIf unspecified, at most 50 rows will be returned.\nThe maximum value is 1024; values above 1024 will be coerced to 1024.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageToken",
+            "description": "Token of the page to retrieve. If not specified, the first\npage of results will be returned. Use the value obtained from\n`next_page_token` in the previous response in order to request\nthe next page of results.\n\nWhen paginating, all other parameters provided to `ListSquares` must match\nthe call that provided the page token.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "filter",
+            "description": "Available Sequence and Operator\n* name\n  * `=`\n* token_id\n  * `=`\n* signature_id\n  * `=`\n* state\n  * `=`\n* join_type\n  * `=`\n* display_name\n  * `=`\n* occupied\n  * `negation`\n\nExamples\n* name=\"squares/10\"\n* token_id=\"10\"\n* signature_id=\"3ed92b99-00be-4417-b69f-dca2d8d14c7f\"\n* join_type=TOKEN_GATED\n* display_name=\"SQUARE\"\n* join_type=TOKEN_GATED AND not occupied",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "orderBy",
+            "description": "Optional. One or more fields to compare and use to sort the output.\nDefault order for a field is descending by id\nTo specify ascending or descending order, append \" asc\" or \" desc\" to the field name. If not specified, the order is ascending.\n\nReference\n* https://google.aip.dev/132#ordering.\n\nSupported Fields\n* \"token_id\", \"total_points\", \"spirits\"\n\nExamples\n* order_by=token_id asc\n* order_by=total_points desc\n* order_by=spirits desc",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "SquareService"
+        ]
+      }
+    },
+    "/v1/squares:approveJoinAndSign": {
+      "post": {
+        "summary": "ApproveJoinSquareAndSign verify the member join the square and return signature to sign the onchain tx.",
+        "operationId": "SquareService_ApproveJoinSquareAndSign",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/squareApproveJoinSquareAndSignResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/squareApproveJoinSquareAndSignRequest"
+            }
+          }
+        ],
+        "tags": [
+          "SquareService"
+        ]
+      }
+    },
+    "/v1/squares:approveTransferAndSign": {
+      "post": {
+        "summary": "ApproveTransferSquareAndSign verify the member transfer the square and return signature to sign the onchain tx.",
+        "operationId": "SquareService_ApproveTransferSquareAndSign",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/squareApproveTransferSquareAndSignResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/squareApproveTransferSquareAndSignRequest"
+            }
+          }
+        ],
+        "tags": [
+          "SquareService"
+        ]
+      }
+    },
+    "/v1/squares:checkMintEligibility": {
+      "post": {
+        "summary": "CheckMintEligibility check if the user is eligible to mint the NFT of the Square.",
+        "operationId": "SquareService_CheckMintEligibility",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/squareCheckMintEligibilityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/squareCheckMintEligibilityRequest"
+            }
+          }
+        ],
+        "tags": [
+          "SquareService"
+        ]
+      }
+    },
+    "/v1/squares:createAndSign": {
+      "post": {
+        "summary": "CreateSquareAndSign create Square with CREATED_PENDING state and response with signature to sign the onchain tx.",
+        "operationId": "SquareService_CreateSquareAndSign",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/squareCreateSquareAndSignResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/squareCreateSquareAndSignRequest"
+            }
+          }
+        ],
+        "tags": [
+          "SquareService"
+        ]
+      }
+    },
+    "/v1/squares:validateDisplayNameAvailablity": {
+      "post": {
+        "summary": "ValidateDisplayNameAvailability check if the display name is available.",
+        "operationId": "SquareService_ValidateDisplayNameAvailability",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/squareValidateDisplayNameAvailabilityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/squareValidateDisplayNameAvailabilityRequest"
+            }
+          }
+        ],
+        "tags": [
+          "SquareService"
+        ]
+      }
+    },
+    "/v1/{square.name}": {
+      "patch": {
+        "summary": "UpdateSquare update Square.",
+        "operationId": "SquareService_UpdateSquare",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/squareSquare"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "square.name",
+            "description": "The resource name of the Square.\nFormat: squares/{token_id}",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "squares/[^/]+"
+          },
+          {
+            "name": "square",
+            "description": "Square to update\nFormat: squares/{token_id}",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "tokenId": {
+                  "type": "string",
+                  "description": "ERC721 token ID of the Square.",
+                  "readOnly": true
+                },
+                "ownerAddress": {
+                  "type": "string",
+                  "readOnly": true
+                },
+                "createTime": {
+                  "type": "string",
+                  "format": "date-time",
+                  "title": "The created time of Square.\nRFC3339 format e.g. \"2006-01-02T15:04:05Z07:00\"",
+                  "readOnly": true
+                },
+                "state": {
+                  "$ref": "#/definitions/squareSquareState",
+                  "readOnly": true
+                },
+                "signatureId": {
+                  "type": "string",
+                  "description": "The signature id of the Square.\nThis field is used for multi signature when minting the Square NFT.",
+                  "readOnly": true
+                },
+                "joinType": {
+                  "$ref": "#/definitions/squareSquareJoinType",
+                  "description": "The join type of the square."
+                },
+                "public": {
+                  "$ref": "#/definitions/squarePublic"
+                },
+                "private": {
+                  "$ref": "#/definitions/squarePrivate"
+                },
+                "tokenGated": {
+                  "$ref": "#/definitions/squareTokenGated"
+                },
+                "displayName": {
+                  "type": "string",
+                  "description": "The display name of the square."
+                },
+                "introduction": {
+                  "type": "string",
+                  "description": "The introduction of the square."
+                },
+                "minimumStakingAmountToJoinInEth": {
+                  "type": "number",
+                  "format": "float",
+                  "description": "The minimum required staking amount to join the square in ETH."
+                },
+                "totalMembersStakingAmountInEth": {
+                  "type": "number",
+                  "format": "float",
+                  "description": "The total staking amount of all members in the square in ETH.",
+                  "readOnly": true
+                },
+                "multiplier": {
+                  "type": "number",
+                  "format": "float",
+                  "description": "The multiplier of the square.",
+                  "readOnly": true
+                },
+                "totalPoints": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "The all-time total points of the square.",
+                  "readOnly": true
+                },
+                "capacity": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "The total capacity of the square.",
+                  "readOnly": true
+                },
+                "occupancy": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "The current number of members in the square.",
+                  "readOnly": true
+                },
+                "occupancyIncludingPending": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "The occupancy of the square including join pending members.",
+                  "readOnly": true
+                },
+                "pfpBoost": {
+                  "$ref": "#/definitions/squarePFPBoost",
+                  "description": "The PFP boost of the square.",
+                  "readOnly": true
+                },
+                "nft": {
+                  "$ref": "#/definitions/squareSquareNFT",
+                  "description": "The NFT of the square.",
+                  "readOnly": true
+                },
+                "spirits": {
+                  "type": "integer",
+                  "format": "int64",
+                  "readOnly": true
+                },
+                "stars": {
+                  "type": "integer",
+                  "format": "int64",
+                  "readOnly": true
+                },
+                "totalSpirits": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "DEPRECATED: Use spirits instead.",
+                  "readOnly": true
+                },
+                "weeklySpirits": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "DEPRECATED: Use GetSquareWeeklySpirits API instead.",
+                  "readOnly": true
+                }
+              },
+              "title": "Square to update\nFormat: squares/{token_id}"
+            }
+          },
+          {
+            "name": "updateMask",
+            "description": "Field mask that specifies the fields to update.\nIf no field mask is set, all fields will be updated.\n\nSupported Fields\n* \"display_name\", \"description\", \"join\"\n\nWildcards are supported.\nExamples\n[\"*\"]\n[\"display_name\"]\n[\"display_name\", \"description\"]\n[\"join\"]",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "SquareService"
+        ]
+      }
+    },
+    "/v1/{square}": {
+      "get": {
+        "summary": "GetSquare will return Square.",
+        "operationId": "SquareService_GetSquare",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/squareSquare"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "square",
+            "description": "The name of the square to retrieve.\nFormat: squares/{token_id}",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "squares/[^/]+"
+          },
+          {
+            "name": "view",
+            "description": "Optional. The view to return.\nDefaults to SQUARE_VIEW_NOT_MEMBER if not set.\nIf set to SQUARE_VIEW_OWNER or SQUARE_VIEW_MEMBER, but the user does not have permission to do so, the API will return a PERMISSION_DENIED error.\n\nSquareView enumeration represents the view of a square.\nThe view controls the amount of information returned.\n\nReference\nhttps://cloud.google.com/apis/design/design_patterns#list_flattening and\nhttps://google.aip.dev/157\n\n - SQUARE_VIEW_UNSPECIFIED: The default / unset value.\nThe API will default to the SQUARE_VIEW_NOT_MEMBER view.\n - SQUARE_VIEW_OWNER: Include everything.\n - SQUARE_VIEW_MEMBER: Include only fields that are safe to be exposed to members\nDo not include `private``\n - SQUARE_VIEW_NOT_MEMBER: Include only fields that are safe to be exposed to non-members\nDo not include `private`\nThis is the default value for GetSquare.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "SQUARE_VIEW_UNSPECIFIED",
+              "SQUARE_VIEW_OWNER",
+              "SQUARE_VIEW_MEMBER",
+              "SQUARE_VIEW_NOT_MEMBER"
+            ],
+            "default": "SQUARE_VIEW_UNSPECIFIED"
+          }
+        ],
+        "tags": [
+          "SquareService"
+        ]
+      }
+    },
+    "/v1/{square}/members": {
+      "get": {
+        "summary": "ListSquareMembers will return the members of the Square.",
+        "operationId": "SquareService_ListSquareMembers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/squareListSquareMembersResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "square",
+            "description": "The name of the square to retrieve.\nFormat: squares/{token_id}",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "squares/[^/]+"
+          },
+          {
+            "name": "pageSize",
+            "description": "The maximum number of squares to return. The service may return fewer than\nthis value.\nIf unspecified, at most 50 rows will be returned.\nThe maximum value is 1024; values above 1024 will be coerced to 1024.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageToken",
+            "description": "Token of the page to retrieve. If not specified, the first\npage of results will be returned. Use the value obtained from\n`next_page_token` in the previous response in order to request\nthe next page of results.\n\nWhen paginating, all other parameters provided to `ListSquareMembers` must match\nthe call that provided the page token.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "filter",
+            "description": "Available Sequence and Operator\n* user\n  * `=`\n* member\n  * `=`\n* member_address\n  * `=`\n* join_time\n  * `\u003e`, `\u003c`, `\u003e=`, `\u003c=`\n* show_left\n  * `NOT`\n\nExamples\n* member_address=\"0x6F11EF2c07f2E381CbE514198DdE87A0c0a19442\"\n* join_time\u003e\"2024-04-10T11:30:00Z\"\n* show_left",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "orderBy",
+            "description": "Optional. One or more fields to compare and use to sort the output.\nDefault order for a field is descending by id\nTo specify ascending or descending order, append \" asc\" or \" desc\" to the field name. If not specified, the order is ascending.\n\nReference\n* https://google.aip.dev/132#ordering.\n\nSupported Fields\n* \"total_points\", \"join_time\"\n\nExamples\n* order_by=join_time asc\n* order_by=total_points desc, join_time asc",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "SquareService"
+        ]
+      }
+    },
+    "/v1/{square}/members/rankings": {
+      "get": {
+        "summary": "ListSquareMemberRankings will return the leaderboard of the Square.",
+        "operationId": "SquareService_ListSquareMemberRankings",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/squareListSquareMemberRankingsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "square",
+            "description": "The name of the square to retrieve.\nFormat: squares/{token_id}",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "squares/[^/]+"
+          },
+          {
+            "name": "rankType",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "SQUARE_MEMBER_RANK_TYPE_UNSPECIFIED",
+              "ALL_TIME",
+              "WEEKLY"
+            ],
+            "default": "SQUARE_MEMBER_RANK_TYPE_UNSPECIFIED"
+          },
+          {
+            "name": "pageSize",
+            "description": "The maximum number of points to return. The service may return fewer than\nthis value.\nIf unspecified, at most 50 rows will be returned.\nThe maximum value is 1024; values above 1024 will be coerced to 1024.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageToken",
+            "description": "Token of the page to retrieve. If not specified, the first\npage of results will be returned. Use the value obtained from\n`next_page_token` in the previous response in order to request\nthe next page of results.\n\nWhen paginating, all other parameters provided to `ListPoints` must match\nthe call that provided the page token.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "SquareService"
+        ]
+      }
+    },
+    "/v1/{square}/spiritHistories": {
+      "get": {
+        "summary": "ListSquareSpiritHistories will return the spirit history of the Square.",
+        "operationId": "SquareService_ListSquareSpiritHistories",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/squareListSquareSpiritHistoriesResposne"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "square",
+            "description": "The name of the square to retrieve.\nFormat: squares/{token_id}",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "squares/[^/]+"
+          },
+          {
+            "name": "pageSize",
+            "description": "The maximum number of spirits to return. The service may return fewer than\nthis value.\nIf unspecified, at most 50 rows will be returned.\nThe maximum value is 1024; values above 1024 will be coerced to 1024.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageToken",
+            "description": "Token of the page to retrieve. If not specified, the first\npage of results will be returned. Use the value obtained from\n`next_page_token` in the previous response in order to request\nthe next page of results.\n\nWhen paginating, all other parameters provided to `ListSquareSpiritHistories` must match\nthe call that provided the page token.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "SquareService"
+        ]
+      }
+    },
+    "/v1/{square}/weeklyPoints": {
+      "get": {
+        "summary": "GetSquareWeeklyPoints will return Square.",
+        "operationId": "SquareService_GetSquareWeeklyPoints",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/squareGetSquareWeeklyPointsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "square",
+            "description": "The name of the square to retrieve.\nFormat: squares/{token_id}",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "squares/[^/]+"
+          },
+          {
+            "name": "week",
+            "description": "The week number to retrieve.\nIf unspecified, the current week will be returned.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "SquareService"
+        ]
+      }
+    },
+    "/v1/{square}/weeklySpirits": {
+      "get": {
+        "summary": "GetSquareWeeklySpirits will return weekly spirits of the Square.",
+        "operationId": "SquareService_GetSquareWeeklySpirits",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/squareGetSquareWeeklySpiritsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "square",
+            "description": "The name of the square to retrieve.\nFormat: squares/{token_id}",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "squares/[^/]+"
+          },
+          {
+            "name": "week",
+            "description": "The week number to retrieve.\nIf unspecified, the current week will be returned.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "SquareService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "chainJoinSquareParams": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "type": "string"
+        },
+        "squareId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "timestamp": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "nonce": {
+          "type": "string"
+        }
+      }
+    },
+    "chainMintAndCreateSquareParams": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "type": "string"
+        },
+        "minStaking": {
+          "type": "string",
+          "title": "uint64 can be overflowed"
+        },
+        "signatureId": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "nonce": {
+          "type": "string"
+        }
+      }
+    },
+    "chainTransferSquareParams": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "type": "string"
+        },
+        "from": {
+          "type": "integer",
+          "format": "int64",
+          "title": "token id of the user's current square"
+        },
+        "to": {
+          "type": "integer",
+          "format": "int64",
+          "title": "token id of the target square"
+        },
+        "timestamp": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "nonce": {
+          "type": "string"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "squareApproveJoinSquareAndSignRequest": {
+      "type": "object",
+      "properties": {
+        "square": {
+          "type": "string",
+          "title": "The resource name of the square to retrieve.\nFormat: squares/{token_id}"
+        },
+        "user": {
+          "type": "string",
+          "title": "The resource name of the user to join.\nFormat: users/{address}"
+        },
+        "privateCode": {
+          "type": "string",
+          "description": "The private code of the square.\nThis field is required if the square is private.\nOtherwise, this field should be empty."
+        },
+        "nonce": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "square",
+        "user",
+        "nonce"
+      ]
+    },
+    "squareApproveJoinSquareAndSignResponse": {
+      "type": "object",
+      "properties": {
+        "approved": {
+          "type": "boolean"
+        },
+        "signature": {
+          "type": "string"
+        },
+        "rejectCode": {
+          "$ref": "#/definitions/squareRejectJoinSquareCode"
+        },
+        "params": {
+          "$ref": "#/definitions/chainJoinSquareParams"
+        }
+      }
+    },
+    "squareApproveTransferSquareAndSignRequest": {
+      "type": "object",
+      "properties": {
+        "square": {
+          "type": "string",
+          "title": "The resource name of the square to transfer.\nFormat: squares/{token_id}"
+        },
+        "user": {
+          "type": "string",
+          "title": "The resource name of the user to transfer.\nFormat: users/{address}"
+        },
+        "privateCode": {
+          "type": "string",
+          "description": "The private code of the square.\nThis field is required if the square is private.\nOtherwise, this field should be empty."
+        },
+        "nonce": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "square",
+        "user",
+        "nonce"
+      ]
+    },
+    "squareApproveTransferSquareAndSignResponse": {
+      "type": "object",
+      "properties": {
+        "approved": {
+          "type": "boolean"
+        },
+        "signature": {
+          "type": "string"
+        },
+        "rejectCode": {
+          "$ref": "#/definitions/squareRejectTransferSquareCode"
+        },
+        "params": {
+          "$ref": "#/definitions/chainTransferSquareParams"
+        }
+      }
+    },
+    "squareCheckMintEligibilityRequest": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "user"
+      ]
+    },
+    "squareCheckMintEligibilityResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "type": "string"
+        },
+        "eligibility": {
+          "$ref": "#/definitions/squareMintEligibility",
+          "title": "Whether the user is eligible to mint the Square NFT"
+        },
+        "available": {
+          "type": "boolean",
+          "description": "Whether the user is currently available to mint the Square NFT\nIf the user is not available, the reason code will be set.\nIf the user is available, the reason code will be empty.\nCan be unavailable though the eligibility is ELIGIBLE_ROUND1 or ELIGIBLE_ROUND2 if it is not appropriate round time."
+        },
+        "rejectCode": {
+          "$ref": "#/definitions/squareRejectMintCode",
+          "description": "The reason code of the user is not eligible to mint the Square NFT."
+        }
+      }
+    },
+    "squareCreateSquareAndSignRequest": {
+      "type": "object",
+      "properties": {
+        "nonce": {
+          "type": "string"
+        },
+        "square": {
+          "$ref": "#/definitions/squareSquare",
+          "title": "square to create"
+        }
+      },
+      "required": [
+        "nonce",
+        "square"
+      ]
+    },
+    "squareCreateSquareAndSignResponse": {
+      "type": "object",
+      "properties": {
+        "square": {
+          "$ref": "#/definitions/squareSquare",
+          "title": "square to create"
+        },
+        "signature": {
+          "type": "string",
+          "title": "signature to sign the onchain tx"
+        },
+        "params": {
+          "$ref": "#/definitions/chainMintAndCreateSquareParams"
+        }
+      },
+      "required": [
+        "square",
+        "params"
+      ]
+    },
+    "squareGetSquareWeeklyPointsResponse": {
+      "type": "object",
+      "properties": {
+        "weeklyPoints": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The weekly points of the square."
+        },
+        "week": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The week number of the points."
+        }
+      }
+    },
+    "squareGetSquareWeeklySpiritsResponse": {
+      "type": "object",
+      "properties": {
+        "weeklySpirits": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "squareListSquareMemberRankingsResponse": {
+      "type": "object",
+      "properties": {
+        "rankings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/squareSquareMemberRanking"
+          },
+          "description": "The list of rows that matched the query."
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Pagination token used to retrieve the next page of results.\nPass the content of this string as the `page_token` attribute of\nthe next request. `next_page_token` is not returned for the last\npage."
+        }
+      }
+    },
+    "squareListSquareMembersResponse": {
+      "type": "object",
+      "properties": {
+        "members": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/squareSquareMember"
+          },
+          "description": "The list of rows that matched the query."
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Pagination token used to retrieve the next page of results.\nPass the content of this string as the `page_token` attribute of\nthe next request. `next_page_token` is not returned for the last\npage."
+        }
+      },
+      "title": "ListSquareMembersResponse\n(-- api-linter: core::0158::response-next-page-token-field=disabled\n    aip.dev/not-precedent: We need to do this because reasons. --)"
+    },
+    "squareListSquareSpiritHistoriesResposne": {
+      "type": "object",
+      "properties": {
+        "histories": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/squareSquareSpiritHistory"
+          },
+          "description": "The list of rows that matched the query."
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Pagination token used to retrieve the next page of results.\nPass the content\nof this string as the `page_token` attribute of\nthe next request. `next_page_token` is not returned for the last\npage."
+        }
+      }
+    },
+    "squareListSquaresResponse": {
+      "type": "object",
+      "properties": {
+        "squares": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/squareSquare"
+          },
+          "description": "The list of rows that matched the query."
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Pagination token used to retrieve the next page of results.\nPass the content of this string as the `page_token` attribute of\nthe next request. `next_page_token` is not returned for the last\npage."
+        }
+      },
+      "title": "ListSquaresResponse\n(-- api-linter: core::0158::response-next-page-token-field=disabled\n    aip.dev/not-precedent: We need to do this because reasons. --)"
+    },
+    "squareMintEligibility": {
+      "type": "string",
+      "enum": [
+        "MINT_ELIGIBILITY_UNSPECIFIED",
+        "NOT_ELIGIBLE",
+        "ELIGIBLE_ROUND1",
+        "ELIGIBLE_ROUND2",
+        "ELIGIBLE_ROUND1_AND_ROUND2"
+      ],
+      "default": "MINT_ELIGIBILITY_UNSPECIFIED",
+      "description": " - NOT_ELIGIBLE: The user is not eligible to mint the Square NFT.\n - ELIGIBLE_ROUND1: The user is eligible to mint the Square NFT in round 1.\n - ELIGIBLE_ROUND2: The user is eligible to mint the Square NFT in round 2.\n - ELIGIBLE_ROUND1_AND_ROUND2: The user is eligible to mint the Square NFT in round 1 and round 2."
+    },
+    "squarePFPBoost": {
+      "type": "object",
+      "properties": {
+        "percentage": {
+          "type": "number",
+          "format": "float",
+          "readOnly": true
+        },
+        "memberCount": {
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        },
+        "nftContract": {
+          "type": "string",
+          "title": "The resource name of the NFT contract.\nFormat: nfts/{chain_type}/{contract_address}",
+          "readOnly": true
+        }
+      }
+    },
+    "squarePrivate": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        }
+      }
+    },
+    "squarePublic": {
+      "type": "object"
+    },
+    "squareRejectJoinSquareCode": {
+      "type": "string",
+      "enum": [
+        "REJECT_JOIN_CODE_UNSPECIFIED",
+        "REJECT_JOIN_FULLY_OCCUPIED",
+        "REJECT_JOIN_NOT_ENOUGH_STAKING_AMOUNT",
+        "REJECT_JOIN_INCORRECT_PRIVATE_CODE",
+        "REJECT_JOIN_NOT_TOKEN_HOLDER",
+        "REJECT_JOIN_ALREADY_JOINED"
+      ],
+      "default": "REJECT_JOIN_CODE_UNSPECIFIED",
+      "description": " - REJECT_JOIN_FULLY_OCCUPIED: The square is fully occupied.\n - REJECT_JOIN_NOT_ENOUGH_STAKING_AMOUNT: The user's staking amount is below the minimum required amount to join the square.\n - REJECT_JOIN_INCORRECT_PRIVATE_CODE: The private code is incorrect.\n - REJECT_JOIN_NOT_TOKEN_HOLDER: The user is not a token holder of the token gated square.\n - REJECT_JOIN_ALREADY_JOINED: The user is already memeber of the square."
+    },
+    "squareRejectMintCode": {
+      "type": "string",
+      "enum": [
+        "REJECT_MINT_CODE_UNSPECIFIED",
+        "NO_ELIGIBILITY",
+        "ROUND_TIME_NOT_MATCH",
+        "ALREADY_MINTED"
+      ],
+      "default": "REJECT_MINT_CODE_UNSPECIFIED",
+      "description": " - NO_ELIGIBILITY: The user is not whitelisted to mint the Square NFT.\n - ROUND_TIME_NOT_MATCH: The Square NFT is already minted.\n - ALREADY_MINTED: The Square NFT is already minted."
+    },
+    "squareRejectTransferSquareCode": {
+      "type": "string",
+      "enum": [
+        "REJECT_TRANSFER_CODE_UNSPECIFIED",
+        "REJECT_TRANSFER_FULLY_OCCUPIED",
+        "REJECT_TRANSFER_NOT_ENOUGH_STAKING_AMOUNT",
+        "REJECT_TRANSFER_INCORRECT_PRIVATE_CODE",
+        "REJECT_TRANSFER_NOT_TOKEN_HOLDER",
+        "REJECT_TRANSFER_NOT_SQUARE_MEMBER",
+        "REJECT_TRANSFER_NOT_AFTER_COOLDOWN_TIME"
+      ],
+      "default": "REJECT_TRANSFER_CODE_UNSPECIFIED",
+      "description": " - REJECT_TRANSFER_FULLY_OCCUPIED: The square is fully occupied.\n - REJECT_TRANSFER_NOT_ENOUGH_STAKING_AMOUNT: The user's staking amount is below the minimum required amount to join the square.\n - REJECT_TRANSFER_INCORRECT_PRIVATE_CODE: The private code is incorrect.\n - REJECT_TRANSFER_NOT_TOKEN_HOLDER: The user is not a token holder of the token gated square.\n - REJECT_TRANSFER_NOT_SQUARE_MEMBER: The user is not member of any square.\n - REJECT_TRANSFER_NOT_AFTER_COOLDOWN_TIME: The user transfer or join the square within the cooldown time."
+    },
+    "squareSpiritType": {
+      "type": "string",
+      "enum": [
+        "SQUARE_SPIRIT_TYPE_UNSPECIFIED",
+        "VOTING",
+        "SUMMON_BEBOB_SUCCESS",
+        "ATTACK_BEBOB_SUCCESS",
+        "COLLECT_STARS",
+        "COMMUNITY_EVENT"
+      ],
+      "default": "SQUARE_SPIRIT_TYPE_UNSPECIFIED"
+    },
+    "squareSquare": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "The resource name of the Square.\nFormat: squares/{token_id}"
+        },
+        "tokenId": {
+          "type": "string",
+          "description": "ERC721 token ID of the Square.",
+          "readOnly": true
+        },
+        "ownerAddress": {
+          "type": "string",
+          "readOnly": true
+        },
+        "createTime": {
+          "type": "string",
+          "format": "date-time",
+          "title": "The created time of Square.\nRFC3339 format e.g. \"2006-01-02T15:04:05Z07:00\"",
+          "readOnly": true
+        },
+        "state": {
+          "$ref": "#/definitions/squareSquareState",
+          "readOnly": true
+        },
+        "signatureId": {
+          "type": "string",
+          "description": "The signature id of the Square.\nThis field is used for multi signature when minting the Square NFT.",
+          "readOnly": true
+        },
+        "joinType": {
+          "$ref": "#/definitions/squareSquareJoinType",
+          "description": "The join type of the square."
+        },
+        "public": {
+          "$ref": "#/definitions/squarePublic"
+        },
+        "private": {
+          "$ref": "#/definitions/squarePrivate"
+        },
+        "tokenGated": {
+          "$ref": "#/definitions/squareTokenGated"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "The display name of the square."
+        },
+        "introduction": {
+          "type": "string",
+          "description": "The introduction of the square."
+        },
+        "minimumStakingAmountToJoinInEth": {
+          "type": "number",
+          "format": "float",
+          "description": "The minimum required staking amount to join the square in ETH."
+        },
+        "totalMembersStakingAmountInEth": {
+          "type": "number",
+          "format": "float",
+          "description": "The total staking amount of all members in the square in ETH.",
+          "readOnly": true
+        },
+        "multiplier": {
+          "type": "number",
+          "format": "float",
+          "description": "The multiplier of the square.",
+          "readOnly": true
+        },
+        "totalPoints": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The all-time total points of the square.",
+          "readOnly": true
+        },
+        "capacity": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The total capacity of the square.",
+          "readOnly": true
+        },
+        "occupancy": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The current number of members in the square.",
+          "readOnly": true
+        },
+        "occupancyIncludingPending": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The occupancy of the square including join pending members.",
+          "readOnly": true
+        },
+        "pfpBoost": {
+          "$ref": "#/definitions/squarePFPBoost",
+          "description": "The PFP boost of the square.",
+          "readOnly": true
+        },
+        "nft": {
+          "$ref": "#/definitions/squareSquareNFT",
+          "description": "The NFT of the square.",
+          "readOnly": true
+        },
+        "spirits": {
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        },
+        "stars": {
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        },
+        "totalSpirits": {
+          "type": "integer",
+          "format": "int64",
+          "description": "DEPRECATED: Use spirits instead.",
+          "readOnly": true
+        },
+        "weeklySpirits": {
+          "type": "integer",
+          "format": "int64",
+          "description": "DEPRECATED: Use GetSquareWeeklySpirits API instead.",
+          "readOnly": true
+        }
+      }
+    },
+    "squareSquareJoinType": {
+      "type": "string",
+      "enum": [
+        "TYPE_UNSPECIFIED",
+        "PUBLIC",
+        "PRIVATE",
+        "TOKEN_GATED"
+      ],
+      "default": "TYPE_UNSPECIFIED",
+      "description": "- TYPE_UNSPECIFIED: default value. this value is unused.\n - PUBLIC: Anyone can join the square.\n - PRIVATE: Only user with the code can join the square.\n - TOKEN_GATED: Only user with the specific token can join the square.",
+      "title": "The join type of square"
+    },
+    "squareSquareMember": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "The resource name of the Square.\nFormat: squares/{square_token_id}/members/{user_address}"
+        },
+        "squareTokenId": {
+          "type": "string",
+          "description": "The token ID of the Square.",
+          "readOnly": true
+        },
+        "userAddress": {
+          "type": "string",
+          "description": "The user address of the member.",
+          "readOnly": true
+        },
+        "type": {
+          "$ref": "#/definitions/squareSquareMemberType",
+          "description": "The member type of the square.",
+          "readOnly": true
+        },
+        "totalPoints": {
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        },
+        "joinTime": {
+          "type": "string",
+          "format": "date-time",
+          "title": "RFC3339 format e.g. \"2006-01-02T15:04:05Z07:00\"",
+          "readOnly": true
+        }
+      }
+    },
+    "squareSquareMemberRankType": {
+      "type": "string",
+      "enum": [
+        "SQUARE_MEMBER_RANK_TYPE_UNSPECIFIED",
+        "ALL_TIME",
+        "WEEKLY"
+      ],
+      "default": "SQUARE_MEMBER_RANK_TYPE_UNSPECIFIED"
+    },
+    "squareSquareMemberRanking": {
+      "type": "object",
+      "properties": {
+        "rank": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "points": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "member": {
+          "$ref": "#/definitions/squareSquareMember"
+        }
+      }
+    },
+    "squareSquareMemberType": {
+      "type": "string",
+      "enum": [
+        "SQUARE_MEMBER_TYPE_UNSPECIFIED",
+        "OWNER",
+        "MEMBER"
+      ],
+      "default": "SQUARE_MEMBER_TYPE_UNSPECIFIED",
+      "description": "- SQUARE_MEMBER_TYPE_UNSPECIFIED: default value. this value is unused.",
+      "title": "The member type of square"
+    },
+    "squareSquareNFT": {
+      "type": "object",
+      "properties": {
+        "tokenId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Token ID of the NFT asset.",
+          "readOnly": true
+        },
+        "imageUri": {
+          "type": "string",
+          "title": "The URI of the NFT asset's image.\nThis URI is cached version of image original URI\ne.g. \"https://cdn.spacebar.xyz/nfts/ethereum/0x79fcdef22feed20eddacbb2587640e45491b757f/609\"",
+          "readOnly": true
+        },
+        "metadataUri": {
+          "type": "string",
+          "description": "The URI of the NFT asset's metadata.",
+          "readOnly": true
+        }
+      }
+    },
+    "squareSquareSpiritHistory": {
+      "type": "object",
+      "properties": {
+        "square": {
+          "type": "string",
+          "title": "The name of the Square\nFormat: squares/{token_id}"
+        },
+        "type": {
+          "$ref": "#/definitions/squareSpiritType",
+          "description": "The spirit type of the square.",
+          "readOnly": true
+        },
+        "amount": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The user address of the member.",
+          "readOnly": true
+        },
+        "createTime": {
+          "type": "string",
+          "format": "date-time",
+          "title": "RFC3339 format e.g. \"2006-01-02T15:04:05Z07:00\"",
+          "readOnly": true
+        }
+      },
+      "required": [
+        "square"
+      ]
+    },
+    "squareSquareState": {
+      "type": "string",
+      "enum": [
+        "STATE_UNSPECIFIED",
+        "CREATED_PENDING",
+        "OWNED",
+        "UNOWNED"
+      ],
+      "default": "STATE_UNSPECIFIED",
+      "description": "- STATE_UNSPECIFIED: default value. this value is unused.\n - CREATED_PENDING: The square is created at server side and pending for onchain tx is finalized\n - OWNED: The square is owned by Spacebar user.\n - UNOWNED: The owner of the square is not a Spacebar user.",
+      "title": "The state of square"
+    },
+    "squareSquareView": {
+      "type": "string",
+      "enum": [
+        "SQUARE_VIEW_UNSPECIFIED",
+        "SQUARE_VIEW_OWNER",
+        "SQUARE_VIEW_MEMBER",
+        "SQUARE_VIEW_NOT_MEMBER"
+      ],
+      "default": "SQUARE_VIEW_UNSPECIFIED",
+      "description": "SquareView enumeration represents the view of a square.\nThe view controls the amount of information returned.\n\nReference\nhttps://cloud.google.com/apis/design/design_patterns#list_flattening and\nhttps://google.aip.dev/157\n\n - SQUARE_VIEW_UNSPECIFIED: The default / unset value.\nThe API will default to the SQUARE_VIEW_NOT_MEMBER view.\n - SQUARE_VIEW_OWNER: Include everything.\n - SQUARE_VIEW_MEMBER: Include only fields that are safe to be exposed to members\nDo not include `private``\n - SQUARE_VIEW_NOT_MEMBER: Include only fields that are safe to be exposed to non-members\nDo not include `private`\nThis is the default value for GetSquare."
+    },
+    "squareTokenGated": {
+      "type": "object",
+      "properties": {
+        "nftContract": {
+          "type": "string",
+          "title": "The resource name of the NFT contract.\nFormat: nfts/{chain_type}/{contract_address}"
+        }
+      }
+    },
+    "squareValidateDisplayNameAvailabilityRequest": {
+      "type": "object",
+      "properties": {
+        "displayName": {
+          "type": "string",
+          "description": "The display_name of Square."
+        }
+      },
+      "required": [
+        "displayName"
+      ]
+    },
+    "squareValidateDisplayNameAvailabilityResponse": {
+      "type": "object",
+      "properties": {
+        "displayName": {
+          "type": "string",
+          "description": "The display_name of Square."
+        },
+        "available": {
+          "type": "boolean",
+          "description": "The availability of the nickname."
+        },
+        "reason": {
+          "type": "string",
+          "title": "The reason of the display_name is not available.\nExample:\n- display name already exists\n- display name should more or equal than 4\n- display name should less or equal than 10\n- display name contains non uppercase character"
+        }
+      }
+    }
+  }
+}

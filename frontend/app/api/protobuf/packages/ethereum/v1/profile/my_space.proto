@@ -1,0 +1,220 @@
+syntax = "proto3";
+
+package ethereum.v1.profile;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/ethereum/v1/profile;profile";
+
+// MySpace message represents a profile's MySpace.
+message MySpace {
+  // The name of Profile of the MySpace
+  string profile = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Profile",
+    }
+  ];
+
+  // The profile's assets.
+  Assets assets = 2;
+
+  // The profile's StarDoodles.
+  StarDoodles star_doodles = 3;
+}
+
+// Assets message represents a profile's assets.
+message Assets {
+  // The profile's Spaceships assets.
+  repeated SpaceshipAsset spaceships = 1;
+
+  // The profile's Badges assets.
+  repeated BadgeAsset badges = 2;
+
+  // The profile's Scores assets.
+  repeated ScoreAsset scores = 3;
+
+  // The profile's Alphabets assets.
+  repeated AlphabetAsset alphabets = 4;
+
+  // The profile's Blocks assets.
+  repeated BlockAsset blocks = 5;
+}
+
+// SpaceshipReference message represents a Spaceship.
+message SpaceshipReference {
+  // The resource name of the Spaceship.
+  string name = 1;
+
+  // The nickname of the Spaceship.
+  string nickname = 2;
+
+  // The token_id of Spaceship NFT.
+  string token_id = 3;
+
+  // The image uri of Spaceship NFT.
+  string image_uri = 4;
+}
+
+// BadgeReference message represents a Badge.
+message BadgeReference {
+  // The resource name of the Badge.
+  string name = 1;
+
+  // TODO: add more fields
+}
+
+// ScoreReference message represents a Score.
+message ScoreReference {
+  // The resource name of the Score.
+  string name = 1;
+
+  // The token_id of Score NFT.
+  string token_id = 2;
+
+  // The image uri of Score NFT.
+  string image_uri = 3;
+}
+
+// SpaceshipAsset message represents a Spaceship asset.
+message SpaceshipAsset {
+  // The ID of the Spaceship asset.
+  uint64 id = 1;
+
+  // The URI of the Spaceship asset image.
+  string image_uri = 2;
+
+  // The position of the Spaceship asset.
+  Position position = 3;
+
+  // The timestamp of the Spaceship asset creation.
+  // RFC3339 format e.g. "2006-01-02T15:04:05Z07:00"
+  google.protobuf.Timestamp create_time = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The timestamp of the Spaceship asset update.
+  // RFC3339 format e.g. "2006-01-02T15:04:05Z07:00"
+  google.protobuf.Timestamp update_time = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The reference to the Spaceship.
+  SpaceshipReference reference = 6;
+}
+
+// BadgeAsset message represents a Badge asset.
+message BadgeAsset {
+  // The ID of the Badge asset.
+  uint64 id = 1;
+
+  // The URI of the Badge asset image.
+  string image_uri = 2;
+
+  // The position of the Badge asset.
+  Position position = 3;
+
+  // The timestamp of the Badge asset creation.
+  // RFC3339 format e.g. "2006-01-02T15:04:05Z07:00"
+  google.protobuf.Timestamp create_time = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The timestamp of the Badge asset update.
+  // RFC3339 format e.g. "2006-01-02T15:04:05Z07:00"
+  google.protobuf.Timestamp update_time = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The reference to the Badge.
+  BadgeReference reference = 6;
+}
+
+// ScoreAsset message represents a Score asset.
+message ScoreAsset {
+  // The ID of the Score asset.
+  uint64 id = 1;
+
+  // The URI of the Score asset image.
+  string image_uri = 2;
+
+  // The position of the Score asset.
+  Position position = 3;
+
+  // The timestamp of the Score asset creation.
+  // RFC3339 format e.g. "2006-01-02T15:04:05Z07:00"
+  google.protobuf.Timestamp create_time = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The timestamp of the Score asset update.
+  // RFC3339 format e.g. "2006-01-02T15:04:05Z07:00"
+  google.protobuf.Timestamp update_time = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The reference to the Score.
+  ScoreReference reference = 6;
+}
+
+// AlphabetAsset message represents an Alphabet asset.
+message AlphabetAsset {
+  // The ID of the Alphabet asset.
+  uint64 id = 1;
+
+  // The URI of the Alphabet asset image.
+  string image_uri = 2;
+
+  // The position of the Alphabet asset.
+  Position position = 3;
+
+  // The timestamp of the Alphabet asset creation.
+  // RFC3339 format e.g. "2006-01-02T15:04:05Z07:00"
+  google.protobuf.Timestamp create_time = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The timestamp of the Alphabet asset update.
+  // RFC3339 format e.g. "2006-01-02T15:04:05Z07:00"
+  google.protobuf.Timestamp update_time = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The character of the Alphabet asset.
+  uint32 character = 6;
+}
+
+// BlockAsset message represents a Block asset.
+message BlockAsset {
+  // The ID of the Block asset.
+  uint64 id = 1;
+
+  // The URI of the Block asset image.
+  string image_uri = 2;
+
+  // The position of the Block asset.
+  Position position = 3;
+
+  // The timestamp of the Alphabet block creation.
+  // RFC3339 format e.g. "2006-01-02T15:04:05Z07:00"
+  google.protobuf.Timestamp create_time = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // The timestamp of the Alphabet block update.
+  // RFC3339 format e.g. "2006-01-02T15:04:05Z07:00"
+  google.protobuf.Timestamp update_time = 5 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+// StarDoodles message represents a profile's StarDoodles.
+message StarDoodles {
+  // The URI of the StarDoodles image.
+  string image_uri = 1;
+
+  // The positions of the StarDoodles.
+  repeated Position positions = 2;
+}
+
+
+// Position message represents a position.
+message Position {
+  // The left position.
+  int32 left = 1;
+
+  // The top position.
+  int32 top = 2;
+
+  // The right position.
+  int32 right = 3;
+
+  // The bottom position.
+  int32 bottom = 4;
+}

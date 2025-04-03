@@ -1,0 +1,21 @@
+name: openapi
+on:
+  push:
+    branches: [ 'main' ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Pushes to another repository
+        uses: cpina/github-action-push-to-another-repository@main
+        env:
+          SSH_DEPLOY_KEY: ${{ secrets.SSH_AO_DEPLOY_KEY }}
+        with:
+          source-directory: 'openapiv2'
+          destination-repository-name: 'ao-labs/api-explorer'
+          target-branch: main
+          target-directory: 'openapi/spacebarapis'
+          user-email: covy@ao.xyz
+          user-name: AOLabs-Dev-Bot
+

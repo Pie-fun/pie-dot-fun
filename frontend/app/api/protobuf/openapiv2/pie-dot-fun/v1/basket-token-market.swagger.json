@@ -1,0 +1,660 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "pie-dot-fun/v1/basket-token-market.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "BasketTokenMarketService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/basketTokens/-/-/markets": {
+      "get": {
+        "summary": "ListBasketTokenMarkets returns the list of markets for the given basket tokens.",
+        "operationId": "BasketTokenMarketService_ListBasketTokenMarkets",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListBasketTokensMarketsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "pageSize",
+            "description": "If unspecified, at most 50 books will be returned.\nThe maximum value is 1000; values above 1000 will be coerced to 1000.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageToken",
+            "description": "Token of the page to retrieve. If not specified, the first\npage of results will be returned. Use the value obtained from\n`next_page_token` in the previous response in order to request\nthe next page of results.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "filter",
+            "description": "Available Sequence and Operator\n* name\n  * `=`\n\nExamples\n* name=\"basketTokens/SOLANA/FZ4MT1HYJHd9GK8D5mJ9f3r7irLaDL5NxBNLjGqrLqs9/market\"",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "orderBy",
+            "description": "One or more fields to compare and use to sort the output.\nTo specify ascending or descending order, append \" asc\" or \" desc\" to the field name. If not specified, the order is ascending.\n\nReference\n* https://google.aip.dev/132#ordering.\n\nSupported Fields\n* \n\nExamples\n*",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "currency",
+            "description": "Display the price in this currency. Default is USD.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "CURRENCY_UNSPECIFIED",
+              "CURRENCY_SOL",
+              "CURRENCY_USDC",
+              "CURRENCY_ETH"
+            ],
+            "default": "CURRENCY_UNSPECIFIED"
+          }
+        ],
+        "tags": [
+          "BasketTokenMarketService"
+        ]
+      },
+      "post": {
+        "summary": "CreateBasketTokenMarket\nprivate",
+        "operationId": "BasketTokenMarketService_CreateBasketTokenMarket",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1BasketTokenMarket"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "basketTokenMarket",
+            "description": "The basket token market to create.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1BasketTokenMarket",
+              "required": [
+                "basketTokenMarket"
+              ]
+            }
+          },
+          {
+            "name": "displayName",
+            "description": "display_name",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "symbol",
+            "description": "Symbol",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BasketTokenMarketService"
+        ]
+      }
+    },
+    "/v1/basketTokens/-/-/markets:create": {
+      "post": {
+        "summary": "CustomCreateBasketTokenMarket\nCreate with components.\nprivate",
+        "operationId": "BasketTokenMarketService_CustomCreateBasketTokenMarket",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1BasketTokenMarket"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CustomCreateBasketTokenMarketRequest"
+            }
+          }
+        ],
+        "tags": [
+          "BasketTokenMarketService"
+        ]
+      }
+    },
+    "/v1/{basketTokenMarket}": {
+      "get": {
+        "summary": "GetBasketTokenMarket returns the market for the given basket token.",
+        "operationId": "BasketTokenMarketService_GetBasketTokenMarket",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1BasketTokenMarket"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "basketTokenMarket",
+            "description": "The name of the market  to retrieve.\nFormat : \"basketTokens/{chain}/{token_address}/market\"",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "basketTokens/[^/]+/[^/]+/market"
+          },
+          {
+            "name": "currency",
+            "description": "Display the price in this currency. Default is USD.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "CURRENCY_UNSPECIFIED",
+              "CURRENCY_SOL",
+              "CURRENCY_USDC",
+              "CURRENCY_ETH"
+            ],
+            "default": "CURRENCY_UNSPECIFIED"
+          }
+        ],
+        "tags": [
+          "BasketTokenMarketService"
+        ]
+      }
+    },
+    "/v1/{basketTokenMarket}:updateComponents": {
+      "post": {
+        "summary": "UpdateBasketTokenMarketComponents\nprivate",
+        "operationId": "BasketTokenMarketService_UpdateBasketTokenMarketComponents",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1UpdateBasketTokenMarketComponentsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "basketTokenMarket",
+            "description": "The name of the market to update.\nFormat : \"basketTokens/{chain}/{token_address}/market\"",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "basketTokens/[^/]+/[^/]+/market"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "components": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/v1UpdateBasketTokenMarketComponentsRequestComponent"
+                  }
+                },
+                "updateBlockNumber": {
+                  "type": "string",
+                  "format": "uint64",
+                  "description": "The block number to update the components."
+                }
+              }
+            }
+          }
+        ],
+        "tags": [
+          "BasketTokenMarketService"
+        ]
+      }
+    },
+    "/v1/{parent}/ticks": {
+      "get": {
+        "summary": "ListBasketTokenTicks returns the list of Ticks for the given basket tokens.",
+        "operationId": "BasketTokenMarketService_ListBasketTokenTicks",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListBasketTokenTicksResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "parent",
+            "description": "Format : \"basketTokens/{chain}/{token_address}\"",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "basketTokens/[^/]+/[^/]+"
+          },
+          {
+            "name": "startTime",
+            "description": "If not set time, the current time will be used.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "endTime",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "size",
+            "description": "default size: 200. Max size: 1000",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "currency",
+            "description": "Default is USD.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "CURRENCY_UNSPECIFIED",
+              "CURRENCY_SOL",
+              "CURRENCY_USDC",
+              "CURRENCY_ETH"
+            ],
+            "default": "CURRENCY_UNSPECIFIED"
+          },
+          {
+            "name": "interval",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "INTERVAL_UNSPECIFIED",
+              "INTERVAL_1_SECOND",
+              "INTERVAL_1_MINUTE",
+              "INTERVAL_15_MINUTES",
+              "INTERVAL_1_HOUR",
+              "INTERVAL_4_HOUR",
+              "INTERVAL_1_DAY"
+            ],
+            "default": "INTERVAL_UNSPECIFIED"
+          }
+        ],
+        "tags": [
+          "BasketTokenMarketService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1BasketTokenMarket": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "readOnly": true
+        },
+        "basketToken": {
+          "type": "string",
+          "readOnly": true
+        },
+        "nativeCurrency": {
+          "$ref": "#/definitions/v1Currency",
+          "description": "Native token symbol of the chain the basket-token belongs to.\nNot dollar(USDT, USDC), \nand the prices and market cap fields will display dollar values together.",
+          "readOnly": true
+        },
+        "values": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/v1Money"
+          },
+          "readOnly": true
+        },
+        "marketCaps": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/v1Money"
+          },
+          "description": "Key is the currency enum string, \nvalue is the market cap with the currency.",
+          "readOnly": true
+        },
+        "valueChanges": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/v1PriceChangesByPeriod"
+          },
+          "title": "Key is the currency enum string,\nvalue is the INAV changes with the currency.\n{\n  \"CURRENCY_USDC\": {\n    \"PRICE_CHANGE_PERIOD_1_HOUR\": {\n      \"nominal_value\": {\n        \"currency\": \"CURRENCY_USDC\",\n        \"amount\": 0.0001\n      },\n      \"percentage_change\": {\n        \"value\": 0.0001\n      },\n      \"period\": \"PRICE_CHANGE_PERIOD_1_HOUR\"\n    },\n    \"CURRENTCY_SOL\": { ... }\n}\nSupport Periods\n* PRICE_CHANGE_PERIOD_1_HOUR\n* PRICE_CHANGE_PERIOD_24_HOUR\n* PRICE_CHANGE_PERIOD_7_DAY\n* PRICE_CHANGE_PERIOD_30_DAY\n* PRICE_CHANGE_PERIOD_ALL_TIME",
+          "readOnly": true
+        },
+        "maximumDrawDown": {
+          "$ref": "#/definitions/v1Percentage",
+          "title": "Percentage of lowest after the previous highest.\n{(`previous highest` - `lowest` after `previous highest`) / `previous highest`} * 100",
+          "readOnly": true
+        },
+        "value": {
+          "$ref": "#/definitions/v1Money",
+          "description": "Current NAV(Net Asset Value) per BasketToken.",
+          "readOnly": true
+        },
+        "marketCap": {
+          "$ref": "#/definitions/v1Money",
+          "description": "Market cap is based on the current NAV(Net Asset Value) per BasketToken.",
+          "readOnly": true
+        },
+        "valueChange": {
+          "$ref": "#/definitions/v1PriceChangesByPeriod",
+          "title": "Example\n{\n  \"PRICE_CHANGE_PERIOD_1_HOUR\": {\n      \"nominal_value\": {\n          \"currency\": \"CURRENCY_USDC\",\n          \"amount\": 0.0001\n      },\n      \"percentage_change\": {\n          \"value\": 0.0001\n      },\n      \"period\": \"PRICE_CHANGE_PERIOD_1_HOUR\"\n  },\n  \"PRICE_CHANGE_PERIOD_24_HOUR\": {...},\n  ...\n}\nSupport Periods\n* PRICE_CHANGE_PERIOD_1_HOUR\n* PRICE_CHANGE_PERIOD_24_HOUR\n* PRICE_CHANGE_PERIOD_7_DAY\n* PRICE_CHANGE_PERIOD_30_DAY\n* PRICE_CHANGE_PERIOD_ALL_TIME",
+          "readOnly": true
+        }
+      },
+      "description": "BasketTokenMarket contains the market data for a basket token."
+    },
+    "v1Currency": {
+      "type": "string",
+      "enum": [
+        "CURRENCY_UNSPECIFIED",
+        "CURRENCY_SOL",
+        "CURRENCY_USDC",
+        "CURRENCY_ETH"
+      ],
+      "default": "CURRENCY_UNSPECIFIED"
+    },
+    "v1CustomCreateBasketTokenMarketRequest": {
+      "type": "object",
+      "properties": {
+        "basketTokenMarket": {
+          "$ref": "#/definitions/v1BasketTokenMarket",
+          "description": "The basket token market to create."
+        },
+        "components": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1CustomCreateBasketTokenMarketRequestComponent"
+          }
+        },
+        "displayName": {
+          "type": "string",
+          "title": "display_name"
+        },
+        "symbol": {
+          "type": "string",
+          "title": "Symbol"
+        }
+      },
+      "required": [
+        "basketTokenMarket"
+      ]
+    },
+    "v1CustomCreateBasketTokenMarketRequestComponent": {
+      "type": "object",
+      "properties": {
+        "fungibleToken": {
+          "type": "string",
+          "title": "The name of the fungible token.\nFormat : \"fungibleTokens/{chain}/{token_address}\""
+        },
+        "quantity": {
+          "$ref": "#/definitions/v1Quantity",
+          "description": "Number of component token per one BasketToken."
+        }
+      }
+    },
+    "v1ListBasketTokenTicksResponse": {
+      "type": "object",
+      "properties": {
+        "ticks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Tick"
+          }
+        },
+        "currency": {
+          "$ref": "#/definitions/v1Currency"
+        }
+      }
+    },
+    "v1ListBasketTokensMarketsResponse": {
+      "type": "object",
+      "properties": {
+        "basketTokenMarkets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1BasketTokenMarket"
+          }
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Pagination token used to retrieve the next page of results.\nPass the content of this string as the `page_token` attribute of\nthe next request. `next_page_token` is not returned for the last\npage."
+        }
+      }
+    },
+    "v1Money": {
+      "type": "object",
+      "properties": {
+        "currency": {
+          "$ref": "#/definitions/v1Currency"
+        },
+        "formattedAmount": {
+          "type": "string"
+        },
+        "rawAmount": {
+          "type": "string"
+        },
+        "decimals": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "v1Percentage": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
+    "v1PriceChange": {
+      "type": "object",
+      "properties": {
+        "nominalValue": {
+          "$ref": "#/definitions/v1Money"
+        },
+        "percentageChange": {
+          "$ref": "#/definitions/v1Percentage"
+        },
+        "period": {
+          "$ref": "#/definitions/v1PriceChangePeriod"
+        }
+      }
+    },
+    "v1PriceChangePeriod": {
+      "type": "string",
+      "enum": [
+        "PRICE_CHANGE_PERIOD_UNSPECIFIED",
+        "PRICE_CHANGE_PERIOD_1_HOUR",
+        "PRICE_CHANGE_PERIOD_24_HOUR",
+        "PRICE_CHANGE_PERIOD_7_DAY",
+        "PRICE_CHANGE_PERIOD_30_DAY",
+        "PRICE_CHANGE_PERIOD_ALL_TIME"
+      ],
+      "default": "PRICE_CHANGE_PERIOD_UNSPECIFIED"
+    },
+    "v1PriceChangesByPeriod": {
+      "type": "object",
+      "properties": {
+        "priceChanges": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/v1PriceChange"
+          },
+          "title": "PriceChangePeriod enum sring to PriceChange"
+        }
+      }
+    },
+    "v1Quantity": {
+      "type": "object",
+      "properties": {
+        "formattedAmount": {
+          "type": "string"
+        },
+        "rawAmount": {
+          "type": "string"
+        },
+        "decimals": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "v1Tick": {
+      "type": "object",
+      "properties": {
+        "openTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "open": {
+          "type": "number",
+          "format": "double"
+        },
+        "high": {
+          "type": "number",
+          "format": "double"
+        },
+        "low": {
+          "type": "number",
+          "format": "double"
+        },
+        "close": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
+    "v1TickInterval": {
+      "type": "string",
+      "enum": [
+        "INTERVAL_UNSPECIFIED",
+        "INTERVAL_1_SECOND",
+        "INTERVAL_1_MINUTE",
+        "INTERVAL_15_MINUTES",
+        "INTERVAL_1_HOUR",
+        "INTERVAL_4_HOUR",
+        "INTERVAL_1_DAY"
+      ],
+      "default": "INTERVAL_UNSPECIFIED"
+    },
+    "v1UpdateBasketTokenMarketComponentsRequestComponent": {
+      "type": "object",
+      "properties": {
+        "fungibleToken": {
+          "type": "string",
+          "title": "The name of the fungible token.\nFormat : \"fungibleTokens/{chain}/{token_address}\""
+        },
+        "quantity": {
+          "$ref": "#/definitions/v1Quantity",
+          "description": "Number of component token per one BasketToken."
+        }
+      }
+    },
+    "v1UpdateBasketTokenMarketComponentsResponse": {
+      "type": "object"
+    }
+  }
+}

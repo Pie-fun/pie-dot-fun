@@ -1,0 +1,646 @@
+syntax = "proto3";
+
+package blast.v1.score;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+import "google/type/decimal.proto";
+
+import "blast/v1/chain/sign.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/blast/v1/score;score";
+
+// ScoreService contains the function to interact with the Score of the spacebar
+service ScoreService {
+
+  // ValidateUploadScoreAndSign validate the upload score and then return signatrue if valid
+  rpc ValidateUploadScoreAndSign(ValidateUploadScoreAndSignRequest) returns (ValidateUploadScoreAndSignResponse) {
+    option (google.api.http) = {
+      post: "/v1/scores:validateUploadAndSign"
+      body: "*"
+    };
+  }
+
+  // CreateScore create Score with Score
+  rpc CreateScore(CreateScoreRequest) returns (Score) {
+    option (google.api.http) = {
+      post: "/v1/{name=users/*/scores/*}"
+      body: "score"
+    };
+    option (google.api.method_signature) = "score";
+  }
+
+  // GetScore
+  rpc GetScore(GetScoreRequest) returns (Score) {
+    option (google.api.http) = {
+      get: "/v1/{score=users/*/scores/*}"
+    };
+    option (google.api.method_signature) = "";
+  }
+
+  // GetUserBestScoreRanking
+  rpc GetUserBestScoreRanking(GetUserBestScoreRankingRequest) returns (UserBestScoreRanking) {
+    option (google.api.http) = {
+      get: "/v1/{userBestScoreRanking=rankings/bestScores/users/*}"
+    };
+    option (google.api.method_signature) = "";
+  }
+
+  // ListUserBestScoreRankings
+  rpc ListUserBestScoreRankings(ListUserBestScoreRankingsRequest) returns (ListUserBestScoreRankingsResponse) {
+    option (google.api.http) = {
+      get: "/v1/rankings/bestScores/users"
+    };
+    option (google.api.method_signature) = "";
+  }
+
+  // GetUserCumulativeScoreRanking
+  rpc GetUserCumulativeScoreRanking(GetUserCumulativeScoreRankingRequest) returns (UserCumulativeScoreRanking) {
+    option (google.api.http) = {
+      get: "/v1/{userCumulativeScoreRanking=rankings/cumulativeScores/users/*}"
+    };
+    option (google.api.method_signature) = "";
+  }
+
+  // ListUserCumulativeScoreRankings
+  rpc ListUserCumulativeScoreRankings(ListUserCumulativeScoreRankingsRequest) returns (ListUserCumulativeScoreRankingsResponse) {
+    option (google.api.http) = {
+      get: "/v1/rankings/cumulativeScores/users"
+    };
+    option (google.api.method_signature) = "";
+  }
+
+
+  // GetSquareCumulativeScoreRanking
+  rpc GetSquareCumulativeScoreRanking(GetSquareCumulativeScoreRankingRequest) returns (SquareCumulativeScoreRanking) {
+    option (google.api.http) = {
+      get: "/v1/{squareCumulativeScoreRanking=rankings/cumulativeScores/squares/*}"
+    };
+    option (google.api.method_signature) = "";
+  }
+
+  // ListSquareCumulativeScoreRankings
+  rpc ListSquareCumulativeScoreRankings(ListSquareCumulativeScoreRankingsRequest) returns (ListSquareCumulativeScoreRankingsResponse) {
+    option (google.api.http) = {
+      get: "/v1/rankings/cumulativeScores/squares"
+    };
+    option (google.api.method_signature) = "";
+  }
+
+  // InvalidateScoreRankingsByUser
+  rpc InvalidateScoreRankingsByUser(InvalidateScoreRankingsByUserRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/rankings/scores:invalidateByUser"
+      body: "*"
+    };
+  }
+
+  // DryRunReward
+  // for admin. 
+  rpc DryRunReward(RewardRequest) returns (RewardResponse) {
+    option (google.api.http) = {
+      post: "/v1/scores:dryRunReward"
+      body: "*"
+    };
+  }
+
+  // Reward
+  // for admin. 
+  // rpc Reward(RewardRequest) returns (RewardResponse) {
+  //   option (google.api.http) = {
+  //     post: "/v1/scores:reward"
+  //     body: "*"
+  //   };
+  // }
+}
+
+// RewardRequest
+message RewardRequest {
+  // RewardType
+  enum RewardType {
+    // default value.
+    REWARD_TYPE_UNSPECIFIED = 0;
+
+    WEEKLY_ALL_USERS_LEADERBOARD = 1;
+
+    WEEKLY_SQUARE_MEMBERS_LEADERBOARD = 2;
+
+    WEEKLY_SS_CHALLENGE = 3;
+
+    MONTHLY_SS_CHALLENGE = 4;
+
+    MONTHLY_SQUARE_COMPETITION = 5;
+  }
+
+  // type
+  RewardType type = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+// RewardResponse
+message RewardResponse {
+
+  // user reward
+  message UserReward {
+    // user address
+    string user_address = 1;
+
+    // spacebar points
+    google.type.Decimal points = 2;
+    // blast points
+    google.type.Decimal blast_points = 3;
+    // blast gold
+    google.type.Decimal blast_gold = 4;
+  }
+
+  // user rewards
+  repeated UserReward user_rewards = 1;
+}
+
+message ValidateUploadScoreAndSignRequest {
+  // The name of the score to create.
+  // Format: users/{user_address}/scores/{game_id}
+  string score = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Score"
+    }];
+
+  string nonce = 2 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message ValidateUploadScoreAndSignResponse {
+  string signature = 1;
+
+  chain.UploadScoreParams params = 2;
+}
+
+// CreateScoreRequest
+message CreateScoreRequest {
+  // The name of the score to create.
+  // Format: users/{user_address}/scores/{game_id}
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Score"
+    }];
+
+  // score to create
+  Score score = 2 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+
+message GetScoreRequest {
+  // The name of the score to retrieve.
+  // Format: users/{user_address}/scores/{game_id}
+  string score = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Score"
+    }];
+}
+
+
+message GetUserBestScoreRankingRequest {
+  // The name of the score ranking to retrieve.
+  // Format: rankings/bestScores/users/{user_address}
+  string userBestScoreRanking = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/UserBestScoreRanking"
+    }];
+
+  // The user type of the ranking to retrieve.
+  ScoreRankUserType user_type = 2 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The type of ranking to retrieve.
+  ScoreRankTimePeriod time_period = 3 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The context needed to get the ranking according to the rank type.
+  // If rank type is one of ALL_MEMBERS, SQUARE_MEMBERS, the context should contain the square.
+  // * snapshot_square="squares/{square_token_id}"
+  // * snapshot_square_token_id="{square_token_id}"
+  //
+  // If rank type is ALL_USERS, the context should be empty.
+  //
+  // If time period is WEEKLY, the week can be set. If not set, the current week will be used.
+  // * week=10
+  string context = 4;
+}
+
+message ListUserBestScoreRankingsRequest {
+  // The user type of the ranking to retrieve.
+  ScoreRankUserType user_type = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The type of ranking to retrieve.
+  ScoreRankTimePeriod time_period = 2 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The context needed to get the ranking according to the rank type.
+  // If rank type is one of ALL_MEMBERS, SQUARE_MEMBERS, the context should contain the square.
+  // * snapshot_square="squares/{square_token_id}"
+  // * snapshot_square_token_id="{square_token_id}"
+  //
+  // If rank type is ALL_USERS, the context should be empty.
+  //
+  // If time period is WEEKLY, the week can be set. If not set, the current week will be used.
+  // * week=10
+  string context = 3;
+
+  // The maximum number of points to return. The service may return fewer than
+  // this value.
+  // If unspecified, at most 50 rows will be returned.
+  // The maximum value is 1024; values above 1024 will be coerced to 1024.
+  int32 page_size = 4;
+
+  // Token of the page to retrieve. If not specified, the first
+  // page of results will be returned. Use the value obtained from
+  // `next_page_token` in the previous response in order to request
+  // the next page of results.
+  //
+  // When paginating, all other parameters provided to `ListPoints` must match
+  // the call that provided the page token.
+  string page_token = 5;
+}
+
+message ListUserBestScoreRankingsResponse {
+  // The list of rows that matched the query.
+  repeated UserBestScoreRanking rankings = 1;
+
+  // Pagination token used to retrieve the next page of results.
+  // Pass the content of this string as the `page_token` attribute of
+  // the next request. `next_page_token` is not returned for the last
+  // page.
+  string next_page_token = 2;
+}
+
+message GetUserCumulativeScoreRankingRequest {
+  // The name of the score ranking to retrieve.
+  // Format: rankings/cumulativeScores/users/{user_address}
+  string userCumulativeScoreRanking = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/UserCumulativeScoreRanking"
+    }];
+
+  // The type of ranking to retrieve.
+  ScoreRankUserType user_type = 2 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The type of ranking to retrieve.
+  ScoreRankTimePeriod time_period = 3 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The context needed to get the ranking according to the rank type.
+  // If rank type is one of ALL_MEMBERS, SQUARE_MEMBERS, the context should contain the square.
+  // * snapshot_square="squares/{square_token_id}"
+  // * snapshot_square_token_id="{square_token_id}"
+  //
+  // If rank type is ALL_USERS, the context should be empty.
+  //
+  // If time period is WEEKLY, the week can be set. If not set, the current week will be used.
+  // * week=10
+  // If time period is WEEKLY_FULL_WEEK_BASED, the week can be set.
+  // * full_week_based_week="2024-08-W1"
+  // If time period is MONTH_FULL_WEEK_BASED, the week can be set.
+  // * full_week_based_month="2024-08"
+  string context = 4;
+
+}
+
+message ListUserCumulativeScoreRankingsRequest {
+  // The type of ranking to retrieve.
+  ScoreRankUserType user_type = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The type of ranking to retrieve.
+  ScoreRankTimePeriod time_period = 2 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The context needed to get the ranking according to the rank type.
+  // If rank type is one of ALL_MEMBERS, SQUARE_MEMBERS, the context should contain the square.
+  // * snapshot_square="squares/{square_token_id}"
+  // * snapshot_square_token_id="{square_token_id}"
+  //
+  // If rank type is ALL_USERS, the context should be empty.
+  //
+  // If time period is WEEKLY, the week can be set. If not set, the current week will be used.
+  // * week=10
+  // If time period is WEEKLY_FULL_WEEK_BASED, the week can be set.
+  // * full_week_based_week="2024-08-W1"
+  // If time period is MONTH_FULL_WEEK_BASED, the week can be set.
+  // * full_week_based_month="2024-08"
+  string context = 3;
+
+  // The maximum number of points to return. The service may return fewer than
+  // this value.
+  // If unspecified, at most 50 rows will be returned.
+  // The maximum value is 1024; values above 1024 will be coerced to 1024.
+  int32 page_size = 4;
+
+  // Token of the page to retrieve. If not specified, the first
+  // page of results will be returned. Use the value obtained from
+  // `next_page_token` in the previous response in order to request
+  // the next page of results.
+  //
+  // When paginating, all other parameters provided to `ListPoints` must match
+  // the call that provided the page token.
+  string page_token = 5;
+}
+
+message ListUserCumulativeScoreRankingsResponse {
+  // The list of rows that matched the query.
+  repeated UserCumulativeScoreRanking rankings = 1;
+
+  // Pagination token used to retrieve the next page of results.
+  // Pass the content of this string as the `page_token` attribute of
+  // the next request. `next_page_token` is not returned for the last
+  // page.
+  string next_page_token = 2;
+}
+
+
+message GetSquareCumulativeScoreRankingRequest {
+  // The name of the score ranking to retrieve.
+  // Format: rankings/cumulativeScores/squares/{square_address}
+  string squareCumulativeScoreRanking = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/SquareCumulativeScoreRanking"
+    }];
+
+  // The type of ranking to retrieve.
+  ScoreRankTimePeriod time_period = 2 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The context needed to get the ranking according to the rank type.
+  // If time period is WEEKLY, the week can be set. If not set, the current week will be used.
+  // * week=10
+  // If time period is WEEKLY_FULL_WEEK_BASED, the week can be set.
+  // * full_week_based_week="2024-08-W1"
+  // If time period is MONTH_FULL_WEEK_BASED, the week can be set.
+  // * full_week_based_month="2024-08"
+  optional string context = 3;
+
+}
+
+message ListSquareCumulativeScoreRankingsRequest {
+  // The type of ranking to retrieve.
+  ScoreRankTimePeriod time_period = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The context needed to get the ranking according to the rank type.
+  // If time period is WEEKLY, the week can be set. If not set, the current week will be used.
+  // * week=10
+  // If time period is WEEKLY_FULL_WEEK_BASED, the week can be set.
+  // * full_week_based_week="2024-08-W1"
+  // If time period is MONTH_FULL_WEEK_BASED, the week can be set.
+  // * full_week_based_month="2024-08"
+  optional string context = 2;
+
+  // The maximum number of points to return. The service may return fewer than
+  // this value.
+  // If unspecified, at most 50 rows will be returned.
+  // The maximum value is 1024; values above 1024 will be coerced to 1024.
+  int32 page_size = 3;
+
+  // Token of the page to retrieve. If not specified, the first
+  // page of results will be returned. Use the value obtained from
+  // `next_page_token` in the previous response in order to request
+  // the next page of results.
+  //
+  // When paginating, all other parameters provided to `ListPoints` must match
+  // the call that provided the page token.
+  string page_token = 4;
+}
+
+message ListSquareCumulativeScoreRankingsResponse {
+  // The list of rows that matched the query.
+  repeated SquareCumulativeScoreRanking rankings = 1;
+
+  // Pagination token used to retrieve the next page of results.
+  // Pass the content of this string as the `page_token` attribute of
+  // the next request. `next_page_token` is not returned for the last
+  // page.
+  string next_page_token = 2;
+}
+
+message InvalidateScoreRankingsByUserRequest {
+  // The name of the score ranking to invalidate.
+  // Format: users/{user_address}
+  repeated string users = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The context needed to decumulate the ranking according to the rank type.
+  // Context for square is always required.
+  // * snapshot_square="squares/{square_token_id}"
+  // * snapshot_square_token_id="{square_token_id}"
+  // Context for week is optional. If not set, the current week will be used.
+  // * week=10
+  // Context for full week based week is optional. If not set, the current date will be used.
+  // * full_week_based_week="2024-08-W1"
+  // Context for full week based month is optional. If not set, the current date will be used.
+  // * full_week_based_month="2024-08"
+  string context = 2 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+}
+
+enum GameType {
+  // default value. this value is unused.
+  GAME_TYPE_UNSPECIFIED = 0;
+
+  STAR_SWEEPERS = 1;
+}
+
+enum PlayMode {
+  // default value. this value is unused.
+  PLAY_MODE_UNSPECIFIED = 0;
+
+  //
+  SINGLE_PLAYER = 1;
+}
+
+// The state of score
+enum ScoreState {
+  // default value. this value is unused.
+  SCORE_STATE_UNSPECIFIED = 0;
+
+  CREATED = 1;
+
+  // The score is uploaded to onchain.
+  UPLOADED = 2;
+}
+
+message Score {
+  option (google.api.resource) = {
+    type: "station.spacebarapis.xyz/Score",
+    pattern: "users/{user_address}/scores/{game_id}"
+  };
+
+  // The resource name of the Score.
+  // Format: "users/{user_address}/scores/{game_id}"
+  string name = 1;
+
+  // The user address of the member.
+  string user_address = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The game ID of the Score.
+  string game_id = 3  [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // created time of score
+  google.protobuf.Timestamp create_time = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  ScoreState state = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // points got from game
+  uint32 points = 6;
+
+  // spacebar points got from game
+  //  uint32 point = 7;
+
+  // Game mode of score.
+  GameType game_type = 8;
+
+  // Play mode of score.
+  PlayMode play_mode = 9;
+
+  // week of score
+  uint32 week = 10 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The snapshot square token ID of the Score.
+  // This field can be null if the score is not related to any square.
+  optional string snapshot_square_token_id = 11;
+
+  // Thie field is internal use only.
+  optional float blast_gold = 12;
+
+}
+
+enum ScoreRankUserType {
+  // default value. this value is unused.
+  SCORE_RANK_USER_TYPE_UNSPECIFIED = 0;
+
+  // All users in the spacebar.
+  // Ranking persists regardless of the square.
+  ALL_USERS = 1;
+
+  // All members in the square.
+  // Ranking persists only when the user is a member of the snapshot square.
+  ALL_MEMBERS = 2;
+
+  // Members in the specific square.
+  // Ranking persists only when the user is a member of the snapshot square.
+  SQUARE_MEMBERS = 3;
+
+  // All users in the specific square.
+  // Ranking persists regardless of the square.
+  SQUARE_USERS = 4;
+}
+
+enum ScoreRankTimePeriod {
+  // default value. this value is unused.
+  SCORE_RANK_TIME_PERIOD_UNSPECIFIED = 0;
+
+  ALL_TIME = 1;
+
+  WEEKLY = 2;
+
+  WEEKLY_FULL_WEEK_BASED = 21;
+
+  MONTHLY_FULL_WEEK_BASED = 31;
+}
+
+enum ScoreRankScoreType {
+  // default value. this value is unused.
+  SCORE_RANK_SCORE_TYPE_UNSPECIFIED = 0;
+
+  BEST_SCORE = 1;
+
+  CUMULATIVE_SCORE = 2;
+}
+
+enum ScoreRankEntitiyType {
+  // default value. this value is unused.
+  SCORE_RANK_ENTITY_TYPE_UNSPECIFIED = 0;
+
+  USER = 1;
+
+  SQUARE = 2;
+}
+
+message UserBestScoreRanking {
+  option (google.api.resource) = {
+    type: "station.spacebarapis.xyz/UserBestScoreRanking",
+    pattern: "rankings/bestScores/users/{user_address}"
+  };
+
+  uint32 rank = 1;
+  ScoreRankUserType user_type = 2;
+  ScoreRankTimePeriod time_period = 3;
+  Score score = 4;
+}
+
+
+message UserCumulativeScoreRanking {
+  option (google.api.resource) = {
+    type: "station.spacebarapis.xyz/UserCumulativeScoreRanking",
+    pattern: "rankings/cumulativeScores/users/{user_address}"
+  };
+
+  uint32 rank = 1;
+  ScoreRankUserType user_type = 2;
+  ScoreRankTimePeriod time_period = 3;
+  string user_address = 5;
+  uint64 total_points = 6;
+}
+
+
+message SquareCumulativeScoreRanking {
+  option (google.api.resource) = {
+    type: "station.spacebarapis.xyz/SquareCumulativeScoreRanking",
+    pattern: "rankings/cumulativeScores/squares/{square_token_id}"
+  };
+
+  uint32 rank = 1;
+  ScoreRankTimePeriod time_period = 2;
+  string square_token_id = 5;
+  uint64 total_points = 6;
+  uint32 points_count = 7;
+  uint32 participants_count = 8;
+}

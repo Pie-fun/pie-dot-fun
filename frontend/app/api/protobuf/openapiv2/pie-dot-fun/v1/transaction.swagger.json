@@ -1,0 +1,255 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "pie-dot-fun/v1/transaction.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "TransactionService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/transactions": {
+      "get": {
+        "operationId": "TransactionService_ListTransactions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListTransactionsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "pageSize",
+            "description": "The maximum number of transactions to return. The service may return fewer than\nthis value.\nIf unspecified, at most 50 rows will be returned.\nThe maximum value is 1024; values above 1024 will be coerced to 1024.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageToken",
+            "description": "Token of the page to retrieve. If not specified, the first\npage of results will be returned. Use the value obtained from\n`next_page_token` in the previous response in order to request\nthe next page of results.\n\nWhen paginating, all other parameters provided to `ListTransactions` must match\nthe call that provided the page token.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "filter",
+            "description": "Available Sequence and Operator\n* name\n  * `Equal`\n* chain\n  * `Equal`\n* signature\n  * `Equal`\n* basket_token\n  * `Equal`\n* from_holding_wallet\n  * Equal`\n* to_holding_wallet\n  * Equal`\n* type\n  * Equal`\n\nExamples\n* name=\"transactions/SOLANA/2ksFVPax4AKHEQDpUusmbifTYNMU2evzmcxdBpVu5N9koMaRGqvBJsn3JQsk8DUqnNwEZNN3o6ujfXLnZ1hks9Zc\"\n* basket_token=\"basketTokens/{chain}/{address}\"\n* from_holding_wallet=\"holdingWallets/{chain}/{address}\"\n* to_holding_wallet=\"holdingWallets/{chain}/{address}\"\n* type=MINT",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "TransactionService"
+        ]
+      }
+    },
+    "/v1/{transaction}": {
+      "get": {
+        "operationId": "TransactionService_GetTransaction",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1Transaction"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "transaction",
+            "description": "The name of the transaction to retrieve.\nFormat: transactions/{chain}/{signature}",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "transactions/[^/]+"
+          }
+        ],
+        "tags": [
+          "TransactionService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1ChainType": {
+      "type": "string",
+      "enum": [
+        "CHAIN_UNSPECIFIED",
+        "SOLANA",
+        "SOLANA_TESTNET",
+        "SOLANA_DEVNET",
+        "ETHEREUM",
+        "ETHEREUM_SEPOLIA",
+        "BASE",
+        "BASE_SEPOLIA"
+      ],
+      "default": "CHAIN_UNSPECIFIED",
+      "description": " - CHAIN_UNSPECIFIED: Unspecified blockchain type.\n - SOLANA: Solana Mainnet blockchain.\n - SOLANA_TESTNET: Solana Testnet blockchain.\n - SOLANA_DEVNET: Solana Devnet blockchain."
+    },
+    "v1Currency": {
+      "type": "string",
+      "enum": [
+        "CURRENCY_UNSPECIFIED",
+        "CURRENCY_SOL",
+        "CURRENCY_USDC",
+        "CURRENCY_ETH"
+      ],
+      "default": "CURRENCY_UNSPECIFIED"
+    },
+    "v1ListTransactionsResponse": {
+      "type": "object",
+      "properties": {
+        "transactions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Transaction"
+          }
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Pagination token used to retrieve the next page of results.\nPass the content of this string as the `page_token` attribute of\nthe next request. `next_page_token` is not returned for the last\npage."
+        }
+      },
+      "required": [
+        "transactions"
+      ]
+    },
+    "v1Money": {
+      "type": "object",
+      "properties": {
+        "currency": {
+          "$ref": "#/definitions/v1Currency"
+        },
+        "formattedAmount": {
+          "type": "string"
+        },
+        "rawAmount": {
+          "type": "string"
+        },
+        "decimals": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "v1Transaction": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "Format : \"transactions/{chain}/{signature}\""
+        },
+        "chain": {
+          "$ref": "#/definitions/v1ChainType",
+          "readOnly": true
+        },
+        "signature": {
+          "type": "string",
+          "readOnly": true
+        },
+        "basketToken": {
+          "type": "string",
+          "readOnly": true
+        },
+        "from": {
+          "type": "string",
+          "readOnly": true
+        },
+        "to": {
+          "type": "string",
+          "readOnly": true
+        },
+        "type": {
+          "$ref": "#/definitions/v1TransactionType",
+          "readOnly": true
+        },
+        "quantity": {
+          "type": "string",
+          "format": "int64",
+          "readOnly": true
+        },
+        "executionPrice": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/v1Money"
+          },
+          "readOnly": true
+        },
+        "totalValue": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/v1Money"
+          },
+          "readOnly": true
+        },
+        "createTime": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "v1TransactionType": {
+      "type": "string",
+      "enum": [
+        "TRANSACTION_TYPE_UNSPECIFIED",
+        "TRANSACTION_TYPE_MINT",
+        "TRANSACTION_TYPE_TRANSFER",
+        "TRANSACTION_TYPE_REDEEM"
+      ],
+      "default": "TRANSACTION_TYPE_UNSPECIFIED"
+    }
+  }
+}

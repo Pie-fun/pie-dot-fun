@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+package blast.v1.wallet;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/blast/v1/wallet;wallet";
+
+// WalletService contains the function to interact with the Wallet of the spacebar
+service WalletService {
+  rpc GetWallet(GetWalletRequest) returns (Wallet) {
+    option (google.api.http) = {
+      get: "/v1/{wallet=wallets/*}"
+    };
+    option (google.api.method_signature) = "wallet";
+  }
+}
+
+message GetWalletRequest {
+  // The name of the wallet to retrieve.
+  // Format: wallets/{address}
+  // Alias "wallets/me" is supported.
+  string wallet = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Wallet"
+    }
+  ];
+
+}
+
+
+message Wallet {
+  option (google.api.resource) = {
+    type: "station.spacebarapis.xyz/Wallet",
+    pattern: "wallets/{address}"
+  };
+
+  string address = 1;
+
+  uint32 total_points = 2;
+
+  EarlyAccess early_access = 3;
+
+  BlastBridge blast_bridge = 4;
+
+  NFTAssets nft_assets = 5;
+
+  CryptoOG crypto_og = 6;
+
+}
+
+message EarlyAccess {
+  uint32 galxe_points = 1;
+}
+
+message BlastBridge {
+  float ETH = 1;
+  float stETH = 2;
+  float DAI = 3;
+  float USDT = 4;
+  float USDC = 5;
+}
+
+message NFTAssets {
+  uint32 count = 1;
+}
+
+message CryptoOG {
+  bool og = 1;
+}

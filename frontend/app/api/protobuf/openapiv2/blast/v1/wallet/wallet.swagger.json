@@ -1,0 +1,156 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "blast/v1/wallet/wallet.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "WalletService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/{wallet}": {
+      "get": {
+        "operationId": "WalletService_GetWallet",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/walletWallet"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "wallet",
+            "description": "The name of the wallet to retrieve.\nFormat: wallets/{address}\nAlias \"wallets/me\" is supported.",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "wallets/[^/]+"
+          }
+        ],
+        "tags": [
+          "WalletService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "walletBlastBridge": {
+      "type": "object",
+      "properties": {
+        "ETH": {
+          "type": "number",
+          "format": "float"
+        },
+        "stETH": {
+          "type": "number",
+          "format": "float"
+        },
+        "DAI": {
+          "type": "number",
+          "format": "float"
+        },
+        "USDT": {
+          "type": "number",
+          "format": "float"
+        },
+        "USDC": {
+          "type": "number",
+          "format": "float"
+        }
+      }
+    },
+    "walletCryptoOG": {
+      "type": "object",
+      "properties": {
+        "og": {
+          "type": "boolean"
+        }
+      }
+    },
+    "walletEarlyAccess": {
+      "type": "object",
+      "properties": {
+        "galxePoints": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "walletNFTAssets": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "walletWallet": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string"
+        },
+        "totalPoints": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "earlyAccess": {
+          "$ref": "#/definitions/walletEarlyAccess"
+        },
+        "blastBridge": {
+          "$ref": "#/definitions/walletBlastBridge"
+        },
+        "nftAssets": {
+          "$ref": "#/definitions/walletNFTAssets"
+        },
+        "cryptoOg": {
+          "$ref": "#/definitions/walletCryptoOG"
+        }
+      }
+    }
+  }
+}

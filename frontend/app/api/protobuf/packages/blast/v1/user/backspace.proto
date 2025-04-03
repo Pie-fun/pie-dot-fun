@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package blast.v1.user;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/blast/v1/user;user";
+
+// BackspaceService contains the function to interact with the Backspace of the spacebar
+service BackspaceService {
+
+  // GetBackspace will return Backspace.
+  rpc GetBackspace(GetBackspaceRequest) returns (Backspace) {
+    option (google.api.http) = {
+      get: "/v1/{user=users/*}/backspace"
+    };
+    option (google.api.method_signature) = "user";
+  }
+
+  rpc UpdateBackspace(UpdateBackspaceRequest) returns (Backspace) {
+    option (google.api.http) = {
+      patch: "/v1/{backspace.name=users/*/backspace}"
+      body: "backspace"
+    };
+    option (google.api.method_signature) = "backspace,update_mask";
+  }
+}
+
+message GetBackspaceRequest {
+  // The name of the user to retrieve.
+  // Format: users/{address}
+  // Wildcard (*) is not allowed.
+  string user = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/User",
+    }];
+}
+
+message UpdateBackspaceRequest {
+  // Backspace to update
+  Backspace backspace = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Field mask that specifies the fields to update.
+  // If no field mask is set, all fields will be updated.
+  // Wildcards are supported.
+  // Examples
+  // ["*"]
+  // ["introduction_chat"]
+//  google.protobuf.FieldMask update_mask = 2;
+}
+
+
+message Backspace {
+  option (google.api.resource) = {
+    type: "station.spacebarapis.xyz/Backspace",
+    pattern: "backspaces/{address}"
+  };
+  // The resource name of the Backspace.
+  // Format: users/{address}/backspace
+  string name = 1;
+
+  // Introduction chat message of the Backspace.
+  string introduction_chat = 2;
+}
+

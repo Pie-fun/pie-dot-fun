@@ -1,0 +1,743 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "pie-dot-fun/v1/pie-program.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "PieProgramService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/pie-program/basket-config/{basketId}": {
+      "get": {
+        "operationId": "PieProgramService_GetBasketConfigByID",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1BasketConfig"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "basketId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "PieProgramService"
+        ]
+      }
+    },
+    "/v1/pie-program/baskets-vault/{mint}": {
+      "get": {
+        "summary": "Get Basket Vault",
+        "operationId": "PieProgramService_GetBasketVault",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetBasketVaultResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "mint",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "PieProgramService"
+        ]
+      }
+    },
+    "/v1/pie-program/baskets/{mint}": {
+      "get": {
+        "operationId": "PieProgramService_GetBasket",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1Basket"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "mint",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "PieProgramService"
+        ]
+      }
+    },
+    "/v1/pie-program/build-tx/execute-rebalance-basket": {
+      "post": {
+        "summary": "Build Rebalance Trasaction",
+        "operationId": "PieProgramService_BuildRebalanceTx",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1SerializedTxBundle"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1BuildRebalanceTxRequest"
+            }
+          }
+        ],
+        "tags": [
+          "PieProgramService"
+        ]
+      }
+    },
+    "/v1/pie-program/build-tx/mint-basket": {
+      "post": {
+        "summary": "Build Mint Transaction",
+        "operationId": "PieProgramService_BuildMintTx",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1SerializedTxBundle"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1BuildMintTxRequest"
+            }
+          }
+        ],
+        "tags": [
+          "PieProgramService"
+        ]
+      }
+    },
+    "/v1/pie-program/build-tx/redeem-basket": {
+      "post": {
+        "summary": "Build Redeem Transaction",
+        "operationId": "PieProgramService_BuildRedeemTx",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1SerializedTxBundle"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1BuildRedeemTxRequest"
+            }
+          }
+        ],
+        "tags": [
+          "PieProgramService"
+        ]
+      }
+    },
+    "/v1/pie-program/command/create-basket": {
+      "post": {
+        "summary": "Send Create Basket Transaction to Solana",
+        "operationId": "PieProgramService_CommandCreateBasket",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1Basket"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1Basket"
+            }
+          }
+        ],
+        "tags": [
+          "PieProgramService"
+        ]
+      }
+    },
+    "/v1/pie-program/command/start-rebalance-basket": {
+      "post": {
+        "operationId": "PieProgramService_CommandStartRebalanceBasket",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1TxResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1Basket"
+            }
+          }
+        ],
+        "tags": [
+          "PieProgramService"
+        ]
+      }
+    },
+    "/v1/pie-program/command/stop-rebalance-basket": {
+      "post": {
+        "operationId": "PieProgramService_CommandStopRebalanceBasket",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1TxResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1Basket"
+            }
+          }
+        ],
+        "tags": [
+          "PieProgramService"
+        ]
+      }
+    },
+    "/v1/pie-program/state": {
+      "get": {
+        "operationId": "PieProgramService_GetProgramState",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ProgramState"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "PieProgramService"
+        ]
+      }
+    },
+    "/v1/pie-program/token-pools/batchCreate": {
+      "post": {
+        "summary": "Batch Create Token Pools",
+        "operationId": "PieProgramService_BatchCreateTokenPools",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1BatchCreateTokenPoolsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1BatchCreateTokenPoolsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "PieProgramService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1BaseType": {
+      "type": "string",
+      "enum": [
+        "BASE_TYPE_UNSPECIFIED",
+        "BASE_IN",
+        "BASE_OUT"
+      ],
+      "default": "BASE_TYPE_UNSPECIFIED"
+    },
+    "v1Basket": {
+      "type": "object",
+      "properties": {
+        "mint": {
+          "type": "string"
+        },
+        "basketId": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "uri": {
+          "type": "string"
+        },
+        "components": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1BasketComponent"
+          }
+        }
+      },
+      "required": [
+        "name",
+        "symbol",
+        "uri",
+        "components"
+      ]
+    },
+    "v1BasketComponent": {
+      "type": "object",
+      "properties": {
+        "mint": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "string",
+          "format": "uint64",
+          "description": "quantityInSysDecimal. quantity * 10^6",
+          "title": "In system raw amount"
+        }
+      }
+    },
+    "v1BasketConfig": {
+      "type": "object",
+      "properties": {
+        "bump": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "creator": {
+          "type": "string"
+        },
+        "rebalancer": {
+          "type": "string"
+        },
+        "mint": {
+          "type": "string"
+        },
+        "isRebalancing": {
+          "type": "boolean"
+        },
+        "components": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1BasketComponent"
+          }
+        }
+      }
+    },
+    "v1BasketVaultElement": {
+      "type": "object",
+      "properties": {
+        "mint": {
+          "type": "string"
+        },
+        "balance": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "v1BatchCreateTokenPoolsRequest": {
+      "type": "object",
+      "properties": {
+        "tokenPools": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1TokenPool"
+          }
+        }
+      },
+      "required": [
+        "tokenPools"
+      ]
+    },
+    "v1BatchCreateTokenPoolsResponse": {
+      "type": "object",
+      "properties": {
+        "tokenPools": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1TokenPool"
+          }
+        }
+      }
+    },
+    "v1BuildMintTxRequest": {
+      "type": "object",
+      "properties": {
+        "basketMint": {
+          "type": "string"
+        },
+        "mintAmount": {
+          "type": "string"
+        },
+        "inputAmount": {
+          "type": "string"
+        },
+        "ownerAddress": {
+          "type": "string"
+        },
+        "buySwapData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1BuySwapData"
+          }
+        },
+        "maxSlippage": {
+          "type": "string",
+          "format": "uint64",
+          "title": "percentage\nIf null, value is set to 10(%)"
+        }
+      },
+      "required": [
+        "basketMint",
+        "mintAmount",
+        "inputAmount",
+        "ownerAddress",
+        "buySwapData"
+      ]
+    },
+    "v1BuildRebalanceTxRequest": {
+      "type": "object",
+      "properties": {
+        "basketMint": {
+          "type": "string"
+        },
+        "slippagePercentage": {
+          "type": "number",
+          "format": "double"
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1RebalanceAction"
+          }
+        }
+      },
+      "required": [
+        "basketMint",
+        "slippagePercentage",
+        "actions"
+      ]
+    },
+    "v1BuildRedeemTxRequest": {
+      "type": "object",
+      "properties": {
+        "basketMint": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "string"
+        },
+        "ownerAddress": {
+          "type": "string"
+        },
+        "maxSlippage": {
+          "type": "string",
+          "format": "uint64",
+          "title": "percentage\nIf null, value is set to 10(%)"
+        }
+      },
+      "required": [
+        "basketMint",
+        "amount",
+        "ownerAddress"
+      ]
+    },
+    "v1BuySwapData": {
+      "type": "object",
+      "properties": {
+        "mint": {
+          "type": "string"
+        },
+        "amountIn": {
+          "type": "string"
+        },
+        "maxAmountIn": {
+          "type": "string"
+        },
+        "amountOut": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "mint",
+        "amountIn",
+        "maxAmountIn",
+        "amountOut"
+      ]
+    },
+    "v1GetBasketVaultResponse": {
+      "type": "object",
+      "properties": {
+        "vault": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1BasketVaultElement"
+          }
+        }
+      }
+    },
+    "v1PoolType": {
+      "type": "string",
+      "enum": [
+        "POOL_TYPE_UNSPECIFIED",
+        "AMM",
+        "CLMM",
+        "CPMM"
+      ],
+      "default": "POOL_TYPE_UNSPECIFIED"
+    },
+    "v1ProgramState": {
+      "type": "object",
+      "properties": {
+        "bump": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "admin": {
+          "type": "string"
+        },
+        "platformFeeWallet": {
+          "type": "string"
+        },
+        "basketCounter": {
+          "type": "string"
+        },
+        "rebalanceMarginLamports": {
+          "type": "string"
+        },
+        "creatorFeePercentage": {
+          "type": "string"
+        },
+        "platformFeePercentage": {
+          "type": "string"
+        },
+        "enableCreator": {
+          "type": "boolean"
+        },
+        "isInitialized": {
+          "type": "boolean"
+        }
+      }
+    },
+    "v1RebalanceAction": {
+      "type": "object",
+      "properties": {
+        "inputMint": {
+          "type": "string"
+        },
+        "outputMint": {
+          "type": "string"
+        },
+        "baseType": {
+          "$ref": "#/definitions/v1BaseType"
+        },
+        "amount": {
+          "type": "string",
+          "title": "Raw amount of the mint that `base_type` references.\nBASE_IN: amount of `input_mint`\nBASE_OUT: amount of `output_mint`"
+        },
+        "otherAmountThreshold": {
+          "type": "string",
+          "title": "Threshold for the other amount\nBASE_IN: Minimum amount of `output_mint` token to be received\nBASE_OUT: Maximum amount of `input_mint` token to be spent"
+        }
+      },
+      "required": [
+        "inputMint",
+        "outputMint",
+        "baseType",
+        "amount"
+      ]
+    },
+    "v1SerializedTxBundle": {
+      "type": "object",
+      "properties": {
+        "serializedTxs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "v1TokenPool": {
+      "type": "object",
+      "properties": {
+        "mint": {
+          "type": "string"
+        },
+        "poolType": {
+          "$ref": "#/definitions/v1PoolType"
+        },
+        "poolId": {
+          "type": "string"
+        },
+        "lookupTable": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "mint",
+        "poolType",
+        "poolId"
+      ]
+    },
+    "v1TxResponse": {
+      "type": "object",
+      "properties": {
+        "tx": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

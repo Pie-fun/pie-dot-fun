@@ -1,0 +1,205 @@
+syntax = "proto3";
+
+package blast.v1.referral;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+import "blast/v1/nft/nft.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/blast/v1/referral;referral";
+
+// ReferralService contains the function to interact with the Referral of the spacebar
+service ReferralService {
+  // GetReferral will return Referral.
+  rpc GetReferral(GetReferralRequest) returns (Referral) {
+    option (google.api.http) = {
+      get: "/v1/{referral=users/*/referrals}"
+    };
+    option (google.api.method_signature) = "referral";
+  }
+
+  // ListReferrals
+  // reads across collections, reference: https://google.aip.dev/159
+  rpc ListReferrals(ListReferralsRequest) returns (ListReferralsResponse) {
+    option (google.api.http) = {
+      get: "/v1/users/-/referrals"
+    };
+  }
+
+  rpc ReferredBy(RefferedByRequest) returns (Referral) {
+    option (google.api.http) = {
+      post: "/v1/{referral=users/*/referrals}:referredBy"
+      body: "*"
+    };
+  }
+
+}
+
+// ListReferralsRequest payload
+// (-- api-linter: core::0158::request-page-token-field=disabled
+//     aip.dev/not-precedent: We need to do this because reasons. --)
+// (-- api-linter: core::0132::request-unknown-fields=disabled
+//     aip.dev/not-precedent: We really need this field because reasons. --)
+message ListReferralsRequest {
+  // The maximum number of users to return. The service may return fewer than
+  // this value.
+  // If unspecified, at most 50 rows will be returned.
+  // The maximum value is 1024; values above 1024 will be coerced to 1024.
+  int32 page_size = 1;
+
+  // Token of the page to retrieve. If not specified, the first
+  // page of results will be returned. Use the value obtained from
+  // `next_page_token` in the previous response in order to request
+  // the next page of results.
+  //
+  // When paginating, all other parameters provided to `ListReferrals` must match
+  // the call that provided the page token.
+  string page_token = 2;
+
+  // Available Sequence and Operator
+  // * name
+  //   * `Equal`
+  // * user_address
+  //   * Equal`
+  // * state
+  //   * Equal`
+  //
+  // Examples
+  // * name="users/0x6F11EF2c07f2E381CbE514198DdE87A0c0a19442/referrals"
+  // * user_address="0x6F11EF2c07f2E381CbE514198DdE87A0c0a19442"
+  // * state=ACTIVATED
+  string filter = 3;
+}
+
+// ListReferralsResponse
+// (-- api-linter: core::0158::response-next-page-token-field=disabled
+//     aip.dev/not-precedent: We need to do this because reasons. --)
+message ListReferralsResponse {
+  // The list of rows that matched the query.
+  repeated Referral referrals = 1;
+
+  // Pagination token used to retrieve the next page of results.
+  // Pass the content of this string as the `page_token` attribute of
+  // the next request. `next_page_token` is not returned for the last
+  // page.
+  string next_page_token = 2;
+}
+
+
+message GetReferralRequest {
+  // The name of the referral to retrieve.
+  // Format: users/{address}/referrals
+  string referral = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Referral"
+    }];
+}
+
+// RefferedByRequest
+message RefferedByRequest {
+  // The name of the referral to retrieve.
+  // Format: users/{address}/referrals
+  string referral = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Referral"
+    }];
+
+  string code = 2 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message Referral {
+  option (google.api.resource) = {
+    type: "station.spacebarapis.xyz/Referral",
+    pattern: "users/{address}/referrals"
+  };
+  // The resource name of the Referral.
+  // Format: users/{address}/referrals
+  string name = 1;
+
+  //
+  string user_address = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  //
+  ReferralState state = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  string collection = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  optional ReferredBy referred_by = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  optional Referred referred = 6 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+}
+
+enum ReferralState {
+  // default value. this value is unused.
+  STATE_UNSPECIFIED = 0;
+
+  // Referral code was deactivated.
+  DEACTIVATED = 1;
+
+  // Referral code was activated.
+  ACTIVATED = 2;
+}
+
+
+message ReferredBy {
+  string code = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  string user_address = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}
+
+message Referred {
+  string code = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  uint32 same_collection = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  uint32 other_collection = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}
+
+message Reference {
+  string referrer = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  string referred_by = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  bool same_collection = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  google.protobuf.Timestamp create_time = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}

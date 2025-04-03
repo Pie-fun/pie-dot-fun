@@ -1,0 +1,145 @@
+syntax = "proto3";
+
+package blast.v1.chain;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/blast/v1/chain;chain";
+
+// ChainSignService is the service that handles signing messages.
+service ChainSignService {
+  // SignMessage signs a message with arbitrary message.
+  //
+  // This rpc is not open to the public request and only used by the internal service.
+  rpc SignMessage(SignMessageRequest) returns (SignatureResponse) {
+    option (google.api.http) = {
+      post: "/v1/chain:signMessage"
+      body: "*"
+    };
+  };
+
+  // SignMintSquare signs a square mint with the given parameters.
+  //
+  // 403 error will be returned if the given owner address not not eligible to mint the square.
+  rpc SignMintSquare(SignMintSquareRequest) returns (SignMintSquareResponse) {
+    option (google.api.http) = {
+      post: "/v1/chain:signMintSquare"
+      body: "*"
+    };
+  };
+
+  // SignJoinSquare signs a square mint with the given parameters.
+  rpc SignJoinSquare(SignJoinSquareRequest) returns (SignJoinSquareResponse) {
+    option (google.api.http) = {
+      post: "/v1/chain:signJoinSquare"
+      body: "*"
+    };
+  };
+
+  // SignTransferSquare signs a square mint with the given parameters.
+  rpc SignTransferSquare(SignTransferSquareRequest) returns (SignTransferSquareResponse) {
+    option (google.api.http) = {
+      post: "/v1/chain:signTransferSquare"
+      body: "*"
+    };
+  };
+
+  // SignUploadScore signs a score creation with the given parameters.
+  rpc SignUploadScore(SignUploadScoreRequest) returns (SignUploadScoreResponse) {
+    option (google.api.http) = {
+      post: "/v1/chain:signUploadScore"
+      body: "*"
+    };
+  };
+}
+
+message SignMessageRequest {
+  string message = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message SignatureResponse {
+  string signature = 1;
+  string message = 2;
+}
+
+message SignatureTypedResponse {
+  string signature = 1;
+  map<string, string> message = 2;
+}
+
+message MintAndCreateSquareParams {
+  string user = 1;
+  string minStaking = 2;  // uint64 can be overflowed
+  string signatureId = 3;
+  uint32 timestamp = 4;
+  string nonce = 5;
+}
+
+message SignMintSquareRequest {
+  MintAndCreateSquareParams params = 1;
+}
+
+message SignMintSquareResponse {
+  string signature = 1;
+  MintAndCreateSquareParams params = 2;
+}
+
+message JoinSquareParams {
+  string user = 1;
+  uint32 squareId = 2;
+  uint32 timestamp = 3;
+  string nonce = 4;
+}
+
+message SignJoinSquareRequest {
+  JoinSquareParams params = 1;
+}
+
+message SignJoinSquareResponse {
+  string signature = 1;
+  JoinSquareParams params = 2;
+}
+
+message TransferSquareParams {
+  string user = 1;
+  uint32 from = 2; // token id of the user's current square
+  uint32 to = 3; // token id of the target square
+  uint32 timestamp = 4;
+  string nonce = 5;
+}
+
+message SignTransferSquareRequest {
+  TransferSquareParams params = 1;
+}
+
+message SignTransferSquareResponse {
+  string signature = 1;
+  TransferSquareParams params = 2;
+}
+
+message UploadScoreParams {
+  string player = 1;
+  uint32 gameCode = 2;
+  uint32 squareIdOrZero = 3;
+  uint32 score = 4;
+  string gameId = 5;
+  uint32 timestamp = 6;
+  string nonce = 7;
+}
+
+message SignUploadScoreRequest {
+  UploadScoreParams params = 1;
+}
+
+message SignUploadScoreResponse {
+  string signature = 1;
+  UploadScoreParams params = 2;
+}

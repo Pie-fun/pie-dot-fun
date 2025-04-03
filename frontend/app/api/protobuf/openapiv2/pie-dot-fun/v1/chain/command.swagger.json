@@ -1,0 +1,213 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "pie-dot-fun/v1/chain/command.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "ChainCommandService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/chain/command:rebalanceBasketToken": {
+      "post": {
+        "operationId": "ChainCommandService_RebalanceBasketToken",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/chainRebalanceBasketTokenResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/chainRebalanceBasketTokenRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ChainCommandService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "RebalanceCommandEqualMarketCapWeight": {
+      "type": "object",
+      "title": "Equal Market Cap Weight Strategy"
+    },
+    "RebalanceCommandManualMarketCapWeight": {
+      "type": "object",
+      "properties": {
+        "requests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RebalanceCommandManualMarketCapWeightRequest"
+          },
+          "title": "sum of weights should be 1"
+        }
+      },
+      "title": "Manual Market Cap Weight Strategy"
+    },
+    "RebalanceCommandManualMarketCapWeightRequest": {
+      "type": "object",
+      "properties": {
+        "fungibleToken": {
+          "type": "string"
+        },
+        "weight": {
+          "type": "number",
+          "format": "double",
+          "title": "Weigh limits: 0 - 1.0"
+        }
+      },
+      "required": [
+        "fungibleToken"
+      ]
+    },
+    "RebalanceCommandTrade": {
+      "type": "object",
+      "properties": {
+        "requests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RebalanceCommandTradeRequest"
+          }
+        }
+      },
+      "title": "Trade Strategy"
+    },
+    "RebalanceCommandTradeRequest": {
+      "type": "object",
+      "properties": {
+        "fungibleToken": {
+          "type": "string"
+        },
+        "isBuy": {
+          "type": "boolean"
+        },
+        "formattedAmount": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "fungibleToken"
+      ]
+    },
+    "chainExecutionOption": {
+      "type": "object",
+      "properties": {
+        "sellRatioPerIteration": {
+          "type": "number",
+          "format": "double"
+        },
+        "slippage": {
+          "type": "number",
+          "format": "double"
+        },
+        "maxIterationCount": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Exit condition"
+        },
+        "exitRemainingExecutionValue": {
+          "type": "number",
+          "format": "double"
+        },
+        "exitRemainingExecutionValueRatio": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
+    "chainRebalanceBasketTokenRequest": {
+      "type": "object",
+      "properties": {
+        "basketToken": {
+          "type": "string"
+        },
+        "execute": {
+          "type": "boolean",
+          "description": "if false, it will perform a dry run."
+        },
+        "command": {
+          "$ref": "#/definitions/chainRebalanceCommand"
+        },
+        "executionOption": {
+          "$ref": "#/definitions/chainExecutionOption"
+        }
+      },
+      "required": [
+        "basketToken",
+        "command"
+      ]
+    },
+    "chainRebalanceBasketTokenResponse": {
+      "type": "object",
+      "properties": {
+        "resultHtml": {
+          "type": "string"
+        }
+      }
+    },
+    "chainRebalanceCommand": {
+      "type": "object",
+      "properties": {
+        "equalWeight": {
+          "$ref": "#/definitions/RebalanceCommandEqualMarketCapWeight"
+        },
+        "manualWeight": {
+          "$ref": "#/definitions/RebalanceCommandManualMarketCapWeight"
+        },
+        "trade": {
+          "$ref": "#/definitions/RebalanceCommandTrade"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

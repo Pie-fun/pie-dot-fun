@@ -1,0 +1,363 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "ethereum/v1/outpost/bank.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "BankService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/accounts": {
+      "get": {
+        "operationId": "BankService_ListAccounts",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/outpostListAccountsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "pageSize",
+            "description": "The maximum number of accounts to return. The service may return fewer than\nthis value.\nIf unspecified, at most 50 rows will be returned.\nThe maximum value is 1024; values above 1024 will be coerced to 1024.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageToken",
+            "description": "Token of the page to retrieve. If not specified, the first\npage of results will be returned. Use the value obtained from\n`next_page_token` in the previous response in order to request\nthe next page of results.\n\nWhen paginating, all other parameters provided to `ListAccounts` must match\nthe call that provided the page token.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BankService"
+        ]
+      }
+    },
+    "/v1/tokens/STAR:deposit_optimistic": {
+      "post": {
+        "operationId": "BankService_DepositStarTokenOptimistic",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/outpostAccount"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/outpostDepositOptimisticRequest"
+            }
+          }
+        ],
+        "tags": [
+          "BankService"
+        ]
+      }
+    },
+    "/v1/tokens/STAR:withdraw_optimistic": {
+      "post": {
+        "operationId": "BankService_WithdrawStarTokenOptimistic",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/outpostAccount"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/outpostWithdrawOptimisticRequest"
+            }
+          }
+        ],
+        "tags": [
+          "BankService"
+        ]
+      }
+    },
+    "/v1/{account}": {
+      "get": {
+        "operationId": "BankService_GetAccount",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/outpostAccount"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "account",
+            "description": "The name of the account to retrieve.\nFormat: accounts/{address}",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "accounts/[^/]+"
+          }
+        ],
+        "tags": [
+          "BankService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "outpostAccount": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "name\nformat: accounts/{address}"
+        },
+        "address": {
+          "type": "string",
+          "description": "The address of the account.",
+          "readOnly": true
+        },
+        "balance": {
+          "$ref": "#/definitions/outpostBalance",
+          "description": "The balance of the account.",
+          "readOnly": true
+        },
+        "lastTransactions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/outpostTransaction"
+          },
+          "description": "The list of transactions associated with the account.",
+          "readOnly": true
+        },
+        "createTime": {
+          "type": "string",
+          "format": "date-time",
+          "title": "The create time of the account.\nRFC3339 format e.g. \"2006-01-02T15:04:05Z07:00\"",
+          "readOnly": true
+        },
+        "updateTime": {
+          "type": "string",
+          "format": "date-time",
+          "title": "The update time of the account.\nRFC3339 format e.g. \"2006-01-02T15:04:05Z07:00\"",
+          "readOnly": true
+        }
+      },
+      "description": "Account message represents a Account."
+    },
+    "outpostBalance": {
+      "type": "object",
+      "properties": {
+        "symbol": {
+          "$ref": "#/definitions/outpostSymbol",
+          "description": "The currency symbol."
+        },
+        "amount": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The amount of currency."
+        },
+        "cumulativeTotal": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The cumulative total of currency."
+        }
+      },
+      "description": "Balance message represents a currency."
+    },
+    "outpostDepositOptimisticRequest": {
+      "type": "object",
+      "properties": {
+        "account": {
+          "type": "string",
+          "title": "The account to deposit star token"
+        },
+        "amount": {
+          "type": "integer",
+          "format": "int64",
+          "title": "amount of star token to absob"
+        }
+      },
+      "title": "DepositOptimisticRequest",
+      "required": [
+        "account",
+        "amount"
+      ]
+    },
+    "outpostListAccountsResponse": {
+      "type": "object",
+      "properties": {
+        "accounts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/outpostAccount"
+          },
+          "description": "The list of rows that matched the query."
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Pagination token used to retrieve the next page of results.\nPass the content of this string as the `page_token` attribute of\nthe next request. `next_page_token` is not returned for the last\npage."
+        }
+      },
+      "title": "ListAccountsResponse\n(-- api-linter: core::0158::response-next-page-token-field=disabled\n    aip.dev/not-precedent: We need to do this because reasons. --)"
+    },
+    "outpostMoney": {
+      "type": "object",
+      "properties": {
+        "symbol": {
+          "$ref": "#/definitions/outpostSymbol",
+          "description": "The currency symbol."
+        },
+        "amount": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The amount of currency."
+        }
+      },
+      "description": "Money message represents a currency."
+    },
+    "outpostSymbol": {
+      "type": "string",
+      "enum": [
+        "SYMBOL_UNSPECIFIED",
+        "STAR"
+      ],
+      "default": "SYMBOL_UNSPECIFIED",
+      "description": "SymbolType enum represents the symbol of a currency.\n\n - STAR: STAR"
+    },
+    "outpostTransaction": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uint64",
+          "description": "The ID of the transaction."
+        },
+        "type": {
+          "$ref": "#/definitions/outpostTransactionType",
+          "description": "The type of the transaction."
+        },
+        "money": {
+          "$ref": "#/definitions/outpostMoney",
+          "description": "The amount of currency involved in the transaction."
+        },
+        "recipient": {
+          "type": "string",
+          "title": "The destination of the transaction.\nThis field is optional",
+          "readOnly": true
+        },
+        "createTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The create time of the transaction."
+        }
+      },
+      "description": "Transaction message represents a financial transaction."
+    },
+    "outpostTransactionType": {
+      "type": "string",
+      "enum": [
+        "TYPE_UNSPECIFIED",
+        "DEPOSIT",
+        "WITHDRAWAL",
+        "TRANSFER"
+      ],
+      "default": "TYPE_UNSPECIFIED",
+      "description": "Type enum represents the type of a transaction."
+    },
+    "outpostWithdrawOptimisticRequest": {
+      "type": "object",
+      "properties": {
+        "account": {
+          "type": "string",
+          "description": "The account to withdraw from."
+        },
+        "amount": {
+          "type": "integer",
+          "format": "int64",
+          "title": "amount of star token to supply"
+        }
+      },
+      "title": "WithdrawOptimisticRequest",
+      "required": [
+        "account",
+        "amount"
+      ]
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

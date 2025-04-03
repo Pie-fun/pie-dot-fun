@@ -1,0 +1,437 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "pie-dot-fun/v1/basket-token.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "BasketTokenService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/basketTokens": {
+      "get": {
+        "operationId": "BasketTokenService_ListBasketTokens",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListBasketTokensResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "pageSize",
+            "description": "The maximum number of basket tokens to return. The service may return fewer than\nthis value.\nIf unspecified, at most 50 rows will be returned.\nThe maximum value is 1024; values above 1024 will be coerced to 1024.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageToken",
+            "description": "Token of the page to retrieve. If not specified, the first\npage of results will be returned. Use the value obtained from\n`next_page_token` in the previous response in order to request\nthe next page of results.\n\nWhen paginating, all other parameters provided to `ListBasketTokens` must match\nthe call that provided the page token.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "filter",
+            "description": "Available Sequence and Operator\n* name\n  * `=`\n* chain\n  * `=`\n* display_name\n  * `=`\n* symbol\n  * `=`\n* state\n  * `=` (CREATED, LISTED)\n* onchain_id\n  * `=`\n* market_cap_sol\n  * `=`, `\u003e`, `\u003c`, `\u003e=`, `\u003c=`\n* market_cap_usdc\n  * `=`, `\u003e`, `\u003c`, `\u003e=`, `\u003c=`\n\nExamples\n* name=\"basketTokens/SOLANA/FZ4MT1HYJHd9GK8D5mJ9f3r7irLaDL5NxBNLjGqrLqs9\"\n* chain=SOLANA\n* symbol=\"MURAD\"\n* state=LISTED\n* onchain_id=\"10\"\n* market_cap_sol\u003e=1000000",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "orderBy",
+            "description": "One or more fields to compare and use to sort the output. (optional)\nDefault order for a field is descending by id\nTo specify ascending or descending order, append \" asc\" or \" desc\" to the field name. If not specified, the order is ascending.\n\nReference\n* https://google.aip.dev/132#ordering.\n\nSupported Fields\n* \"create_time\", \"market_cap_sol\", \"market_cap_usdc\"\n\nExamples\n* order_by=create_time desc\n* order_by=market_cap_sol desc",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BasketTokenService"
+        ]
+      }
+    },
+    "/v1/{basketToken}": {
+      "get": {
+        "operationId": "BasketTokenService_GetBasketToken",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1BasketToken"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "basketToken",
+            "description": "The name of the basket token to retrieve.\nFormat : \"basketTokens/{chain}/{token_address}\"",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "basketTokens/[^/]+/[^/]+"
+          }
+        ],
+        "tags": [
+          "BasketTokenService"
+        ]
+      }
+    },
+    "/v1/{basketToken}/rebalancingHistories": {
+      "get": {
+        "operationId": "BasketTokenService_ListBasketTokenRebalancingHistories",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListRebalancingHistoriesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "basketToken",
+            "description": "The name of the basket token to retrieve.\nFormat : \"basketTokens/{chain}/{token_address}\"",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "basketTokens/[^/]+/[^/]+"
+          },
+          {
+            "name": "pageSize",
+            "description": "The maximum number of histories to return. The service may return fewer than\nthis value.\nIf unspecified, at most 50 rows will be returned.\nThe maximum value is 1024; values above 1024 will be coerced to 1024.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageToken",
+            "description": "Token of the page to retrieve. If not specified, the first\npage of results will be returned. Use the value obtained from\n`next_page_token` in the previous response in order to request\nthe next page of results.\n\nWhen paginating, all other parameters provided to `ListUsers` must match\nthe call that provided the page token.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "filter",
+            "description": "Available Sequence and Operator\n* components_changed\n  * `negation`\n\nExamples\n* filter=components_changed\n* filter=NOT components_changed",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BasketTokenService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "piedotfunv1Component": {
+      "type": "object",
+      "properties": {
+        "fungibleToken": {
+          "type": "string",
+          "title": "Format : \"fungibleTokens/{chain}/{token_address}\""
+        },
+        "chain": {
+          "$ref": "#/definitions/v1ChainType"
+        },
+        "address": {
+          "type": "string"
+        },
+        "weight": {
+          "$ref": "#/definitions/v1Percentage",
+          "title": "The weight of the component in the basket token.\nThe weight is a percentage of the total value within the basket token. (0.0 ~ 100.0 %)"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1BasketToken": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "Format : \"basketTokens/{chain}/{token_address}\""
+        },
+        "chain": {
+          "$ref": "#/definitions/v1ChainType",
+          "readOnly": true
+        },
+        "address": {
+          "type": "string",
+          "readOnly": true
+        },
+        "displayName": {
+          "type": "string",
+          "readOnly": true
+        },
+        "symbol": {
+          "type": "string",
+          "readOnly": true
+        },
+        "iconImageUri": {
+          "type": "string",
+          "readOnly": true
+        },
+        "description": {
+          "type": "string",
+          "readOnly": true
+        },
+        "oneLineDescription": {
+          "type": "string",
+          "readOnly": true
+        },
+        "state": {
+          "$ref": "#/definitions/v1BasketTokenState",
+          "readOnly": true
+        },
+        "strategy": {
+          "$ref": "#/definitions/v1TokenStrategy",
+          "readOnly": true
+        },
+        "rebalanceFrequency": {
+          "$ref": "#/definitions/v1RebalanceFrequency",
+          "readOnly": true
+        },
+        "isRebalancing": {
+          "type": "boolean",
+          "readOnly": true
+        },
+        "components": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/piedotfunv1Component"
+          },
+          "readOnly": true
+        },
+        "creator": {
+          "type": "string",
+          "title": "The creator of the basket token\nFormat : \"users/{user_id}\"",
+          "readOnly": true
+        },
+        "createTime": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "expireTime": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "lastRebalanceTime": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "totalSupply": {
+          "$ref": "#/definitions/v1Quantity",
+          "readOnly": true
+        },
+        "totalHolders": {
+          "type": "string",
+          "format": "uint64",
+          "readOnly": true
+        },
+        "onchainId": {
+          "type": "string",
+          "readOnly": true
+        }
+      }
+    },
+    "v1BasketTokenRebanlancingHistory": {
+      "type": "object",
+      "properties": {
+        "txSignatures": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "beforeComponents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/piedotfunv1Component"
+          }
+        },
+        "afterComponents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/piedotfunv1Component"
+          }
+        },
+        "rebalanceTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "componentsChanged": {
+          "type": "boolean"
+        }
+      }
+    },
+    "v1BasketTokenState": {
+      "type": "string",
+      "enum": [
+        "BASKET_TOKEN_STATE_UNSPECIFIED",
+        "CREATED",
+        "LISTED"
+      ],
+      "default": "BASKET_TOKEN_STATE_UNSPECIFIED",
+      "title": "- CREATED: 온체인 상에서만 생성되고, 아직 우리 서비스에서 리스팅은 되지 않은 상태\n - LISTED: 우리 서비스에서 리스팅된 상태"
+    },
+    "v1ChainType": {
+      "type": "string",
+      "enum": [
+        "CHAIN_UNSPECIFIED",
+        "SOLANA",
+        "SOLANA_TESTNET",
+        "SOLANA_DEVNET",
+        "ETHEREUM",
+        "ETHEREUM_SEPOLIA",
+        "BASE",
+        "BASE_SEPOLIA"
+      ],
+      "default": "CHAIN_UNSPECIFIED",
+      "description": " - CHAIN_UNSPECIFIED: Unspecified blockchain type.\n - SOLANA: Solana Mainnet blockchain.\n - SOLANA_TESTNET: Solana Testnet blockchain.\n - SOLANA_DEVNET: Solana Devnet blockchain."
+    },
+    "v1ListBasketTokensResponse": {
+      "type": "object",
+      "properties": {
+        "basketTokens": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1BasketToken"
+          }
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Pagination token used to retrieve the next page of results.\nPass the content of this string as the `page_token` attribute of\nthe next request. `next_page_token` is not returned for the last\npage."
+        }
+      },
+      "required": [
+        "basketTokens"
+      ]
+    },
+    "v1ListRebalancingHistoriesResponse": {
+      "type": "object",
+      "properties": {
+        "rebalancingHistories": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1BasketTokenRebanlancingHistory"
+          }
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Pagination token used to retrieve the next page of results.\nPass the content of this string as the `page_token` attribute of\nthe next request. `next_page_token` is not returned for the last\npage."
+        }
+      }
+    },
+    "v1Percentage": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
+    "v1Quantity": {
+      "type": "object",
+      "properties": {
+        "formattedAmount": {
+          "type": "string"
+        },
+        "rawAmount": {
+          "type": "string"
+        },
+        "decimals": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "v1RebalanceFrequency": {
+      "type": "string",
+      "enum": [
+        "REBALANCE_FREQUENCY_UNSPECIFIED",
+        "MANUAL",
+        "DAILY",
+        "WEEKLY",
+        "MONTHLY"
+      ],
+      "default": "REBALANCE_FREQUENCY_UNSPECIFIED"
+    },
+    "v1TokenStrategy": {
+      "type": "string",
+      "enum": [
+        "TOKEN_STRATEGY_UNSPECIFIED",
+        "MARKET_CAP_WEIGHTED",
+        "EQUAL_WEIGHTED",
+        "FACTOR_WEIGHTED",
+        "FUNDAMENTAL_WEIGHTED",
+        "RISK_WEIGHTED",
+        "MOMENTUM_WEIGHTED",
+        "CUSTOM_WEIGHTED"
+      ],
+      "default": "TOKEN_STRATEGY_UNSPECIFIED"
+    }
+  }
+}

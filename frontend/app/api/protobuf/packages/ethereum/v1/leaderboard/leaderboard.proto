@@ -1,0 +1,449 @@
+syntax = "proto3";
+
+package ethereum.v1.leaderboard;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+import "ethereum/v1/outpost/nft.proto";
+import "ethereum/v1/score/score.proto";
+import "ethereum/v1/profile/profile.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/ethereum/v1/leaderboard;leaderboard";
+
+// LeaderboardService contains the function to get leaderboard
+service LeaderboardService {
+  // GetTopRankerLeaderboard will return best score leaderboard
+  rpc GetTopRankerLeaderboard(GetTopRankerLeaderboardRequest) returns (GetTopRankerLeaderboardResponse) {
+    option (google.api.http) = {
+      get: "/v1/leaderboard/top_rankers/weekly"
+    };
+    option (google.api.method_signature) = "";
+  }
+
+  // GetTopRanker will return weekly top collector.
+  rpc GetTopRanker(GetTopRankerRequest) returns (TopRanker) {
+    option (google.api.http) = {
+      get: "/v1/leaderboard/top_rankers/weekly/{profile_address=*}"
+    };
+    option (google.api.method_signature) = "profile_address";
+  }
+
+  // RenderTopRankerLeaderboard will render weekly top collectors image.
+  rpc RenderTopRankerLeaderboard(RenderTopRankerLeaderboardRequest) returns (ImageResponse) {
+    option (google.api.http) = {
+      post: "/v1/leaderboard/top_rankers/weekly:render"
+      body: "*"
+    };
+    option (google.api.method_signature) = "";
+  }
+
+  // GetWeeklyTopCollectorLeaderboard will return weekly top collectors.
+  rpc GetWeeklyTopCollectorLeaderboard(GetWeeklyTopCollectorLeaderboardRequest) returns (GetWeeklyTopCollectorLeaderboardResponse) {
+    option (google.api.http) = {
+      get: "/v1/leaderboard/top_collectors/weekly"
+    };
+    option (google.api.method_signature) = "";
+  }
+
+  // GetWeeklyTopCollector will return weekly top collector.
+  rpc GetWeeklyTopCollector(GetWeeklyTopCollectorRequest) returns (StarHunter) {
+    option (google.api.http) = {
+      get: "/v1/leaderboard/top_collectors/weekly/{profile_address=*}"
+    };
+    option (google.api.method_signature) = "profile_address";
+  }
+
+  // RenderWeeklyTopCollectorLeaderboard will render weekly top collectors image.
+  rpc RenderWeeklyTopCollectorLeaderboard(RenderWeeklyStarHunterLeaderboardRequest) returns (ImageResponse) {
+    option (google.api.http) = {
+      post: "/v1/leaderboard/top_collectors/weekly:render"
+      body: "*"
+    };
+    option (google.api.method_signature) = "";
+  }
+
+  // GetAllTimeTopCollectorLeaderboard will return all time top collectors.
+  rpc GetAllTimeTopCollectorLeaderboard(GetAllTimeTopCollectorLeaderboardRequest) returns (GetAllTimeTopCollectorLeaderboardResponse) {
+    option (google.api.http) = {
+      get: "/v1/leaderboard/top_collectors/all_time"
+    };
+    option (google.api.method_signature) = "";
+  }
+
+  // GetWeeklyStarHunterLeaderboard will return weekly top collectors.
+  rpc GetWeeklyStarHunterLeaderboard(GetWeeklyStarHunterLeaderboardRequest) returns (GetWeeklyStarHunterLeaderboardResponse) {
+    option (google.api.http) = {
+      get: "/v1/leaderboard/star_hunters/weekly"
+    };
+    option (google.api.method_signature) = "";
+  }
+
+  // GetWeeklyStarHunter will return weekly top collector.
+  rpc GetWeeklyStarHunter(GetWeeklyStarHunterRequest) returns (StarHunter) {
+    option (google.api.http) = {
+      get: "/v1/leaderboard/star_hunters/weekly/{profile_address=*}"
+    };
+    option (google.api.method_signature) = "profile_address";
+  }
+
+  // RenderWeeklyStarHunterLeaderboard will render weekly top collectors image.
+  rpc RenderWeeklyStarHunterLeaderboard(RenderWeeklyStarHunterLeaderboardRequest) returns (ImageResponse) {
+    option (google.api.http) = {
+      post: "/v1/leaderboard/star_hunters/weekly:render"
+      body: "*"
+    };
+    option (google.api.method_signature) = "";
+  }
+
+}
+
+
+message GetTopRankerLeaderboardRequest {
+  // The maximum number of scores to return. The service may return fewer than
+  // this value.
+  // If unspecified, at most 5 rows will be returned.
+  // The maximum value is 1024; values above 1024 will be coerced to 1024.
+  int32 page_size = 1;
+
+  // Token of the page to retrieve. If not specified, the first
+  // page of results will be returned. Use the value obtained from
+  // `next_page_token` in the previous response in order to request
+  // the next page of results.
+  //
+  // When paginating, all other parameters provided to `GetLeaderbaord` must match
+  // the call that provided the page token.
+  string page_token = 2;
+
+  // The corresponding week of leaderboard.
+  // If unspecified, the current week will be used.
+  uint32 week = 3  [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The corresponding season of leaderboard.
+  // The default value is 1
+  uint32 season = 4;
+
+  // The corresponding play_mode of leaderboard.
+  // The default value is "TIME_ATTACK"
+  score.PlayMode play_mode = 5;
+
+  // The corresponding game_mode of leaderboard.
+  // The default value is "SINGLE_PLAYER"
+  score.GameMode game_mode = 6;
+}
+
+message GetTopRankerLeaderboardResponse {
+  repeated TopRanker top_rankers = 1;
+
+  // Pagination token used to retrieve the next page of results.
+  // Pass the content of this string as the `page_token` attribute of
+  // the next request. `next_page_token` is not returned for the last
+  // page.
+  string next_page_token = 2;
+
+  google.protobuf.Timestamp deadline = 3;
+}
+
+message GetTopRankerRequest {
+  string profile_address = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The corresponding week of leaderboard.
+  // If unspecified, the current week will be used.
+  uint32 week = 2;
+
+  // The corresponding play_mode of leaderboard.
+  // The default value is "TIME_ATTACK"
+  score.PlayMode play_mode = 3;
+
+  // The corresponding game_mode of leaderboard.
+  // The default value is "SINGLE_PLAYER"
+  score.GameMode game_mode = 4;
+}
+
+message RenderTopRankerLeaderboardRequest {
+  // The corresponding week of leaderboard.
+  // If unspecified, the current week will be used.
+  uint32 week = 1;
+
+  // The corresponding season of leaderboard.
+  // The default value is 1
+  uint32 season = 2;
+
+  // The corresponding play_mode of leaderboard.
+  // The default value is "TIME_ATTACK"
+  score.PlayMode play_mode = 3;
+
+  // The corresponding game_mode of leaderboard.
+  // The default value is "SINGLE_PLAYER"
+  score.GameMode game_mode = 4;
+
+  string me = 5 [
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Profile",
+    }
+  ];
+}
+
+// GetWeeklyTopCollectorLeaderboardRequest payload
+// (-- api-linter: core::0158::request-page-token-field=disabled
+//     aip.dev/not-precedent: We need to do this because reasons. --)
+// (-- api-linter: core::0132::request-unknown-fields=disabled
+//     aip.dev/not-precedent: We really need this field because reasons. --)
+message GetWeeklyTopCollectorLeaderboardRequest {
+  // The maximum number of scores to return. The service may return fewer than
+  // this value.
+  // If unspecified, at most 5 rows will be returned.
+  // The maximum value is 1024; values above 1024 will be coerced to 1024.
+  int32 page_size = 1;
+
+  // Token of the page to retrieve. If not specified, the first
+  // page of results will be returned. Use the value obtained from
+  // `next_page_token` in the previous response in order to request
+  // the next page of results.
+  //
+  // When paginating, all other parameters provided to `ListWeeklytimeTopCollectors` must match
+  // the call that provided the page token.
+  string page_token = 2;
+
+  // The corresponding week of leaderboard.
+  // If unspecified, the current week will be used.
+  uint32 week = 3;
+
+  // The corresponding season of leaderboard.
+  // The default value is 1
+  uint32 season = 4;
+}
+
+message GetWeeklyTopCollectorLeaderboardResponse {
+  repeated StarHunter top_collectors = 1;
+
+  // Pagination token used to retrieve the next page of results.
+  // Pass the content of this string as the `page_token` attribute of
+  // the next request. `next_page_token` is not returned for the last
+  // page.
+  string next_page_token = 2;
+
+  google.protobuf.Timestamp deadline = 3;
+}
+
+message GetWeeklyTopCollectorRequest {
+  string profile_address = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The corresponding week of leaderboard.
+  // If unspecified, the current week will be used.
+  uint32 week = 2;
+}
+
+// GetAllTimeTopCollectorsLeaderboardRequest payload
+// (-- api-linter: core::0158::request-page-token-field=disabled
+//     aip.dev/not-precedent: We need to do this because reasons. --)
+// (-- api-linter: core::0132::request-unknown-fields=disabled
+//     aip.dev/not-precedent: We really need this field because reasons. --)
+message GetAllTimeTopCollectorLeaderboardRequest {
+  // The maximum number of scores to return. The service may return fewer than
+  // this value.
+  // If unspecified, at most 5 rows will be returned.
+  // The maximum value is 1024; values above 1024 will be coerced to 1024.
+  int32 page_size = 1;
+
+  // Token of the page to retrieve. If not specified, the first
+  // page of results will be returned. Use the value obtained from
+  // `next_page_token` in the previous response in order to request
+  // the next page of results.
+  //
+  // When paginating, all other parameters provided to `GetAllTimeTopCollectorLeaderboard` must match
+  // the call that provided the page token.
+  string page_token = 2;
+}
+
+message GetAllTimeTopCollectorLeaderboardResponse {
+  repeated StarHunter top_collectors = 1;
+
+  // Pagination token used to retrieve the next page of results.
+  // Pass the content of this string as the `page_token` attribute of
+  // the next request. `next_page_token` is not returned for the last
+  // page.
+  string next_page_token = 2;
+}
+
+message RenderWeeklyStarHunterLeaderboardRequest {
+  // The corresponding week of leaderboard.
+  // If unspecified, the current week will be used.
+  uint32 week = 1;
+
+  // The corresponding season of leaderboard.
+  // The default value is 1
+  uint32 season = 2;
+
+  string me = 3 [
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Profile",
+    }
+  ];
+}
+
+// GetWeeklyStarHunterLeaderboardRequest payload
+// (-- api-linter: core::0158::request-page-token-field=disabled
+//     aip.dev/not-precedent: We need to do this because reasons. --)
+// (-- api-linter: core::0132::request-unknown-fields=disabled
+//     aip.dev/not-precedent: We really need this field because reasons. --)
+message GetWeeklyStarHunterLeaderboardRequest {
+  // The maximum number of scores to return. The service may return fewer than
+  // this value.
+  // If unspecified, at most 5 rows will be returned.
+  // The maximum value is 1024; values above 1024 will be coerced to 1024.
+  int32 page_size = 1;
+
+  // Token of the page to retrieve. If not specified, the first
+  // page of results will be returned. Use the value obtained from
+  // `next_page_token` in the previous response in order to request
+  // the next page of results.
+  //
+  // When paginating, all other parameters provided to `ListWeeklytimeTopCollectors` must match
+  // the call that provided the page token.
+  string page_token = 2;
+
+  // The corresponding week of leaderboard.
+  // If unspecified, the current week will be used.
+  uint32 week = 3;
+
+  // The corresponding season of leaderboard.
+  // The default value is 1
+  uint32 season = 4;
+}
+
+message GetWeeklyStarHunterLeaderboardResponse {
+  repeated StarHunter star_hunters = 1;
+
+  // Pagination token used to retrieve the next page of results.
+  // Pass the content of this string as the `page_token` attribute of
+  // the next request. `next_page_token` is not returned for the last
+  // page.
+  string next_page_token = 2;
+
+  google.protobuf.Timestamp deadline = 3;
+}
+
+message GetWeeklyStarHunterRequest {
+  string profile_address = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The corresponding week of leaderboard.
+  // If unspecified, the current week will be used.
+  uint32 week = 2;
+}
+
+// GetAllTimeStarHuntersLeaderboardRequest payload
+// (-- api-linter: core::0158::request-page-token-field=disabled
+//     aip.dev/not-precedent: We need to do this because reasons. --)
+// (-- api-linter: core::0132::request-unknown-fields=disabled
+//     aip.dev/not-precedent: We really need this field because reasons. --)
+message GetAllTimeStarHunterLeaderboardRequest {
+  // The maximum number of scores to return. The service may return fewer than
+  // this value.
+  // If unspecified, at most 5 rows will be returned.
+  // The maximum value is 1024; values above 1024 will be coerced to 1024.
+  int32 page_size = 1;
+
+  // Token of the page to retrieve. If not specified, the first
+  // page of results will be returned. Use the value obtained from
+  // `next_page_token` in the previous response in order to request
+  // the next page of results.
+  //
+  // When paginating, all other parameters provided to `GetAllTimeStarHunterLeaderboard` must match
+  // the call that provided the page token.
+  string page_token = 2;
+}
+
+message GetAllTimeStarHunterLeaderboardResponse {
+  repeated StarHunter star_hunters = 1;
+
+  // Pagination token used to retrieve the next page of results.
+  // Pass the content of this string as the `page_token` attribute of
+  // the next request. `next_page_token` is not returned for the last
+  // page.
+  string next_page_token = 2;
+}
+
+message ImageResponse {
+  bytes image = 1;
+}
+
+message TopRanker {
+
+  uint32 rank = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  profile.Profile profile = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  score.Score score = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+}
+
+message StarHunter {
+  uint32 rank = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  profile.Profile profile = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  uint32 total_stars = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+}
+
+message RenderStarHuntersLeaderboardImageRequest {
+  repeated StarHunterSlim star_hunters = 1;
+
+  StarHunterSlim me = 2;
+}
+
+message RenderTopRankerLeaderboardImageRequest {
+  repeated TopRankerSlim top_rankers = 1;
+
+  TopRankerSlim me = 2;
+}
+
+message StarHunterSlim {
+  uint32 rank = 1;
+
+  string profile = 2 [
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Profile",
+    }
+  ];
+
+  uint32 total_stars = 3;
+}
+
+message TopRankerSlim {
+  uint32 rank = 1;
+
+  string profile = 2 [
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Profile",
+    }
+  ];
+
+  uint32 score_point = 3;
+}

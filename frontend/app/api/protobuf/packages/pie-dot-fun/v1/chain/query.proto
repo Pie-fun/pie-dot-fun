@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+package piedotfun.v1.chain;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+import "pie-dot-fun/v1/auth.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/pie-dot-fun/v1/chain;chain";
+
+// ChainQueryService is the service that handles all chain requests.
+service ChainQueryService {
+  rpc QueryFungibleTokenDecimals(QueryFungibleTokenDecimalsRequest) returns (QueryFungibleTokenDecimalsResponse) {
+    option (google.api.http) = {
+      post: "/v1/chain/query:fungible_token_decimals"
+      body: "*"
+    };
+    option (google.api.method_signature) = "fungible_token";
+    option (gateway_registered) = true;
+    option (external) = true;
+  };
+
+  rpc QueryFungibleTokenMetadata(QueryFungibleTokenMetadataRequest) returns (QueryFungibleTokenMetadataResponse) {
+    option (google.api.http) = {
+      post: "/v1/chain/query:fungible_token_metadata"
+      body: "*"
+    };
+    option (google.api.method_signature) = "fungible_token";
+    option (gateway_registered) = true;
+    option (external) = true;
+  };
+}
+
+message QueryFungibleTokenDecimalsRequest {
+  string fungible_token = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "piedotfun.spacebarapis.xyz/FungibleToken"
+    }
+  ];
+}
+
+message QueryFungibleTokenDecimalsResponse {
+  int32 decimals = 1;
+}
+
+message QueryFungibleTokenMetadataRequest {
+  string fungible_token = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "piedotfun.spacebarapis.xyz/FungibleToken"
+    }
+  ];
+}
+
+message QueryFungibleTokenMetadataResponse{
+  string uri = 1;
+  Metadata metadata = 2;
+}
+
+message Metadata {
+  string name = 1;
+  string symbol = 2;
+  string image = 3;
+  string description = 4;
+  string one_liner = 5;
+
+  string website = 6;
+  string email = 7;
+  string twitter = 8;
+  string telegram = 9;
+  string discord = 10;
+}
+

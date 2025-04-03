@@ -1,0 +1,1017 @@
+syntax = "proto3";
+
+package blast.v1.square;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+import "blast/v1/nft/nft.proto";
+import "blast/v1/user/user.proto";
+import "blast/v1/chain/sign.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/blast/v1/square;square";
+
+// SquareService contains the function to interact with the Square of the spacebar
+service SquareService {
+  // GetSquare will return Square.
+  rpc GetSquare(GetSquareRequest) returns (Square) {
+    option (google.api.http) = {
+      get: "/v1/{square=squares/*}"
+    };
+    option (google.api.method_signature) = "square";
+  }
+
+  // ListSquares will return Squares.
+  rpc ListSquares(ListSquaresRequest) returns (ListSquaresResponse) {
+    option (google.api.http) = {
+      get: "/v1/squares"
+    };
+    option (google.api.method_signature) = "";
+  }
+
+  // UpdateSquare update Square.
+  rpc UpdateSquare(UpdateSquareRequest) returns (Square) {
+    option (google.api.http) = {
+      patch: "/v1/{square.name=squares/*}"
+      body: "square"
+    };
+    option (google.api.method_signature) = "square,update_mask";
+  }
+
+  // GetSquareWeeklySpirits will return weekly spirits of the Square.
+  rpc GetSquareWeeklySpirits(GetSquareWeeklySpiritsRequest) returns (GetSquareWeeklySpiritsResponse) {
+    option (google.api.http) = {
+      get: "/v1/{square=squares/*}/weeklySpirits"
+    };
+    option (google.api.method_signature) = "square";
+  }
+
+  // CheckMintEligibility check if the user is eligible to mint the NFT of the Square.
+  rpc CheckMintEligibility(CheckMintEligibilityRequest) returns (CheckMintEligibilityResponse) {
+    option (google.api.http) = {
+      post: "/v1/squares:checkMintEligibility"
+      body: "*"
+    };
+  }
+
+  // ValidateDisplayNameAvailability check if the display name is available.
+  rpc ValidateDisplayNameAvailability(ValidateDisplayNameAvailabilityRequest) returns (ValidateDisplayNameAvailabilityResponse) {
+    option (google.api.http) = {
+      post: "/v1/squares:validateDisplayNameAvailablity"
+      body: "*"
+    };
+  }
+
+  // CreateSquareAndSign create Square with CREATED_PENDING state and response with signature to sign the onchain tx.
+  rpc CreateSquareAndSign(CreateSquareAndSignRequest) returns (CreateSquareAndSignResponse) {
+    option (google.api.http) = {
+      post: "/v1/squares:createAndSign"
+      body: "*"
+    };
+    option (google.api.method_signature) = "nonce,square";
+  }
+
+  // ApproveJoinSquareAndSign verify the member join the square and return signature to sign the onchain tx.
+  rpc ApproveJoinSquareAndSign(ApproveJoinSquareAndSignRequest) returns (ApproveJoinSquareAndSignResponse) {
+    option (google.api.http) = {
+      post: "/v1/squares:approveJoinAndSign"
+      body: "*"
+    };
+  }
+
+  // ApproveTransferSquareAndSign verify the member transfer the square and return signature to sign the onchain tx.
+  rpc ApproveTransferSquareAndSign(ApproveTransferSquareAndSignRequest) returns (ApproveTransferSquareAndSignResponse) {
+    option (google.api.http) = {
+      post: "/v1/squares:approveTransferAndSign"
+      body: "*"
+    };
+  }
+
+  // GetSquareWeeklyPoints will return Square.
+  rpc GetSquareWeeklyPoints(GetSquareWeeklyPointsRequest) returns (GetSquareWeeklyPointsResponse) {
+    option (google.api.http) = {
+      get: "/v1/{square=squares/*}/weeklyPoints"
+    };
+    option (google.api.method_signature) = "square";
+  }
+
+  // ListSquareSpiritHistories will return the spirit history of the Square.
+  rpc ListSquareSpiritHistories(ListSquareSpiritHistoriesRequest) returns (ListSquareSpiritHistoriesResposne) {
+    option (google.api.http) = {
+      get: "/v1/{square=squares/*}/spiritHistories"
+    };
+    option (google.api.method_signature) = "";
+  }
+
+  // ListSquareMembers will return the members of the Square.
+  rpc ListSquareMembers(ListSquareMembersRequest) returns (ListSquareMembersResponse) {
+    option (google.api.http) = {
+      get: "/v1/{square=squares/*}/members"
+    };
+    option (google.api.method_signature) = "";
+  }
+
+  // ListSquareMemberRankings will return the leaderboard of the Square.
+  rpc ListSquareMemberRankings(ListSquareMemberRankingsRequest) returns (ListSquareMemberRankingsResponse) {
+    option (google.api.http) = {
+      get: "/v1/{square=squares/*}/members/rankings"
+    };
+  }
+}
+
+message GetSquareRequest {
+  // The name of the square to retrieve.
+  // Format: squares/{token_id}
+  string square = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Square"
+    }
+  ];
+
+  // Optional. The view to return.
+  // Defaults to SQUARE_VIEW_NOT_MEMBER if not set.
+  // If set to SQUARE_VIEW_OWNER or SQUARE_VIEW_MEMBER, but the user does not have permission to do so, the API will return a PERMISSION_DENIED error.
+  //
+  // SquareView enumeration represents the view of a square.
+  // The view controls the amount of information returned.
+  //
+  // Reference
+  // https://cloud.google.com/apis/design/design_patterns#list_flattening and
+  // https://google.aip.dev/157
+  SquareView view = 2;
+}
+
+message ListSquaresRequest {
+  // The maximum number of squares to return. The service may return fewer than
+  // this value.
+  // If unspecified, at most 50 rows will be returned.
+  // The maximum value is 1024; values above 1024 will be coerced to 1024.
+  int32 page_size = 1;
+
+  // Token of the page to retrieve. If not specified, the first
+  // page of results will be returned. Use the value obtained from
+  // `next_page_token` in the previous response in order to request
+  // the next page of results.
+  //
+  // When paginating, all other parameters provided to `ListSquares` must match
+  // the call that provided the page token.
+  string page_token = 2;
+
+  // Available Sequence and Operator
+  // * name
+  //   * `=`
+  // * token_id
+  //   * `=`
+  // * signature_id
+  //   * `=`
+  // * state
+  //   * `=`
+  // * join_type
+  //   * `=`
+  // * display_name
+  //   * `=`
+  // * occupied
+  //   * `negation`
+  //
+  // Examples
+  // * name="squares/10"
+  // * token_id="10"
+  // * signature_id="3ed92b99-00be-4417-b69f-dca2d8d14c7f"
+  // * join_type=TOKEN_GATED
+  // * display_name="SQUARE"
+  // * join_type=TOKEN_GATED AND not occupied
+  string filter = 3;
+
+  // Optional. One or more fields to compare and use to sort the output.
+  // Default order for a field is descending by id
+  // To specify ascending or descending order, append " asc" or " desc" to the field name. If not specified, the order is ascending.
+  //
+  // Reference
+  // * https://google.aip.dev/132#ordering.
+  //
+  // Supported Fields
+  // * "token_id", "total_points", "spirits"
+  //
+  // Examples
+  // * order_by=token_id asc
+  // * order_by=total_points desc
+  // * order_by=spirits desc
+  string order_by = 4;
+}
+
+
+// SquareView enumeration represents the view of a square.
+// The view controls the amount of information returned.
+//
+// Reference
+// https://cloud.google.com/apis/design/design_patterns#list_flattening and
+// https://google.aip.dev/157
+enum SquareView {
+  // The default / unset value.
+  // The API will default to the SQUARE_VIEW_NOT_MEMBER view.
+  SQUARE_VIEW_UNSPECIFIED = 0;
+
+  // Include everything.
+  SQUARE_VIEW_OWNER = 1;
+
+  // Include only fields that are safe to be exposed to members
+  // Do not include `private``
+  SQUARE_VIEW_MEMBER = 2;
+
+  // Include only fields that are safe to be exposed to non-members
+  // Do not include `private`
+  // This is the default value for GetSquare.
+  SQUARE_VIEW_NOT_MEMBER = 3;
+}
+
+// ListSquaresResponse
+// (-- api-linter: core::0158::response-next-page-token-field=disabled
+//     aip.dev/not-precedent: We need to do this because reasons. --)
+message ListSquaresResponse {
+  // The list of rows that matched the query.
+  repeated Square squares = 1;
+
+  // Pagination token used to retrieve the next page of results.
+  // Pass the content of this string as the `page_token` attribute of
+  // the next request. `next_page_token` is not returned for the last
+  // page.
+  string next_page_token = 2;
+}
+
+message ValidateDisplayNameAvailabilityRequest {
+  // The display_name of Square.
+  string display_name = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message ValidateDisplayNameAvailabilityResponse {
+  // The display_name of Square.
+  string display_name = 1;
+
+  // The availability of the nickname.
+  bool available = 2;
+
+  // The reason of the display_name is not available.
+  // Example:
+  // - display name already exists
+  // - display name should more or equal than 4
+  // - display name should less or equal than 10
+  // - display name contains non uppercase character
+  optional string reason = 3;
+}
+
+message CreateSquareAndSignRequest {
+  string nonce = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // square to create
+  Square square = 2 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message CreateSquareAndSignResponse {
+  // square to create
+  Square square = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // signature to sign the onchain tx
+  string signature = 2;
+
+  chain.MintAndCreateSquareParams params = 3 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message ListUsersSquaresRequest {
+  string user = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/User"
+    }
+  ];
+}
+
+message ListUsersSquaresResponse {
+  // The list of rows that matched the query.
+  repeated Square squares = 1;
+}
+
+
+message UpdateSquareRequest {
+  // Square to update
+  // Format: squares/{token_id}
+  Square square = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Field mask that specifies the fields to update.
+  // If no field mask is set, all fields will be updated.
+  //
+  // Supported Fields
+  // * "display_name", "description", "join"
+  //
+  // Wildcards are supported.
+  // Examples
+  // ["*"]
+  // ["display_name"]
+  // ["display_name", "description"]
+  // ["join"]
+  google.protobuf.FieldMask update_mask = 2;
+}
+
+message GetSquareWeeklySpiritsRequest {
+  // The name of the square to retrieve.
+  // Format: squares/{token_id}
+  string square = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Square"
+    }
+  ];
+
+  // The week number to retrieve.
+  // If unspecified, the current week will be returned.
+  optional uint32 week = 2;
+}
+
+message GetSquareWeeklySpiritsResponse {
+  uint32 weekly_spirits = 1;
+}
+
+
+message CheckMintEligibilityRequest {
+  string user = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/User"
+    }
+  ];
+}
+
+message CheckMintEligibilityResponse {
+  string user = 1 [
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/User"
+    }
+  ];
+
+  // Whether the user is eligible to mint the Square NFT
+  MintEligibility eligibility = 2;
+
+  // Whether the user is currently available to mint the Square NFT
+  // If the user is not available, the reason code will be set.
+  // If the user is available, the reason code will be empty.
+  // Can be unavailable though the eligibility is ELIGIBLE_ROUND1 or ELIGIBLE_ROUND2 if it is not appropriate round time.
+  bool available = 3;
+
+  // The reason code of the user is not eligible to mint the Square NFT.
+  optional RejectMintCode reject_code = 4;
+}
+
+message ApproveJoinSquareAndSignRequest {
+  // The resource name of the square to retrieve.
+  // Format: squares/{token_id}
+  string square = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The resource name of the user to join.
+  // Format: users/{address}
+  string user = 2 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The private code of the square.
+  // This field is required if the square is private.
+  // Otherwise, this field should be empty.
+  optional string private_code = 3;
+
+  string nonce = 4 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message ApproveJoinSquareAndSignResponse {
+  bool approved = 1;
+
+  string signature = 2;
+
+  optional RejectJoinSquareCode reject_code = 3;
+
+  chain.JoinSquareParams params = 4;
+}
+
+message ApproveTransferSquareAndSignRequest {
+  // The resource name of the square to transfer.
+  // Format: squares/{token_id}
+  string square = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The resource name of the user to transfer.
+  // Format: users/{address}
+  string user = 2 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The private code of the square.
+  // This field is required if the square is private.
+  // Otherwise, this field should be empty.
+  optional string private_code = 3;
+
+  string nonce = 4 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message ApproveTransferSquareAndSignResponse {
+  bool approved = 1;
+
+  string signature = 2;
+
+  optional RejectTransferSquareCode reject_code = 3;
+
+  chain.TransferSquareParams params = 4;
+}
+
+message GetSquareWeeklyPointsRequest {
+  // The name of the square to retrieve.
+  // Format: squares/{token_id}
+  string square = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The week number to retrieve.
+  // If unspecified, the current week will be returned.
+  uint32 week = 2;
+}
+
+message GetSquareWeeklyPointsResponse {
+  // The weekly points of the square.
+  uint32 weekly_points = 1;
+
+  // The week number of the points.
+  uint32 week = 2;
+}
+
+message ListSquareSpiritHistoriesRequest {
+  // The name of the square to retrieve.
+  // Format: squares/{token_id}
+  string square = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // The maximum number of spirits to return. The service may return fewer than
+  // this value.
+  // If unspecified, at most 50 rows will be returned.
+  // The maximum value is 1024; values above 1024 will be coerced to 1024.
+  int32 page_size = 2;
+
+  // Token of the page to retrieve. If not specified, the first
+  // page of results will be returned. Use the value obtained from
+  // `next_page_token` in the previous response in order to request
+  // the next page of results.
+  //
+  // When paginating, all other parameters provided to `ListSquareSpiritHistories` must match
+  // the call that provided the page token.
+  string page_token = 3;
+}
+
+message ListSquareSpiritHistoriesResposne {
+  // The list of rows that matched the query.
+  repeated SquareSpiritHistory histories = 1;
+
+  // Pagination token used to retrieve the next page of results.
+  // Pass the content
+  // of this string as the `page_token` attribute of
+  // the next request. `next_page_token` is not returned for the last
+  // page.
+  string next_page_token = 2;
+}
+
+message ListSquareMembersRequest {
+  // The name of the square to retrieve.
+  // Format: squares/{token_id}
+  string square = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Square"
+    }
+  ];
+
+  // The maximum number of squares to return. The service may return fewer than
+  // this value.
+  // If unspecified, at most 50 rows will be returned.
+  // The maximum value is 1024; values above 1024 will be coerced to 1024.
+  int32 page_size = 2;
+
+  // Token of the page to retrieve. If not specified, the first
+  // page of results will be returned. Use the value obtained from
+  // `next_page_token` in the previous response in order to request
+  // the next page of results.
+  //
+  // When paginating, all other parameters provided to `ListSquareMembers` must match
+  // the call that provided the page token.
+  string page_token = 3;
+
+  // Available Sequence and Operator
+  // * user
+  //   * `=`
+  // * member
+  //   * `=`
+  // * member_address
+  //   * `=`
+  // * join_time
+  //   * `>`, `<`, `>=`, `<=`
+  // * show_left
+  //   * `NOT`
+  //
+  // Examples
+  // * member_address="0x6F11EF2c07f2E381CbE514198DdE87A0c0a19442"
+  // * join_time>"2024-04-10T11:30:00Z"
+  // * show_left
+  string filter = 4;
+
+  // Optional. One or more fields to compare and use to sort the output.
+  // Default order for a field is descending by id
+  // To specify ascending or descending order, append " asc" or " desc" to the field name. If not specified, the order is ascending.
+  //
+  // Reference
+  // * https://google.aip.dev/132#ordering.
+  //
+  // Supported Fields
+  // * "total_points", "join_time"
+  //
+  // Examples
+  // * order_by=join_time asc
+  // * order_by=total_points desc, join_time asc
+  string order_by = 5;
+}
+
+// ListSquareMembersResponse
+// (-- api-linter: core::0158::response-next-page-token-field=disabled
+//     aip.dev/not-precedent: We need to do this because reasons. --)
+message ListSquareMembersResponse {
+  // The list of rows that matched the query.
+  repeated SquareMember members = 1;
+
+  // Pagination token used to retrieve the next page of results.
+  // Pass the content of this string as the `page_token` attribute of
+  // the next request. `next_page_token` is not returned for the last
+  // page.
+  string next_page_token = 2;
+}
+
+
+message ListSquareMemberRankingsRequest {
+  // The name of the square to retrieve.
+  // Format: squares/{token_id}
+  string square = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  SquareMemberRankType rank_type = 2;
+
+  // The maximum number of points to return. The service may return fewer than
+  // this value.
+  // If unspecified, at most 50 rows will be returned.
+  // The maximum value is 1024; values above 1024 will be coerced to 1024.
+  int32 page_size = 3;
+
+  // Token of the page to retrieve. If not specified, the first
+  // page of results will be returned. Use the value obtained from
+  // `next_page_token` in the previous response in order to request
+  // the next page of results.
+  //
+  // When paginating, all other parameters provided to `ListPoints` must match
+  // the call that provided the page token.
+  string page_token = 4;
+}
+
+message ListSquareMemberRankingsResponse {
+  // The list of rows that matched the query.
+  repeated SquareMemberRanking rankings = 1;
+
+  // Pagination token used to retrieve the next page of results.
+  // Pass the content of this string as the `page_token` attribute of
+  // the next request. `next_page_token` is not returned for the last
+  // page.
+  string next_page_token = 2;
+}
+
+
+// The state of square
+enum SquareState {
+  // default value. this value is unused.
+  STATE_UNSPECIFIED = 0;
+
+  // The square is created at server side and pending for onchain tx is finalized
+  CREATED_PENDING = 1;
+
+  // The square is owned by Spacebar user.
+  OWNED = 2;
+
+  // The owner of the square is not a Spacebar user.
+  UNOWNED = 3;
+}
+
+// The join type of square
+enum SquareJoinType {
+  // default value. this value is unused.
+  TYPE_UNSPECIFIED = 0;
+
+  // Anyone can join the square.
+  PUBLIC = 1;
+
+  // Only user with the code can join the square.
+  PRIVATE = 2;
+
+  // Only user with the specific token can join the square.
+  TOKEN_GATED = 3;
+
+}
+
+// The member type of square
+enum SquareMemberType {
+  // default value. this value is unused.
+  SQUARE_MEMBER_TYPE_UNSPECIFIED = 0;
+
+  OWNER = 1;
+
+  MEMBER = 2;
+
+}
+
+//enum SquareMemberState {
+//  // default value. this value is unused.
+//  SQUARE_MEMBER_STATE_UNSPECIFIED = 0;
+//
+//  // The member is pending to join the square.
+//  // JoinSquare signature is not finalized to blockchain.
+//  JOINED_PENDING = 1;
+//
+//  // The member has joined the square.
+//  JOINED = 2;
+//
+//  // The member has left the square.
+//  LEAVED = 3;
+//
+//  // The member is kicked out from the square.
+//  KICKED_OUT = 4;
+//}
+
+
+enum SquareMemberRankType {
+  SQUARE_MEMBER_RANK_TYPE_UNSPECIFIED = 0;
+
+  ALL_TIME = 1;
+
+  WEEKLY = 2;
+
+}
+
+message Square {
+  option (google.api.resource) = {
+    type: "station.spacebarapis.xyz/Square",
+    pattern: "squares/{token_id}"
+  };
+  // The resource name of the Square.
+  // Format: squares/{token_id}
+  string name = 1;
+
+  // ERC721 token ID of the Square.
+  string token_id = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  //
+  string owner_address = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The created time of Square.
+  // RFC3339 format e.g. "2006-01-02T15:04:05Z07:00"
+  google.protobuf.Timestamp create_time = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  SquareState state = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The signature id of the Square.
+  // This field is used for multi signature when minting the Square NFT.
+  string signature_id = 6 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The join type of the square.
+  SquareJoinType join_type = 7;
+
+  oneof join {
+    Public public = 8;
+    Private private = 9;
+    TokenGated token_gated = 10;
+  }
+
+  // The display name of the square.
+  string display_name = 11;
+
+  // The introduction of the square.
+  string introduction = 12;
+
+  // The minimum required staking amount to join the square in ETH.
+  float minimum_staking_amount_to_join_in_eth = 13;
+
+  // The total staking amount of all members in the square in ETH.
+  float total_members_staking_amount_in_eth = 14 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The multiplier of the square.
+  float multiplier = 15 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The all-time total points of the square.
+  uint32 total_points = 16  [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The total capacity of the square.
+  uint32 capacity = 17 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The current number of members in the square.
+  uint32 occupancy = 18 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The occupancy of the square including join pending members.
+  uint32 occupancy_including_pending = 19 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The PFP boost of the square.
+  PFPBoost pfp_boost = 20 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The NFT of the square.
+  SquareNFT nft = 21 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  uint32 spirits = 22 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  //
+  uint32 stars = 23 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // DEPRECATED: Use spirits instead.
+  uint32 total_spirits = 24 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // DEPRECATED: Use GetSquareWeeklySpirits API instead.
+  uint32 weekly_spirits = 25 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}
+
+message PFPBoost {
+  float percentage = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  uint32 member_count = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The resource name of the NFT contract.
+  // Format: nfts/{chain_type}/{contract_address}
+  string nft_contract = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.resource_reference) = {
+      type: "outpost.spacebarapis.xyz/NFTContract"
+    }
+  ];
+}
+
+message Public {
+
+}
+
+message Private {
+  string code = 1;
+}
+
+message TokenGated {
+  // The resource name of the NFT contract.
+  // Format: nfts/{chain_type}/{contract_address}
+  string nft_contract = 1 [
+    (google.api.resource_reference) = {
+      type: "outpost.spacebarapis.xyz/NFTContract"
+    }
+  ];
+
+}
+
+message SquareNFT {
+  // Token ID of the NFT asset.
+  uint32 token_id = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The URI of the NFT asset's image.
+  // This URI is cached version of image original URI
+  // e.g. "https://cdn.spacebar.xyz/nfts/ethereum/0x79fcdef22feed20eddacbb2587640e45491b757f/609"
+  string image_uri = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The URI of the NFT asset's metadata.
+  string metadata_uri = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}
+
+message SquareMember {
+  option (google.api.resource) = {
+    type: "station.spacebarapis.xyz/SquareMemeber",
+    pattern: "squares/{square_token_id}/members/{user_address}"
+  };
+
+  // The resource name of the Square.
+  // Format: squares/{square_token_id}/members/{user_address}
+  string name = 1;
+
+  // The token ID of the Square.
+  string square_token_id = 2  [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The user address of the member.
+  string user_address = 3  [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The member type of the square.
+  SquareMemberType type = 4  [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  uint32 total_points = 5  [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // RFC3339 format e.g. "2006-01-02T15:04:05Z07:00"
+  google.protobuf.Timestamp join_time = 8 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+}
+
+message SquareMemberRanking {
+  uint32 rank = 1;
+
+  uint32 points = 2;
+
+  SquareMember member = 3;
+}
+
+message SquareSpiritHistory {
+  // The name of the Square
+  // Format: squares/{token_id}
+  string square = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Square"
+    }
+  ];
+
+  // The spirit type of the square.
+  SpiritType type = 3  [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The user address of the member.
+  uint32  amount = 4  [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // RFC3339 format e.g. "2006-01-02T15:04:05Z07:00"
+  google.protobuf.Timestamp create_time = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+}
+
+enum RejectMintCode {
+  REJECT_MINT_CODE_UNSPECIFIED = 0;
+
+  // The user is not whitelisted to mint the Square NFT.
+  NO_ELIGIBILITY = 1;
+
+  // The Square NFT is already minted.
+  ROUND_TIME_NOT_MATCH = 2;
+
+  // The Square NFT is already minted.
+  ALREADY_MINTED = 3;
+}
+
+enum RejectJoinSquareCode {
+  REJECT_JOIN_CODE_UNSPECIFIED = 0;
+
+  // The square is fully occupied.
+  REJECT_JOIN_FULLY_OCCUPIED = 1;
+
+  // The user's staking amount is below the minimum required amount to join the square.
+  REJECT_JOIN_NOT_ENOUGH_STAKING_AMOUNT = 2;
+
+  // The private code is incorrect.
+  REJECT_JOIN_INCORRECT_PRIVATE_CODE = 3;
+
+  // The user is not a token holder of the token gated square.
+  REJECT_JOIN_NOT_TOKEN_HOLDER = 4;
+
+  // The user is already memeber of the square.
+  REJECT_JOIN_ALREADY_JOINED = 5;
+}
+
+enum RejectTransferSquareCode {
+  REJECT_TRANSFER_CODE_UNSPECIFIED = 0;
+
+  // The square is fully occupied.
+  REJECT_TRANSFER_FULLY_OCCUPIED = 1;
+
+  // The user's staking amount is below the minimum required amount to join the square.
+  REJECT_TRANSFER_NOT_ENOUGH_STAKING_AMOUNT = 2;
+
+  // The private code is incorrect.
+  REJECT_TRANSFER_INCORRECT_PRIVATE_CODE = 3;
+
+  // The user is not a token holder of the token gated square.
+  REJECT_TRANSFER_NOT_TOKEN_HOLDER = 4;
+
+  // The user is not member of any square.
+  REJECT_TRANSFER_NOT_SQUARE_MEMBER = 5;
+
+  // The user transfer or join the square within the cooldown time.
+  REJECT_TRANSFER_NOT_AFTER_COOLDOWN_TIME = 6;
+}
+
+
+enum MintEligibility {
+  MINT_ELIGIBILITY_UNSPECIFIED = 0;
+
+  // The user is not eligible to mint the Square NFT.
+  NOT_ELIGIBLE = 1;
+
+  // The user is eligible to mint the Square NFT in round 1.
+  ELIGIBLE_ROUND1 = 2;
+
+  // The user is eligible to mint the Square NFT in round 2.
+  ELIGIBLE_ROUND2 = 3;
+
+  // The user is eligible to mint the Square NFT in round 1 and round 2.
+  ELIGIBLE_ROUND1_AND_ROUND2 = 4;
+}
+
+enum TransferMemberType {
+  TRANSFER_MEMBER_TYPE_UNSPECIFIED = 0;
+
+  DEFAULT = 1;
+
+  KICKED_OUT = 2;
+
+  TO_OWNER = 3;
+}
+
+enum SpiritType {
+  SQUARE_SPIRIT_TYPE_UNSPECIFIED = 0;
+
+  VOTING = 1;
+
+  SUMMON_BEBOB_SUCCESS = 2;
+
+  ATTACK_BEBOB_SUCCESS = 3;
+
+  COLLECT_STARS = 4;
+
+  COMMUNITY_EVENT = 5;
+}

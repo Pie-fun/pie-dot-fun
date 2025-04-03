@@ -1,0 +1,121 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "blast/v1/user/dailycheckin.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "DailyCheckinService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/{user}/daily_checkin": {
+      "get": {
+        "summary": "GetDailyCheckin will return the User's DailyCheckin",
+        "operationId": "DailyCheckinService_GetDailyCheckin",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/userDailyCheckin"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "user",
+            "description": "Format: users/{address}\nResource name alias \"users/me\" is supported.",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "users/[^/]+"
+          }
+        ],
+        "tags": [
+          "DailyCheckinService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "userDailyCheckin": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "type": "string"
+        },
+        "currentStreak": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "isClaimable": {
+          "type": "boolean"
+        },
+        "points": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "lastClaim": {
+          "$ref": "#/definitions/userDailyCheckinClaim"
+        }
+      }
+    },
+    "userDailyCheckinClaim": {
+      "type": "object",
+      "properties": {
+        "streak": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "points": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "claimTime": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}

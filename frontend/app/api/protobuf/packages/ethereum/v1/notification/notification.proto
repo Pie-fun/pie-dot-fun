@@ -1,0 +1,265 @@
+syntax = "proto3";
+
+package ethereum.v1.notification;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/ethereum/v1/notification;notification";
+
+// NotificationService contains the function to interact with the Notification of the spacebar
+service NotificationService {
+  // Signin signs in a user and returns a session id.
+  rpc ListNotifications(ListNotificationsRequest) returns (ListNotificationsResponse) {
+    option (google.api.http) = {
+      get: "/v1/notifications"
+    };
+    option (google.api.method_signature) = "";
+  }
+
+  // AcknowledgeNotification acknowledges a notification.
+  rpc AcknowledgeNotification(AcknowledgeNotificationRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/{notification=notifications/*}:ack"
+      body: "notification"
+    };
+    option (google.api.method_signature) = "notification";
+  }
+
+  // CreateNotification create Notification with Notification
+  rpc CreateNotification(CreateNotificationRequest) returns (Notification) {
+    option (google.api.http) = {
+      post: "/v1/notifications"
+      body: "notification"
+    };
+    option (google.api.method_signature) = "notification";
+  }
+}
+
+message ListNotificationsRequest {
+  // The maximum number of items to return. The service may return fewer than this value.
+  // If unspecified, at most 50 rows will be returned.
+  // The maximum value is 1024; values above 1024 will be coerced to 1024.
+  int32 page_size = 1;
+
+  // Token of the page to retrieve. If not specified, the first
+  // page of results will be returned. Use the value obtained from
+  // `next_page_token` in the previous response in order to request
+  // the next page of results.
+  //
+  // When paginating, all other parameters provided to `ListNotifications` must match
+  // the call that provided the page token.
+  string page_token = 2;
+
+  // The resource name of Profile.
+  // Profile is required.
+  // Format: profiles/{address}
+  string profile = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Profile",
+    }
+  ];
+
+  // Available Sequence and Operator
+  // * state
+  //   * `Equal`
+  // * type
+  //   * `Equal`
+  //
+  // Examples
+  // * state=CREATED
+  // * type=REWARD_DAILY_ATTENDANCE
+  string filter = 4;
+}
+
+message ListNotificationsResponse {
+  repeated Notification notifications = 1;
+
+  string next_page_token = 2;
+}
+
+message AcknowledgeNotificationRequest {
+  string notification = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Notification",
+    }
+  ];
+}
+
+// CreateNotificationRequest
+message CreateNotificationRequest {
+  // notification to create
+  Notification notification = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+
+// Type of the notification.
+enum NotificationType {
+  // default value. this value is unused.
+  TYPE_UNSPECIFIED = 0;
+
+  // Plain text info message.
+  INFO_MESSAGE = 1;
+
+  REWARD_DAILY_ATTENDANCE = 2;
+
+  REWARD_WEEKLY_MISSION = 3;
+
+  REWARD_WEEKLY_DOODLER = 4;
+
+  REWARD_CHANLLENGE_RACE = 5;
+
+  REWARD_HANGOUT_QUIZ = 6;
+
+  REWARD_CUSTOM = 7;
+
+  INFO_KEY_CREATED = 8;
+}
+
+// Action type that can be performed on the notification.
+enum NotificationAction {
+  // default value. this value is unused.
+  ACTION_UNSPECIFIED = 0;
+
+  // No operation.
+  NO_OP = 1;
+
+  // STAR token can be claimed.
+  CLAIM_STAR = 2;
+
+  // Key can be claimed.
+  CLAIM_KEY = 3;
+}
+
+// State of the notification.
+enum NotificationState {
+  // default value. this value is unused.
+  STATE_UNSPECIFIED = 0;
+
+  //
+  CREATED = 1;
+
+  //
+  ACKNOWLEDGED = 2;
+
+  //
+  EXPIRED = 3;
+}
+
+enum NotificationContentIcon {
+  // default value. this value is unused.
+  ICON_UNSPECIFIED = 0;
+
+  BADGE = 1;
+
+  GIFT = 2;
+
+  ALERT = 3;
+
+  WARNING = 4;
+
+  SAPCESHIP = 5;
+
+  STAR = 6;
+
+  CROWN = 7;
+
+  DART = 8;
+
+  KEY_G = 9;
+
+  KEY_A = 10;
+
+  KEY_H = 11;
+
+  KEY_R = 12;
+}
+
+message NotificationContent {
+  NotificationContentIcon icon = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  string title = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  string body = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}
+
+
+message Notification {
+  option (google.api.resource) = {
+    type: "station.spacebarapis.xyz/Notification",
+    pattern: "notifications/{id}"
+  };
+
+  // The resource name of the Notification.
+  // Format: notifications/{id}
+  string name = 1;
+
+  // The id of Notification.
+  uint64 id = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The resource name of Profile.
+  // Format: profiles/{address}
+  string profile = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Profile",
+    }
+  ];
+
+  NotificationType type = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  NotificationAction action = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  NotificationState state = 6 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  NotificationContent content = 7 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The created time of Notification.
+  // RFC3339 format e.g. "2006-01-02T15:04:05Z07:00"
+  google.protobuf.Timestamp create_time = 8 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The expire time of Notification if exists.
+  // RFC3339 format e.g. "2006-01-02T15:04:05Z07:00"
+  optional google.protobuf.Timestamp expire_time = 9 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The acknowledged time of Notification.
+  optional google.protobuf.Timestamp acknowledge_time = 10 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The Metadata of Notification.
+  map<string, string> metadata = 11 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+}
+

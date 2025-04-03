@@ -1,0 +1,418 @@
+syntax = "proto3";
+
+package blast.v1.aggregate;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+import "blast/v1/points/points.proto";
+import "blast/v1/user/user.proto";
+import "blast/v1/square/square.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/blast/v1/aggregate;aggregate";
+
+// AggregateService contains the method to read full aggregate resources.
+service AggregateService {
+
+  // ListPointsAggregate returns the PointsAggregate for the given request.
+  rpc ListPointsAggregate(ListPointsAggregateRequest) returns (ListPointsAggregateResponse) {
+    option (google.api.http) = {
+      get: "/v1/aggregates/points"
+    };
+  }
+
+  // ListSquareMemberRankingsAggregate returns the SquareMemberRankingsAggregate for the given request.
+  rpc ListSquareMemberRankingsAggregate(ListSquareMemberRankingsAggregateRequest) returns (ListSquareMemberRankingsAggregateResponse) {
+    option (google.api.http) = {
+      get: "/v1/aggregates/{square=squares/*}/members/rankings"
+    };
+  }
+
+  // GetSquareAggregate returns the GetSquareAggregate for the given request.
+  rpc GetSquareAggregate(GetSquareAggregateRequest) returns (SquareAggregate) {
+    option (google.api.http) = {
+      get: "/v1/aggregates/{square=squares/*}"
+    };
+  }
+
+  // ListSquaresAggregate returns the ListSquaresAggregate for the given request.
+  rpc ListSquaresAggregate(ListSquaresAggregateRequest) returns (ListSquaresAggregateResponse) {
+    option (google.api.http) = {
+      get: "/v1/aggregates/squares"
+    };
+    option (google.api.method_signature) = "";
+  }
+}
+
+message ListPointsAggregateRequest {
+  // The maximum number of points to return. The service may return fewer than
+  // this value.
+  // If unspecified, at most 50 rows will be returned.
+  // The maximum value is 1024; values above 1024 will be coerced to 1024.
+  int32 page_size = 1;
+
+  // Token of the page to retrieve. If not specified, the first
+  // page of results will be returned. Use the value obtained from
+  // `next_page_token` in the previous response in order to request
+  // the next page of results.
+  //
+  // When paginating, all other parameters provided to `ListPoints` must match
+  // the call that provided the page token.
+  string page_token = 2;
+
+  // Available Sequence and Operator
+  // * name
+  //   * `=`
+  // * user_address
+  //   * `=`
+  //
+  // Examples
+  // * name="points/0x6F11EF2c07f2E381CbE514198DdE87A0c0a19442"
+  // * user_address="0x6F11EF2c07f2E381CbE514198DdE87A0c0a19442"
+  string filter = 3;
+
+  // One or more fields to compare and use to sort the output. (optional)
+  // Default order for a field is descending by id
+  // To specify ascending or descending order, append " asc" or " desc" to the field name. If not specified, the order is ascending.
+  //
+  // Reference
+  // * https://google.aip.dev/132#ordering.
+  //
+  // Supported Fields
+  // * "id", "user_address", "points"
+  //
+  // Examples
+  // * order_by=points desc
+  string order_by = 4;
+}
+
+// ListPointsResponse
+message ListPointsAggregateResponse {
+  // The list of rows that matched the query.
+  repeated PointsAggregate points_aggregate = 1;
+
+  // Pagination token used to retrieve the next page of results.
+  // Pass the content of this string as the `page_token` attribute of
+  // the next request. `next_page_token` is not returned for the last
+  // page.
+  string next_page_token = 2;
+}
+
+message PointsAggregate {
+  option (google.api.resource) = {
+    type: "station.spacebarapis.xyz/Points",
+    pattern: "users/{address}/points"
+  };
+
+  // The resource name of the Points.
+  // Format: users/{address}/points
+  string name = 1;
+
+  //
+  user.User user = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  //
+  uint32 total_points = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  points.Referral referral = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  points.Staking staking = 6 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  points.Activity activity = 7 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  points.Bonus bonus = 8 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  repeated points.Multiplier multipliers = 9 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+}
+
+
+message ListSquareMemberRankingsAggregateRequest {
+  // The name of the square to retrieve.
+  // Format: squares/{token_id}
+  string square = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  square.SquareMemberRankType rank_type = 2;
+
+  // The maximum number of points to return. The service may return fewer than
+  // this value.
+  // If unspecified, at most 50 rows will be returned.
+  // The maximum value is 1024; values above 1024 will be coerced to 1024.
+  int32 page_size = 3;
+
+  // Token of the page to retrieve. If not specified, the first
+  // page of results will be returned. Use the value obtained from
+  // `next_page_token` in the previous response in order to request
+  // the next page of results.
+  //
+  // When paginating, all other parameters provided to `ListPoints` must match
+  // the call that provided the page token.
+  string page_token = 4;
+}
+
+message ListSquareMemberRankingsAggregateResponse {
+  // The list of rows that matched the query.
+  repeated SquareMemberRankingAggregate rankings_aggregate = 1;
+
+  // Pagination token used to retrieve the next page of results.
+  // Pass the content of this string as the `page_token` attribute of
+  // the next request. `next_page_token` is not returned for the last
+  // page.
+  string next_page_token = 2;
+}
+
+message SquareMemberRankingAggregate {
+  uint32 rank = 1;
+
+  uint32 points = 2;
+
+  SquareMemberAggregate member = 3;
+}
+
+message SquareMemberAggregate {
+  option (google.api.resource) = {
+    type: "station.spacebarapis.xyz/SquareMemeber",
+    pattern: "squares/{square_token_id}/members/{user_address}"
+  };
+
+  // The resource name of the Square.
+  // Format: squares/{square_token_id}/members/{user_address}
+  string name = 1;
+
+  // The token ID of the Square.
+  string square_token_id = 2  [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The user address of the member.
+  user.User user = 3  [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The member type of the square.
+  square.SquareMemberType type = 4  [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  uint32 total_points = 5  [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // RFC3339 format e.g. "2006-01-02T15:04:05Z07:00"
+  google.protobuf.Timestamp join_time = 8 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+}
+
+//
+message GetSquareAggregateRequest {
+  // The name of the square to retrieve.
+  // Format: squares/{token_id}
+  string square = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+  
+  // The view of the square.
+  square.SquareView view = 2;
+}
+
+message SquareAggregate {
+  option (google.api.resource) = {
+    type: "station.spacebarapis.xyz/Square",
+    pattern: "squares/{token_id}"
+  };
+  // The resource name of the Square.
+  // Format: squares/{token_id}
+  string name = 1;
+
+  // ERC721 token ID of the Square.
+  string token_id = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  //
+  user.User owner = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The created time of Square.
+  // RFC3339 format e.g. "2006-01-02T15:04:05Z07:00"
+  google.protobuf.Timestamp create_time = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  square.SquareState state = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The signature id of the Square.
+  // This field is used for multi signature when minting the Square NFT.
+  string signature_id = 6 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The join type of the square.
+  square.SquareJoinType join_type = 7;
+
+  oneof join {
+    square.Public public = 8;
+    square.Private private = 9;
+    square.TokenGated token_gated = 10;
+  }
+
+  // The display name of the square.
+  string display_name = 11;
+
+  // The introduction of the square.
+  string introduction = 12;
+
+  // The minimum required staking amount to join the square in ETH.
+  float minimum_staking_amount_to_join_in_eth = 13;
+
+  // The total staking amount of all members in the square in ETH.
+  float total_members_staking_amount_in_eth = 14 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The multiplier of the square.
+  float multiplier = 15 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The all-time total points of the square.
+  uint32 total_points = 16  [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The total capacity of the square.
+  uint32 capacity = 17 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The current number of members in the square.
+  uint32 occupancy = 18 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The occupancy of the square including join pending members.
+  uint32 occupancy_including_pending = 19 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The PFP boost of the square.
+  square.PFPBoost pfp_boost = 20 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The NFT of the square.
+  square.SquareNFT nft = 21 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  //
+  uint32 spirits = 22 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  //
+  uint32 stars = 23 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  uint32 total_spirits = 24 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  uint32 weekly_spirits = 25 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}
+
+message ListSquaresAggregateRequest {
+  // The maximum number of squares to return. The service may return fewer than
+  // this value.
+  // If unspecified, at most 50 rows will be returned.
+  // The maximum value is 1024; values above 1024 will be coerced to 1024.
+  int32 page_size = 1;
+
+  // Token of the page to retrieve. If not specified, the first
+  // page of results will be returned. Use the value obtained from
+  // `next_page_token` in the previous response in order to request
+  // the next page of results.
+  //
+  // When paginating, all other parameters provided to `ListSquares` must match
+  // the call that provided the page token.
+  string page_token = 2;
+
+  // Available Sequence and Operator
+  // * name
+  //   * `=`
+  // * token_id
+  //   * `=`
+  // * signature_id
+  //   * `=`
+  // * state
+  //   * `=`
+  // * join_type
+  //   * `=`
+  // * display_name
+  //   * `=`
+  //
+  // Examples
+  // * name="squares/10"
+  // * token_id="10"
+  // * signature_id="3ed92b99-00be-4417-b69f-dca2d8d14c7f"
+  // * join_type=TOKEN_GATED
+  // * display_name="SQUARE"
+  string filter = 3;
+
+  // Optional. One or more fields to compare and use to sort the output.
+  // Default order for a field is descending by id
+  // To specify ascending or descending order, append " asc" or " desc" to the field name. If not specified, the order is ascending.
+  //
+  // Reference
+  // * https://google.aip.dev/132#ordering.
+  //
+  // Supported Fields
+  // * "token_id", "total_points", "spirits"
+  //
+  // Examples
+  // * order_by=token_id asc
+  // * order_by=total_points desc
+  // * order_by=spirits asc
+  string order_by = 4;
+}
+
+// ListSquaresAggregateResponse
+message ListSquaresAggregateResponse {
+  // The list of rows that matched the query.
+  repeated SquareAggregate squares_aggregate = 1;
+
+  // Pagination token used to retrieve the next page of results.
+  // Pass the content of this string as the `page_token` attribute of
+  // the next request. `next_page_token` is not returned for the last
+  // page.
+  string next_page_token = 2;
+}

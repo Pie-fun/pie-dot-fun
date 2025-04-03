@@ -1,0 +1,144 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "blast/v1/spaceship/spaceship.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "SpaceshipService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/{spaceship}": {
+      "get": {
+        "operationId": "SpaceshipService_GetSpaceship",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/spaceshipSpaceship"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "spaceship",
+            "description": "The name of the spaceship to retrieve.\nFormat: spaceships/{address}\nAlias \"spaceships/me\" is supported.",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "spaceships/[^/]+"
+          }
+        ],
+        "tags": [
+          "SpaceshipService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "spaceshipSpaceship": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "The resource name of the Spaceship.\nFormat: spaceships/{address}"
+        },
+        "address": {
+          "type": "string",
+          "description": "EIP-6551 TBA Address of the Spaceship NFT.",
+          "readOnly": true
+        },
+        "ownerAddress": {
+          "type": "string",
+          "readOnly": true
+        },
+        "type": {
+          "$ref": "#/definitions/spaceshipSpaceshipType"
+        },
+        "createTime": {
+          "type": "string",
+          "format": "date-time",
+          "title": "The created time of Spaceship.\nRFC3339 format e.g. \"2006-01-02T15:04:05Z07:00\"",
+          "readOnly": true
+        },
+        "nft": {
+          "$ref": "#/definitions/spaceshipSpaceshipNFT",
+          "description": "The updated time of Spaceship.",
+          "readOnly": true
+        }
+      }
+    },
+    "spaceshipSpaceshipNFT": {
+      "type": "object",
+      "properties": {
+        "tokenId": {
+          "type": "string",
+          "description": "Token ID of the NFT asset.",
+          "readOnly": true
+        },
+        "imageUri": {
+          "type": "string",
+          "title": "The URI of the NFT asset's image.\nThis URI is cached version of image original URI\ne.g. \"https://cdn.spacebar.xyz/nfts/ethereum/0x79fcdef22feed20eddacbb2587640e45491b757f/609\"",
+          "readOnly": true
+        },
+        "metadataUri": {
+          "type": "string",
+          "description": "The URI of the NFT asset's metadata.",
+          "readOnly": true
+        }
+      }
+    },
+    "spaceshipSpaceshipType": {
+      "type": "string",
+      "enum": [
+        "TYPE_UNSPECIFIED",
+        "PROTOSHIP",
+        "OWNERSHIP"
+      ],
+      "default": "TYPE_UNSPECIFIED",
+      "description": "- TYPE_UNSPECIFIED: default value. this value is unused.",
+      "title": "The state of spaceship"
+    }
+  }
+}

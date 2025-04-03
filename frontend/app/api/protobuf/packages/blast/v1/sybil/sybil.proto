@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package blast.v1.sybil;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/blast/v1/sybil;sybil";
+
+// SybilService contains the function to interact with the Sybil of the spacebar
+service SybilService {
+  rpc GetSybil(GetSybilRequest) returns (Sybil) {
+    option (google.api.http) = {
+        get: "/v1/{name=sybils/*}"
+    };
+    option (google.api.method_signature) = "name";
+  }
+}
+
+// GetSybilRequest
+message GetSybilRequest {
+  // The resource name of the Sybil.
+  string name = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+message Sybil {
+  option (google.api.resource) = {
+    type: "station.spacebarapis.xyz/Sybil",
+    pattern: "sybils/{sybil}"
+  };
+
+  // The resource name of the Sybil.
+  string name = 1;
+
+  google.protobuf.Timestamp create_time = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}

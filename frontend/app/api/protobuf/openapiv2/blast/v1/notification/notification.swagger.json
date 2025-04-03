@@ -1,0 +1,276 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "blast/v1/notification/notification.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "NotificationService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/{name}:ack": {
+      "post": {
+        "summary": "AcknowledgeNotification acknowledges a notification.",
+        "operationId": "NotificationService_AcknowledgeNotification",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "users/[^/]+/notifications/[^/]+"
+          },
+          {
+            "name": "name",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "required": [
+                "name"
+              ]
+            }
+          }
+        ],
+        "tags": [
+          "NotificationService"
+        ]
+      }
+    },
+    "/v1/{parent}/notifications": {
+      "get": {
+        "summary": "Signin signs in a user and returns a session id.",
+        "operationId": "NotificationService_ListNotifications",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/notificationListNotificationsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "parent",
+            "description": "The resource name of User.\nUser is required.\nFormat: users/{address}",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "users/[^/]+"
+          },
+          {
+            "name": "pageSize",
+            "description": "The maximum number of items to return. The service may return fewer than this value.\nIf unspecified, at most 50 rows will be returned.\nThe maximum value is 1024; values above 1024 will be coerced to 1024.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageToken",
+            "description": "Token of the page to retrieve. If not specified, the first\npage of results will be returned. Use the value obtained from\n`next_page_token` in the previous response in order to request\nthe next page of results.\n\nWhen paginating, all other parameters provided to `ListNotifications` must match\nthe call that provided the page token.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "filter",
+            "description": "Available Sequence and Operator\n* state\n  * `Equal`\n* type\n  * `Equal`\n\nExamples\n* state=CREATED\n* type=INFO_POINTS_GIVEN",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "NotificationService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "notificationListNotificationsResponse": {
+      "type": "object",
+      "properties": {
+        "notifications": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/notificationNotification"
+          }
+        },
+        "nextPageToken": {
+          "type": "string"
+        }
+      }
+    },
+    "notificationNotification": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "The resource name of the Notification.\nFormat: users/{user_address}/notifications/{id}"
+        },
+        "user": {
+          "type": "string",
+          "title": "The resource name of User.\nFormat: users/{address}",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uint64",
+          "description": "The id of Notification.",
+          "readOnly": true
+        },
+        "type": {
+          "$ref": "#/definitions/notificationNotificationType",
+          "readOnly": true
+        },
+        "action": {
+          "$ref": "#/definitions/notificationNotificationAction",
+          "readOnly": true
+        },
+        "state": {
+          "$ref": "#/definitions/notificationNotificationState",
+          "readOnly": true
+        },
+        "icon": {
+          "$ref": "#/definitions/notificationNotificationContentIcon",
+          "readOnly": true
+        },
+        "title": {
+          "type": "string",
+          "readOnly": true
+        },
+        "body": {
+          "type": "string",
+          "readOnly": true
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "readOnly": true
+        },
+        "createTime": {
+          "type": "string",
+          "format": "date-time",
+          "title": "The created time of Notification.\nRFC3339 format e.g. \"2006-01-02T15:04:05Z07:00\"",
+          "readOnly": true
+        },
+        "expireTime": {
+          "type": "string",
+          "format": "date-time",
+          "title": "The expire time of Notification if exists.\nRFC3339 format e.g. \"2006-01-02T15:04:05Z07:00\"",
+          "readOnly": true
+        },
+        "acknowledgeTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The acknowledged time of Notification.",
+          "readOnly": true
+        }
+      }
+    },
+    "notificationNotificationAction": {
+      "type": "string",
+      "enum": [
+        "ACTION_UNSPECIFIED",
+        "NO_OP",
+        "NAVIGATE_POINTS_PAGE"
+      ],
+      "default": "ACTION_UNSPECIFIED",
+      "description": "Action type that can be performed on the notification.\n\n - ACTION_UNSPECIFIED: default value. this value is unused.\n - NO_OP: No operation.\n - NAVIGATE_POINTS_PAGE: Navigate to the points page."
+    },
+    "notificationNotificationContentIcon": {
+      "type": "string",
+      "enum": [
+        "ICON_UNSPECIFIED",
+        "ICON_SPACEBAR_POINTS",
+        "ICON_BLAST_GOLD",
+        "ICON_BLAST_TOKEN"
+      ],
+      "default": "ICON_UNSPECIFIED",
+      "description": " - ICON_UNSPECIFIED: default value. this value is unused."
+    },
+    "notificationNotificationState": {
+      "type": "string",
+      "enum": [
+        "STATE_UNSPECIFIED",
+        "CREATED",
+        "ACKNOWLEDGED",
+        "EXPIRED"
+      ],
+      "default": "STATE_UNSPECIFIED",
+      "description": "State of the notification.\n\n - STATE_UNSPECIFIED: default value. this value is unused."
+    },
+    "notificationNotificationType": {
+      "type": "string",
+      "enum": [
+        "TYPE_UNSPECIFIED",
+        "INFO",
+        "INFO_POINTS_GIVEN",
+        "INFO_SPACEBAR_POINTS_GIVEN",
+        "INFO_BLAST_GOLD_GIVEN",
+        "INFO_BLAST_TOKEN_GIVEN"
+      ],
+      "default": "TYPE_UNSPECIFIED",
+      "description": "Type of the notification.\n\n - TYPE_UNSPECIFIED: default value. this value is unused.\n - INFO: Plain text info message.\n - INFO_POINTS_GIVEN: DEPRECATED: Use INFO_SPACEBAR_POINTS_GIVEN instead."
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

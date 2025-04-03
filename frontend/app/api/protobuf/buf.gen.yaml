@@ -1,0 +1,88 @@
+version: v1
+managed:
+  enabled: false
+plugins:
+  - name: go
+    out: go
+    opt: paths=source_relative
+
+  - name: go-grpc
+    out: go
+    opt: paths=source_relative
+
+  - plugin: go-grpc-mock
+    out: go
+    opt: paths=source_relative
+
+  - name: grpc-gateway
+    out: go
+    opt:
+      - paths=source_relative
+      - generate_unbound_methods=true
+
+  - plugin: fake
+    out: go
+    opt: paths=source_relative
+
+  - name: openapiv2
+    out: openapiv2
+
+  - plugin: buf.build/community/stephenh-ts-proto:v1.178.0
+    out: typescript
+    opt:
+      - esModuleInterop=true
+      - unrecognizedEnum=false
+      - oneof=unions
+      - emitDefaultValues=json-methods
+      - stringEnums=true
+      - useDate=string
+
+  - plugin: buf.build/community/stephenh-ts-proto:v1.178.0
+    out: typescript_only_types
+    opt:
+      - esModuleInterop=true
+      - unrecognizedEnum=false
+      - oneof=unions
+      - emitDefaultValues=json-methods
+      - stringEnums=true
+      - useDate=string
+      - onlyTypes=true
+
+  - plugin: buf.build/community/stephenh-ts-proto:v1.178.0
+    out: typescript_enum
+    opt:
+      - esModuleInterop=true
+      - unrecognizedEnum=false
+      - oneof=unions
+      - emitDefaultValues=json-methods
+      - useDate=string
+
+  - plugin: buf.build/community/stephenh-ts-proto
+    out: typescript_grpcjs
+    opt:
+      - esModuleInterop=true
+      - unrecognizedEnum=false
+      - oneof=unions
+      - emitDefaultValues=json-methods
+      - outputServices=grpc-js
+      - outputIndex=true
+      - stringEnums=true
+      - useDate=string
+
+  - plugin: buf.build/grpc/python:v1.59.2
+    out: python
+
+  - plugin: buf.build/protocolbuffers/python
+    out: python
+
+  - plugin: buf.build/protocolbuffers/pyi:v25.0
+    out: python
+
+  - plugin: buf.build/community/neoeinstein-prost:v0.2.3
+    out: rust
+
+  - plugin: buf.build/community/neoeinstein-tonic:v0.3.0
+    out: rust
+
+  - plugin: buf.build/bufbuild/es:v1.6.0
+    out: javascript

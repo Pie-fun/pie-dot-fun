@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package ethereum.v1.profile;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/ethereum/v1/profile;profile";
+
+// SNSType enumeration represents the type of sns.
+enum SNSType {
+  // Unspecified sns type.
+  SNS_UNSPECIFIED = 0;
+
+  // Twitter sns type.
+  SNS_TWITTER = 1;
+}
+
+// ExternalProfile message represents an external profile.
+message ExternalProfile {
+  // The name of the external profile.
+  string name = 1;
+
+  // The image uri of the external profile.
+  string image_uri = 2;
+
+  // The link of the external profile.
+  string link = 3;
+}
+
+// SNSConnection message represents a profile's connection.
+message SNSConnection {
+  // The profile resource name of the connection.
+  string profile = 1 [
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Profile",
+    }
+  ];
+
+  // The type of the SNS.
+  SNSType type = 3;
+
+  // The external profile.
+  ExternalProfile external_profile = 4;
+}

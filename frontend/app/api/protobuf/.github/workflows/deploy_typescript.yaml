@@ -1,0 +1,57 @@
+name: deploy-typescript-grpcjs-package
+
+on:
+  push:
+    tags:
+      - v**.**.**
+
+jobs:
+  deploy-github-registry:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: update typescript-gprcjs package version
+        run: |
+          cd typescript_grpcjs
+          npm version ${{ github.ref_name }}
+      - name: update typescript package version
+        run: |
+          cd typescript
+          npm version ${{ github.ref_name }}
+      - name: commit
+        run: |
+          git config --global user.email "engineering@ao.xyz"
+          git config --global user.name "Github Actions Module Deployer"
+
+          git add .
+          git commit -m "bump typescript & typescript-grpcjs package version ${{ github.ref_name }}"
+          git push origin main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://npm.pkg.github.com/
+          scope: "@ao-labs"
+
+      - name: publish typescript-grpcjs
+        run: |
+          cd typescript_grpcjs
+          npm install 
+          npm run-script build
+          npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      
+      - name: publish typescript
+        run: |
+          cd typescript
+          npm install 
+          npm run-script build
+          npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}

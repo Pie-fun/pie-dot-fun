@@ -1,0 +1,300 @@
+syntax = "proto3";
+
+package blast.v1.points;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+import "blast/v1/nft/nft.proto";
+import "blast/v1/user/user.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/blast/v1/points;points";
+
+// PointsService contains the function to interact with the Points of the spacebar
+service PointsService {
+  // GetPoints will return Points.
+  rpc GetPoints(GetPointsRequest) returns (Points) {
+    option (google.api.http) = {
+      get: "/v1/{points=users/*/points}"
+    };
+    option (google.api.method_signature) = "points";
+  }
+
+  // ListPoints will return Points.
+  // reads across collections, reference: https://google.aip.dev/159
+  rpc ListPoints(ListPointsRequest) returns (ListPointsResponse) {
+    option (google.api.http) = {
+      get: "/v1/users/-/points"
+    };
+    option (google.api.method_signature) = "";
+  }
+
+  // EarnStakingInterestPoints will earn Staking Interest Points.
+  // This function will be called by internal service and not open to the public.
+  rpc EarnStakingInterest(EarnStakingInterestRequest) returns (Points) {
+    option (google.api.http) = {
+      post: "/v1/{points=users/*/points}:earnStakingInterest"
+    };
+    option (google.api.method_signature) = "";
+  }
+
+  // ListPointsReferralBonus will return PointsReferralBonus.
+  // reads across collections https://google.aip.dev/159
+  //  rpc ListPointsReferralBonuses(ListPointsReferralBonusesRequest) returns (ListPointsReferralBonusesResponse) {
+  //    option (google.api.http) = {
+  //      get: "/v1/{points=users/*/points}/referral_bonuses"
+  //    };
+  //    option (google.api.method_signature) = "";
+  //  }
+}
+
+message GetPointsRequest {
+  // The name of the points to retrieve.
+  // Format: users/{address}/points
+  string points = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Points"
+    }];
+}
+
+message ListPointsRequest {
+  // The maximum number of points to return. The service may return fewer than
+  // this value.
+  // If unspecified, at most 50 rows will be returned.
+  // The maximum value is 1024; values above 1024 will be coerced to 1024.
+  int32 page_size = 1;
+
+  // Token of the page to retrieve. If not specified, the first
+  // page of results will be returned. Use the value obtained from
+  // `next_page_token` in the previous response in order to request
+  // the next page of results.
+  //
+  // When paginating, all other parameters provided to `ListPoints` must match
+  // the call that provided the page token.
+  string page_token = 2;
+
+  // Available Sequence and Operator
+  // * name
+  //   * `=`
+  // * user_address
+  //   * `=`
+  //
+  // Examples
+  // * name="points/0x6F11EF2c07f2E381CbE514198DdE87A0c0a19442"
+  // * user_address="0x6F11EF2c07f2E381CbE514198DdE87A0c0a19442"
+  string filter = 3;
+
+  // One or more fields to compare and use to sort the output. (optional)
+  // Default order for a field is descending by id
+  // To specify ascending or descending order, append " asc" or " desc" to the field name. If not specified, the order is ascending.
+  //
+  // Reference
+  // * https://google.aip.dev/132#ordering.
+  //
+  // Supported Fields
+  // * "id", "user_address", "points"
+  //
+  // Examples
+  // * order_by=points desc
+  string order_by = 4;
+}
+
+// ListPointsResponse
+// (-- api-linter: core::0158::response-next-page-token-field=disabled
+//     aip.dev/not-precedent: We need to do this because reasons. --)
+message ListPointsResponse {
+  // The list of rows that matched the query.
+  repeated Points points = 1;
+
+  // Pagination token used to retrieve the next page of results.
+  // Pass the content of this string as the `page_token` attribute of
+  // the next request. `next_page_token` is not returned for the last
+  // page.
+  string next_page_token = 2;
+}
+
+message EarnStakingInterestRequest {
+  // The name of the points to retrieve.
+  // Format: users/{address}/points
+  string points = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Points"
+    }];
+}
+
+message ListPointsReferralBonusesRequest {
+  // The maximum number of points to return. The service may return fewer than
+  // this value.
+  // If unspecified, at most 10 rows will be returned.
+  // The maximum value is 1024; values above 1024 will be coerced to 1024.
+  int32 page_size = 1;
+
+  // Token of the page to retrieve. If not specified, the first
+  // page of results will be returned. Use the value obtained from
+  // `next_page_token` in the previous response in order to request
+  // the next page of results.
+  //
+  // When paginating, all other parameters provided to `ListPointsReferralBonuses` must match
+  // the call that provided the page token.
+  string page_token = 2;
+}
+
+// ListPointsReferralBonusResponse
+// (-- api-linter: core::0158::response-next-page-token-field=disabled
+//     aip.dev/not-precedent: We need to do this because reasons. --)
+message ListPointsReferralBonusesResponse {
+  // The list of rows that matched the query.
+  repeated PointsReferralBonus referral_bonuses = 1;
+
+  // Pagination token used to retrieve the next page of results.
+  // Pass the content of this string as the `page_token` attribute of
+  // the next request. `next_page_token` is not returned for the last
+  // page.
+  string next_page_token = 2;
+}
+
+
+message Points {
+  option (google.api.resource) = {
+    type: "station.spacebarapis.xyz/Points",
+    pattern: "users/{address}/points"
+  };
+  // The resource name of the Points.
+  // Format: users/{address}/points
+  string name = 1;
+
+  //
+  string user_address = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  //
+  uint32 total_points = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  Referral referral = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  Staking staking = 6 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  Activity activity = 7 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  Bonus bonus = 8 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  repeated Multiplier multipliers = 9 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+}
+
+message Referral {
+  uint32 referred_by_points = 1;
+  uint32 referred_points = 2;
+  uint32 points = 3;
+}
+
+message Staking {
+  uint32 points = 1;
+}
+
+message Activity {
+  uint32 points = 1;
+
+  uint32 daily_checkin = 2;
+
+  uint32 gm = 3;
+}
+
+message Bonus {
+  // Owner bonus
+  uint32 square_owner = 1;
+
+  // Square Multiplier
+  // do not expose this value to the client
+  //  uint32  SquareMember = 2;
+
+  // Square PFP NFT
+  // do not expose this value to the client
+  //  uint32  SquareCollection = 3;
+}
+
+message Multiplier {
+  MultiplierType type = 1;
+  float percentage = 2;
+}
+
+message PointsHistory {
+  string user_address = 1;
+  float amount = 2;
+  PointsType points_type = 3;
+  PointsTypeBehaviorGroup points_type_behavior_group = 4;
+}
+
+// PointsType 을 유저의 행동군에 따라 2차 그룹핑함.
+enum PointsTypeBehaviorGroup {
+  // default value. this value is unused.
+  GROUP_UNSPECIFIED = 0;
+
+  REFERRAL = 1;
+  STAKING = 2;
+  ACTIVITY = 3;
+  BONUS = 4;
+}
+
+enum PointsType {
+  // default value. this value is unused.
+  TYPE_UNKNOWN = 0;
+
+  WELCOME = 1;
+  REFERRAL_REFFERED_BY = 100;
+  REFERRAL_REFERRER_BONUS = 101;
+  STAKING_INTEREST = 200;
+  ACTIVITY_DAILY_CHECKIN = 300;
+  ACTIVITY_COMMUNITY_EVENT_WINNER = 301;
+  ACTIVITY_COMMUNITY_CONTRIBUTION = 302;
+  ACTIVITY_GM = 303;
+  ACTIVITY_SQUARE_BEBOB_SUMMON = 304;
+  ACTIVITY_SQUARE_BEBOB_ATTACK = 305;
+  ACTIVITY_SCORE_UPLOAD = 306;
+  ACTIVITY_SCORE_LEADERBOARD_WINNER = 307;
+  ACTIVITY_SCORE_LEADERBOARD_RAFFLE = 308;
+  BONUS_SQUARE_OWNER = 400;
+  BONUS_SQUARE_MEMBER = 401;
+}
+
+message PointsReferralBonus {
+  blast.v1.user.User referred = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  bool same_collection = 2;
+
+  uint32 amount = 3;
+}
+
+enum MultiplierType {
+  // default value. this value is unused.
+  MULTIPLIER_TYPE_UNSPECIFIED = 0;
+
+  SQUARE_OWNER_BONUS = 1;
+
+  SQUARE_MULTIPLIER = 2;
+
+  SQUARE_PFP_COLLECTION_BOOST = 3;
+}
+

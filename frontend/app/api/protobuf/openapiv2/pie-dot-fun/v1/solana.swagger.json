@@ -1,0 +1,181 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "pie-dot-fun/v1/solana.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "SolanaService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/solana/build_serialized_tx_bundle/rebalance": {
+      "post": {
+        "summary": "BuildRebalanceSerializedTxBundle builds array of serialized base58 transaction data",
+        "operationId": "SolanaService_BuildRebalanceSerializedTxBundle",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1SerializedTxBundle"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "basketAddress",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "withStart",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "withEnd",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "SolanaService"
+        ]
+      }
+    },
+    "/v1/solana/{basketToken}/vault": {
+      "get": {
+        "operationId": "SolanaService_GetBasketVault",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetBasketVaultResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "basketToken",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "basket/[^/]+"
+          }
+        ],
+        "tags": [
+          "SolanaService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1BasketVaultElement": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string"
+        },
+        "balance": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "v1GetBasketVaultResponse": {
+      "type": "object",
+      "properties": {
+        "vault": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1BasketVaultElement"
+          }
+        }
+      }
+    },
+    "v1RebalanceSwapAction": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string"
+        },
+        "isBuy": {
+          "type": "boolean"
+        },
+        "amountIn": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "amountOut": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "v1SerializedTxBundle": {
+      "type": "object",
+      "properties": {
+        "serializedTxs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "byte"
+          }
+        },
+        "useJito": {
+          "type": "boolean"
+        }
+      },
+      "title": "TxResponse contains the array of serialized trasaction bytes"
+    }
+  }
+}

@@ -1,0 +1,364 @@
+{
+  "format": { "dayAbbreviation": "{day}d" },
+  "common": {
+    "createBasekt": "Create Basket",
+    "secondAbbreviation": "{second}s",
+    "signIn": "Sign in",
+    "signInAndSignUp": "Sign in / Sign up",
+    "signOut": "Sign out",
+    "copy": "Copy",
+    "buy": "Buy",
+    "sell": "Sell",
+    "deposit": "Deposit",
+    "withdraw": "Withdraw",
+    "amount": "Amount",
+    "close": "Close",
+    "tryAgain": "Try again",
+    "retry": "Retry",
+    "reset": "Reset",
+    "apply": "Apply",
+    "chain": "Chain",
+    "openSupportPage": "Open support page",
+    "token": "Token",
+    "walletAddress": "Wallet address",
+    "address": "Address",
+    "copyAddress": "Copy address",
+    "submit": "Submit",
+    "continue": "Continue",
+    "viewStatus": "ViewStatus",
+    "insufficientBalance": "Insufficient balance",
+    "connected": "Connected",
+    "poweredBy": "Powered by",
+    "balance": "Balance",
+    "balanceLowercase": "balance",
+    "value": "Value",
+    "totalPriceImpact": "Total price impact",
+    "swapImpact": "Swap impact",
+    "fillGas": "Fill gas ({chain})",
+    "relayFee": "Relay fee",
+    "route": "Route",
+    "username": "Username",
+    "overview": "Overview",
+    "tradingHistory": "Trading history",
+    "needMoreInfo": "Need more info? 👉🏻",
+    "faq": "FAQ",
+    "viewFaq": "View FAQ",
+    "step": "Step",
+    "updating": "Updating...",
+    "calculating": "Calculating...",
+    "copySuccessful": "Copy successful."
+  },
+  "currency": { "ticker": "{ticker}", "chainTicker": "{chain} {ticker}" },
+  "layoutHeader": {
+    "profile": "Profile",
+    "tutorial": "Tutorial",
+    "docs": "Documentation",
+    "colorTheme": "Color theme",
+    "colorLight": "Light",
+    "colorDark": "Dark",
+    "colorSystem": "System",
+    "termsOfUse": "Terms of use",
+    "privacyPolicy": "Privacy policy",
+    "useOnMobile": "Use on mobile",
+    "exportWallet": "Export Wallet"
+  },
+  "toastMessage": {
+    "deposit": { "solUpdate": "SOL balance deposit has been updated." }
+  },
+  "basketCard": {
+    "pricePerformance": "Price ({day}d Performance)",
+    "marketCap": "Maket Cap",
+    "components": "Components",
+    "holder": "Holders",
+    "viewDetailsBtn": "view details"
+  },
+  "homeHeroSection": {
+    "title": "Easy as Pie, Sweeter Gains",
+    "description": "Too many tokens, not enough time?<br></br>Creators bake the perfect mix of baskets — one swap, one slice, full exposure."
+  },
+  "homeMiddleSection": { "title": "🔥 Top Gainers" },
+  "homeComingsoon": { "title": "More baskets soon 🥧" },
+  "holdings": { "balance": "Your balance", "pnl": "PnL", "amount": "Amount" },
+  "chartInterval": { "minute": "{minute}m", "hour": "{hour}h" },
+  "chartCurrency": { "usd": "USD" },
+  "chartIndicator": { "logScale": "log" },
+  "basketDescription": { "title": "🥧 Overview" },
+  "basketComponents": { "title": "🍰 Basket Components" },
+  "basketComponentsToken": {
+    "token": "Token",
+    "weight": "Weight",
+    "priceUsd": "Price USD",
+    "marketCap": "Mkt Cap",
+    "Fdv": "FDV",
+    "FdvTooltip": "Fully Diluted Value. Market Cap is not available."
+  },
+  "basketRebalancing": {
+    "title": "🕗 Rebalancing History",
+    "txLink": "view transaction",
+    "empty": "No rebalancing history yet."
+  },
+  "basketRebalancingToken": {
+    "token": "Token",
+    "previous": "Previous",
+    "update": "Update",
+    "change": "Change"
+  },
+  "basektCreator": { "title": "🔮 Creator" },
+  "basketPriceInfo": {
+    "priceUSD": "Price USD",
+    "performanceHour": "{hour}h",
+    "performanceAlltime": "All-time"
+  },
+  "basketStatistics": {
+    "ageTitle": "Age",
+    "supply": "Supply",
+    "marketCap": "Maket Cap",
+    "holders": "Holders",
+    "mdd": {
+      "title": "MDD",
+      "tooltip": "MDD measures the maximum percentage loss from a basket’s peak value to its lowest point. It reflects the risk of the basket over time."
+    },
+    "streamingFee": {
+      "title": "Streaming Fee",
+      "tooltip": "Streaming fees are holding costs charged on basket tokens, analogous to TradFi's expense ratio, calculated annually as a percentage of the basket's value."
+    },
+    "streamingFeeWaived": "fee waived"
+  },
+  "basketTradingButton": {
+    "max": "max",
+    "maxTooltip": "Insufficient minimum fee for trading.",
+    "sign": "Sign in to trade"
+  },
+  "basketSlippageSetting": {
+    "title": "Max Slippage (%)",
+    "description": "If the slippage is set too low, the trade might fail. Minimum: 1%"
+  },
+  "basketTrade": {
+    "buyMinimumAmount": "For smoother transaction, we recommend buying more than <fontweightBold>{amount} {ticker}</fontweightBold> at a time.",
+    "rebalancingInProgress": {
+      "title": "Rebalancing in Progress.",
+      "description": "Trading is unavailable during basket component rebalancing. Please try again shortly."
+    },
+    "buyProgressStep": { "title": "🧺 Adding tokens to the basket." },
+    "sellProgressStep": { "title": "🧺 Selling your basket tokens." },
+    "progressStep1": {
+      "description": "Creating and submitting your transaction",
+      "caption": "* Stay on this page until your transaction is created.",
+      "panelCaption": "Creating and submitting your TX...",
+      "buyAnimation": "Adding {ticker}...",
+      "sellAnimation": "Selling {ticker}..."
+    },
+    "progressStep2": {
+      "description": "Transaction sent. Waiting for confirmation.",
+      "caption": "* You can exit this page. This will close automatically in {count} seconds.",
+      "toastMessage": "TX Sent, Waiting for Confirmation."
+    }
+  },
+  "tradingInfoCaption": {
+    "collateralized": {
+      "title": "Fully Asset-Backed",
+      "tooltip": "When you buy a basket token, we purchase and collateralize actual component tokens to mint the basket token.<br></br>When you sell, we redeem the basket token, swap the components into SOL, and return the remaining SOL."
+    },
+    "mevProtected": {
+      "title": "MEV Protected",
+      "tooltip": "Your transaction is protected from MEV attacks, ensuring fair execution."
+    }
+  },
+  "basketBuy": {
+    "toastMessge": { "success": "Successfully bought {amount} {ticker}." }
+  },
+  "basketSell": {
+    "toastMessage": { "success": "Successfully sold {amount} {ticker}." }
+  },
+  "tradingError": {
+    "insufficientBalance": {
+      "description": "You don’t have enough balance to trade.<br></br>Please consider additional fees when trading.",
+      "caption": "*Gas fees, Jito fees, rent fees(for buys only), etc.",
+      "topUp": "Top up balance"
+    },
+    "rebalancing": {
+      "description": "The trade failed due to a rebalancing timing issue.<br></br>Please try again later."
+    },
+    "slippage": {
+      "title": "Slippage adjustment needed",
+      "description": "You need to increase the slippage range for the trade to go through.<br></br>Try increasing the slippage.",
+      "increaseSlippage": "Increase Slippage"
+    },
+    "unexpectedError": {
+      "descriptionUnexpectedError": "During your buy/sell process, an unexpected error occurred. Please try again.",
+      "descriptionRepeat": "If this error keeps repeating?"
+    },
+    "partialTradeDetected": {
+      "title": "Partial Trade Detected",
+      "description": "Due to a rare Solana network issue, only some of the component tokens for your basket were traded, while the others failed. As we couldn't complete all required trades, your basket token couldn't be minted or redeemed.<br></br>Your funds (both converted component tokens and any remaining SOL) are safely held in the Pie.fun vault.<br></br>To recover your funds, please <fontweightBold>click 'Swap Back to SOL' button</fontweightBold> below. This will convert all tokens in the vault back to SOL and return them to your wallet.",
+      "btn": "Swap Back to SOL"
+    },
+    "tradingSuccessful": {
+      "title": "Trading Successful",
+      "description": "Your basket token was successfully traded. Thank you for your patience."
+    }
+  },
+  "depositStep0": {
+    "title": "Select the token you want to deposit",
+    "description": "* The Basket you’re currently viewing is on the {chain} chain.",
+    "depositToken": "Deposit {ticker}",
+    "depositTokenDescription": "Deposit {ticker} to trade {chain} Baskets.",
+    "depositThisTokenDescription": "To trade this Basket, you need to deposit {ticker}.",
+    "notForThisTokenDecription": "You can deposit {ticker}, but not for this Basket."
+  },
+  "depositStep1": {
+    "title": "Choose your preferred method to deposit",
+    "sol": {
+      "description": "Do you have SOL?",
+      "title": "Deposit SOL",
+      "recommand": {
+        "title": "Recommend",
+        "description": "Deposit at least 0.1 SOL for smooth trading."
+      }
+    },
+    "bridge": {
+      "description": "Do you have assets on other chains?",
+      "title": "Bridge assets from EVM",
+      "onChain": "on",
+      "connectWallet": "Connect wallet",
+      "startBridge": "Start bridging",
+      "descriptionDisconnect": "Disconnection is available in your wallet settings.",
+      "routeDecsription": "Lowest Fees | Fastest Transfers",
+      "toastMessage": {
+        "connectEthereumWallet": "Please connect your Ethereum wallet."
+      }
+    }
+  },
+  "depositStep2": {
+    "title": "Bridge assets from EVM",
+    "from": "from",
+    "to": "to",
+    "bridgeBtn": "Bridge to SOL"
+  },
+  "deposit": {
+    "toastMessage": {
+      "bridgeSuccess": "Successfully bridged {amount} {ticker}."
+    },
+    "relayErrors": {
+      "AMOUNT_TOO_LOW": "Amount is too small to cover transaction fees",
+      "ERC20_ROUTER_ADDRESS_NOT_FOUND": "Router address for ERC20 token not found",
+      "EXTRA_TXS_NOT_SUPPORTED": "Extra transactions are not supported for this operation",
+      "INSUFFICIENT_FUNDS": "Insufficient balance to perform crosschain action",
+      "INSUFFICIENT_LIQUIDITY": "Solver liquidity is insufficient to fulfill order",
+      "INVALID_ADDRESS": "Address format is invalid or address has been blocked by OFAC",
+      "INVALID_EXTRA_TXS": "Provided extra transactions are invalid",
+      "NO_QUOTES": "No quotes available for the requested transaction",
+      "NO_SWAP_ROUTES_FOUND": "No valid swap routes found for the requested pair",
+      "PERMIT_FAILED": "Token permit operation failed",
+      "SWAP_IMPACT_TOO_HIGH": "Swap price impact exceeds acceptable threshold",
+      "SWAP_QUOTE_FAILED": "Failed to get quote for swap operation",
+      "UNAUTHORIZED": "Unauthorized access to authenticated endpoints",
+      "UNKNOWN_ERROR": "When the error is unknown",
+      "UNSUPPORTED_CHAIN": "Chain id supplied is unsupported",
+      "UNSUPPORTED_CURRENCY": "Currency is not a valid native currency or erc20 token",
+      "UNSUPPORTED_EXECUTION_TYPE": "Requested execution type is not supported",
+      "UNSUPPORTED_ROUTE": "Combination of chains and/or currencies is not supported",
+      "USER_RECIPIENT_MISMATCH": "User and recipient addresses do not match when required"
+    }
+  },
+  "withdraw": {
+    "addresPlaceholder": "Enter address",
+    "invalidAddress": "Invalid address",
+    "keepAtLeastAmount": "Please keep at least {amount} SOL in your account for rent fee.",
+    "validAddress": "Valid address",
+    "estimatedNetworkFee": "Estimated network fee",
+    "toastMessage": {
+      "submit": "Transaction sent. Attempting withdrawal...",
+      "success": "Successfully withdrew {amount} {ticker}.",
+      "fail": {
+        "description": "Withdrawal status couldn’t be confirmed within 60 seconds.<br></br>Please check on Solscan for confirmation of success.",
+        "btn": "Go to Transaction"
+      }
+    }
+  },
+  "signInHeroSection": {
+    "titleMiddle": "Sign in Required",
+    "description": "Easily log in and navigate back to the main page."
+  },
+  "userProfile": {
+    "totalValue": {
+      "title": "Total Value",
+      "tooltip": "The combined value of your deposit balance and current basket value."
+    },
+    "depositBalance": {
+      "title": "Deposit Balance",
+      "tooltip": "The current balance of your deposited funds in SOL."
+    },
+    "currentBasketValue": {
+      "title": "Current Basket Value",
+      "tooltip": "The total value of your current investments in basket tokens."
+    }
+  },
+  "accountSetup": {
+    "title": "Welcome! Create your account",
+    "usernamePlaceholder": "Enter username",
+    "usernameMessage": "Use English letters, numbers, '.', '_', or '-' (4–15 chars).",
+    "usernameErrorMessage": {
+      "invalidCharacters": "Use only English letters, numbers, '.', '_', or '-'",
+      "duplicateUsername": "username already exists"
+    }
+  },
+  "tutorial": {
+    "title": {
+      "beforeSignIn": "Let’s Explore Pie.fun",
+      "afterSignIn": "GM {username}! Let’s Explore Pie.fun"
+    },
+    "memecoinBasket": "memecoin basket",
+    "discoverBasket": "Discover baskets featuring unique narratives.",
+    "buyOneclick": "Invest in multiple memecoins simultaneously with just one click.",
+    "lessRisky": "Watch as they rebalance to outperform human strategies.",
+    "sellAnytime": "Sell anytime to exit your position.",
+    "signInToStart": "Sign in to start",
+    "depositToTrade": "Deposit to trade"
+  },
+  "errorPage": {
+    "pageNotFound": {
+      "title": "Page not found",
+      "description": "(404) The page you are looking for does not exist.",
+      "btn": "Go to home"
+    },
+    "commonError": {
+      "title": "An Unknown Error Occurred",
+      "description": "Please copy the error code below and contact our support team for assistance.",
+      "error": "Error:",
+      "openSupportPageBtn": "Open support page",
+      "goToHomeBtn": "Go to home"
+    }
+  },
+  "geoBlockPage": {
+    "title": "You are from a blocked IP",
+    "description": "Sorry, pie.fun is not available in your country.<br></br>Check the country list from the <link>Terms of Service</link>.<br></br><br></br>Please connect from other locations."
+  },
+  "useOnMobile": {
+    "title": "Use Pie.fun on Mobile",
+    "description": "Add Pie.fun to your home screen<br></br>and use it just like an app!",
+    "caption": "(You can also use it like an application on desktop.)",
+    "tapOnShare": "Tap on Share",
+    "addToHomeScreen": "Add to Home Screen",
+    "addAppBtn": "Add app"
+  },
+  "basketDiscontinuation": {
+    "titleDisclaimer": "Disclaimer",
+    "titleDiscontinuation": "Discontinuation Notice",
+    "descriptionBrief": "Please note that this basket may be discontinued by its Creator at any time due to performance issues or other factors.<br></br>In the event of discontinuation:",
+    "descriptionMint": "New mints of the basket token will be suspended",
+    "descriptionSol": "All assets within the basket will be swapped to SOL",
+    "descriptionSell": "You will be able to sell your basket tokens to receive equivalent SOL based on your token holdings",
+    "viewFullDisclaimer": "View full disclaimer",
+    "riskFactors": {
+      "title": " Additional risk factors",
+      "descriptionValue": "The value of assets within the basket may fluctuate significantly due to market conditions",
+      "descriptionLimit": "There may be periods of limited liquidity which could affect your ability to mint or sell basket tokens",
+      "descriptionOperation": "Smart contract vulnerabilities or technical issues could impact basket operations",
+      "descriptionOwnRisk": "Individual assets within the basket may experience their own risks, including but not limited to protocol changes, hacks, or delistings",
+      "descriptionSubject": "The basket's composition and strategy may be subject to change",
+      "descriptionTrade": "Transaction fees and network conditions may affect the timing and execution of trades",
+      "descriptionAccept": "By interacting with this basket, you acknowledge and accept these risks. Past performance does not guarantee future results."
+    }
+  }
+}

@@ -1,0 +1,99 @@
+syntax = "proto3";
+
+package piedotfun.v1.chain;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+import "pie-dot-fun/v1/auth.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/pie-dot-fun/v1/chain;chain";
+
+// ChainCommandService is the service that handles all chain requests.
+service ChainCommandService {
+  rpc RebalanceBasketToken(RebalanceBasketTokenRequest) returns (RebalanceBasketTokenResponse) {
+    option (google.api.http) = {
+      post: "/v1/chain/command:rebalanceBasketToken"
+      body: "*"
+    };
+    option (google.api.method_signature) = "basket_token";
+
+    option (gateway_registered) = true;
+    option (allow_unauthenticated) = false;
+    option (external) = false;
+  };
+}
+
+message RebalanceCommand {
+  oneof strategy {
+    EqualMarketCapWeight equal_weight = 1;
+    ManualMarketCapWeight manual_weight = 2;
+    Trade trade = 3;
+  }
+
+  // Equal Market Cap Weight Strategy
+  message EqualMarketCapWeight {}
+
+  // Manual Market Cap Weight Strategy
+  message ManualMarketCapWeight {
+    message Request {
+      string fungible_token = 1 [
+      (google.api.field_behavior) = REQUIRED,
+      (google.api.resource_reference) = {
+        type: "piedotfun.spacebarapis.xyz/FungibleToken"
+      }];
+      double weight = 2; // Weigh limits: 0 - 1.0
+    }
+    repeated Request requests = 1; // sum of weights should be 1
+  }
+
+  // Trade Strategy
+  message Trade {
+    message Request {
+      string fungible_token = 1 [
+        (google.api.field_behavior) = REQUIRED,
+        (google.api.resource_reference) = {
+          type: "piedotfun.spacebarapis.xyz/FungibleToken"
+        }
+      ];
+      bool is_buy = 2;
+      string formatted_amount = 3;
+    }
+    repeated Request requests = 1;
+  }
+}
+
+message RebalanceBasketTokenRequest {
+  string basket_token = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "piedotfun.spacebarapis.xyz/BasketToken"
+    }
+  ];
+
+  bool execute = 2; // if false, it will perform a dry run.
+  RebalanceCommand command = 3 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+  ExecutionOption execution_option = 4;
+}
+
+message RebalanceBasketTokenResponse {
+  string result_html = 1;
+
+  // TODO: Add more fields for the response
+}
+
+message ExecutionOption {
+  double sell_ratio_per_iteration = 1;
+  double slippage = 2;
+  // Exit condition
+  int32 max_iteration_count = 3;
+  double exit_remaining_execution_value = 4;
+  double exit_remaining_execution_value_ratio = 5;
+}

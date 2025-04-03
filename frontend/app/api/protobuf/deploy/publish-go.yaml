@@ -1,0 +1,31 @@
+steps:
+
+  # Install the Cloud SDK.
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'install-cloud-sdk'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+        apt-get update -y
+        apt-get install -y apt-transport-https ca-certificates gnupg curl
+        curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
+        apt-get update -y && apt-get install -y google-cloud-sdk
+
+  # Upload the module to Cloud Artifacts.
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'upload-module'
+    entrypoint: 'bash'
+    dir: 'go'
+    args:
+      - '-c'
+      - |
+        gcloud components install package-go-module && \
+        gcloud artifacts go upload \
+          --project=spacebar-apis \
+          --repository=spacebar-go-modules \
+          --location=asia-northeast3 \
+          --module-path=github.com/ao-labs/spacebar-apis/go \
+          --version=v0.1.0-${SHORT_SHA} \
+          --source=.

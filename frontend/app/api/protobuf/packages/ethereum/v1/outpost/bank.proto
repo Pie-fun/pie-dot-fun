@@ -1,0 +1,259 @@
+syntax = "proto3";
+
+package ethereum.v1.outpost;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/ethereum/v1/outpost;outpost";
+
+// BankService contains the function to interact with the StarToken of the spacebar
+service BankService {
+
+  rpc DepositStarTokenOptimistic(DepositOptimisticRequest) returns (Account) {
+    option (google.api.http) = {
+      post: "/v1/tokens/STAR:deposit_optimistic"
+      body: "*"
+    };
+  }
+
+  rpc WithdrawStarTokenOptimistic(WithdrawOptimisticRequest) returns (Account) {
+    option (google.api.http) = {
+      post: "/v1/tokens/STAR:withdraw_optimistic"
+      body: "*"
+    };
+  }
+
+  rpc GetAccount(GetAccountRequest) returns (Account) {
+    option (google.api.http) = {
+      get: "/v1/{account=accounts/*}"
+    };
+    option (google.api.method_signature) = "account";
+  }
+
+  rpc ListAccounts(ListAccountsRequest) returns (ListAccountsResponse) {
+    option (google.api.http) = {
+      get: "/v1/accounts"
+    };
+    option (google.api.method_signature) = "";
+  }
+}
+
+// TransferRequest
+message TransferRequest {
+  // transfer star token from whom
+  string account = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "outpost.spacebarapis.xyz/Account",
+    }
+  ];
+  // transfer star token to whom
+  string to = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "outpost.spacebarapis.xyz/Account",
+    }
+  ];
+  // amount of star token to transfer
+  uint32 amount = 3 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // etag determine whether a resource has changed since the last request.
+  // This checksum is computed by the server based on the value of other
+  // fields, and may be sent on requests to ensure the
+  // client has an up-to-date value before proceeding.
+  // If the ETag does not match, send a 412 Precondition Failed response
+  string etag = 4 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+// WithdrawOptimisticRequest
+message WithdrawOptimisticRequest {
+  // The account to withdraw from.
+  string account = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "outpost.spacebarapis.xyz/Account",
+    }
+  ];
+
+  // amount of star token to supply
+  uint32 amount = 2 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+// DepositOptimisticRequest
+message DepositOptimisticRequest {
+  // The account to deposit star token
+  string account = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "outpost.spacebarapis.xyz/Account",
+    }
+  ];
+  // amount of star token to absob
+  uint32 amount = 2 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+// GetStarTokenBalanceRequest
+message GetAccountRequest {
+  // The name of the account to retrieve.
+  // Format: accounts/{address}
+  string account = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "outpost.spacebarapis.xyz/Account",
+    }
+  ];
+}
+
+// ListAccountsRequest payload
+// (-- api-linter: core::0158::request-page-token-field=disabled
+//     aip.dev/not-precedent: We need to do this because reasons. --)
+// (-- api-linter: core::0132::request-unknown-fields=disabled
+//     aip.dev/not-precedent: We really need this field because reasons. --)
+message ListAccountsRequest {
+  // The maximum number of accounts to return. The service may return fewer than
+  // this value.
+  // If unspecified, at most 50 rows will be returned.
+  // The maximum value is 1024; values above 1024 will be coerced to 1024.
+  int32 page_size = 1;
+
+  // Token of the page to retrieve. If not specified, the first
+  // page of results will be returned. Use the value obtained from
+  // `next_page_token` in the previous response in order to request
+  // the next page of results.
+  //
+  // When paginating, all other parameters provided to `ListAccounts` must match
+  // the call that provided the page token.
+  string page_token = 2;
+}
+
+// ListAccountsResponse
+// (-- api-linter: core::0158::response-next-page-token-field=disabled
+//     aip.dev/not-precedent: We need to do this because reasons. --)
+message ListAccountsResponse {
+  // The list of rows that matched the query.
+  repeated Account accounts = 1;
+
+  // Pagination token used to retrieve the next page of results.
+  // Pass the content of this string as the `page_token` attribute of
+  // the next request. `next_page_token` is not returned for the last
+  // page.
+  string next_page_token = 2;
+}
+
+// Account message represents a Account.
+message Account {
+  option (google.api.resource) = {
+    type: "outpost.spacebarapis.xyz/Account",
+    pattern: "accounts/{address}"
+  };
+
+  // name
+  // format: accounts/{address}
+  string name = 1;
+
+  // The address of the account.
+  string address = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The balance of the account.
+  Balance balance = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The list of transactions associated with the account.
+  repeated Transaction last_transactions = 6 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The create time of the account.
+  // RFC3339 format e.g. "2006-01-02T15:04:05Z07:00"
+  google.protobuf.Timestamp create_time = 7 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The update time of the account.
+  // RFC3339 format e.g. "2006-01-02T15:04:05Z07:00"
+  google.protobuf.Timestamp update_time = 8 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}
+
+// SymbolType enum represents the symbol of a currency.
+enum Symbol {
+  SYMBOL_UNSPECIFIED = 0;
+
+  // STAR
+  STAR = 1;
+}
+
+// Balance message represents a currency.
+message Balance {
+  // The currency symbol.
+  Symbol symbol = 1;
+
+  // The amount of currency.
+  uint32 amount = 2;
+
+  // The cumulative total of currency.
+  uint32 cumulative_total = 3;
+}
+
+// Money message represents a currency.
+message Money {
+  // The currency symbol.
+  Symbol symbol = 1;
+
+  // The amount of currency.
+  uint32 amount = 2;
+}
+
+// Transaction message represents a financial transaction.
+message Transaction {
+  // The ID of the transaction.
+  uint64 id = 1;
+
+  // Type enum represents the type of a transaction.
+  enum Type {
+    TYPE_UNSPECIFIED = 0;
+
+    DEPOSIT = 1;
+
+    WITHDRAWAL = 2;
+
+    TRANSFER = 3;
+  }
+
+  // The type of the transaction.
+  Type type = 2;
+
+  // The amount of currency involved in the transaction.
+  Money money = 3;
+
+  // The destination of the transaction.
+  // This field is optional
+  optional string recipient = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.resource_reference) = {
+      type: "outpost.spacebarapis.xyz/Account",
+    }
+  ];
+
+  // The create time of the transaction.
+  google.protobuf.Timestamp create_time = 5;
+}
+

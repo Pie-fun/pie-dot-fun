@@ -1,0 +1,36 @@
+{
+  "name": "@ao-labs/spacebar-apis",
+  "author": "AO Labs <engineering@ao.xyz>",
+  "version": "0.5.1",
+  "main": "dist/cjs/index.js",
+  "module": "dist/mjs/index.js",
+  "types": "dist/mjs/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/mjs/index.d.ts",
+      "import": "./dist/mjs/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
+  "scripts": {
+    "build": "rm -rf dist/* && tsc -p tsconfig.esm.json && tsc -p tsconfig.cjs.json && ./create_package_json.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ao-labs/spacebar-apis.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ao-labs/spacebar-apis/issues"
+  },
+  "homepage": "https://github.com/ao-labs/spacebar-apis#readme",
+  "description": "",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "^2.1.0",
+    "long": "^5.2.3",
+    "protobufjs": "^7.4.0",
+    "typescript": "^5.5.3"
+  }
+}

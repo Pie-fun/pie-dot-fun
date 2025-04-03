@@ -1,0 +1,374 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "pie-dot-fun/v1/fungible-token-market.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "FungibleTokenMarketService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/fungibleTokens/-/-/markets": {
+      "get": {
+        "summary": "ListFungibleTokenMarkets returns the list of markets for the given fungible tokens.",
+        "operationId": "FungibleTokenMarketService_ListFungibleTokenMarkets",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListFungibleTokensMarketsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "pageSize",
+            "description": "If unspecified, at most 50 books will be returned.\nThe maximum value is 1000; values above 1000 will be coerced to 1000.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageToken",
+            "description": "Token of the page to retrieve. If not specified, the first\npage of results will be returned. Use the value obtained from\n`next_page_token` in the previous response in order to request\nthe next page of results.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "filter",
+            "description": "Available Sequence and Operator\n* name\n  * `=`\n\nExamples\n* name=\"fungibleTokens/SOLANA/FZ4MT1HYJHd9GK8D5mJ9f3r7irLaDL5NxBNLjGqrLqs9/market\"",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "orderBy",
+            "description": "One or more fields to compare and use to sort the output.\nTo specify ascending or descending order, append \" asc\" or \" desc\" to the field name. If not specified, the order is ascending.\n\nReference\n* https://google.aip.dev/132#ordering.\n\nSupported Fields\n* \n\nExamples\n*",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "currency",
+            "description": "Display the price in this currency. Default is USD.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "CURRENCY_UNSPECIFIED",
+              "CURRENCY_SOL",
+              "CURRENCY_USDC",
+              "CURRENCY_ETH"
+            ],
+            "default": "CURRENCY_UNSPECIFIED"
+          }
+        ],
+        "tags": [
+          "FungibleTokenMarketService"
+        ]
+      }
+    },
+    "/v1/{fungibleTokenMarket}": {
+      "get": {
+        "summary": "GetFungibleTokenMarket returns the market for the given fungible token.",
+        "operationId": "FungibleTokenMarketService_GetFungibleTokenMarket",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1FungibleTokenMarket"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "fungibleTokenMarket",
+            "description": "The name of the market  to retrieve.\nFormat : \"fungibleTokens/{chain}/{token_address}/market\"",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "fungibleTokens/[^/]+/[^/]+/market"
+          },
+          {
+            "name": "currency",
+            "description": "Display the price in this currency. Default is USD.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "CURRENCY_UNSPECIFIED",
+              "CURRENCY_SOL",
+              "CURRENCY_USDC",
+              "CURRENCY_ETH"
+            ],
+            "default": "CURRENCY_UNSPECIFIED"
+          }
+        ],
+        "tags": [
+          "FungibleTokenMarketService"
+        ]
+      }
+    },
+    "/v1/{fungibleTokenMarket}:getOrCreate": {
+      "get": {
+        "operationId": "FungibleTokenMarketService_GetOrCreateFungibleTokenMarket",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1FungibleTokenMarket"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "fungibleTokenMarket",
+            "description": "The name of the market  to retrieve.\nFormat : \"fungibleTokens/{chain}/{token_address}/market\"",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "fungibleTokens/[^/]+/[^/]+/market"
+          },
+          {
+            "name": "currency",
+            "description": "Display the price in this currency. Default is USD.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "CURRENCY_UNSPECIFIED",
+              "CURRENCY_SOL",
+              "CURRENCY_USDC",
+              "CURRENCY_ETH"
+            ],
+            "default": "CURRENCY_UNSPECIFIED"
+          }
+        ],
+        "tags": [
+          "FungibleTokenMarketService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1Currency": {
+      "type": "string",
+      "enum": [
+        "CURRENCY_UNSPECIFIED",
+        "CURRENCY_SOL",
+        "CURRENCY_USDC",
+        "CURRENCY_ETH"
+      ],
+      "default": "CURRENCY_UNSPECIFIED"
+    },
+    "v1FungibleTokenMarket": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "readOnly": true
+        },
+        "fungibleToken": {
+          "type": "string",
+          "readOnly": true
+        },
+        "displayName": {
+          "type": "string",
+          "readOnly": true
+        },
+        "symbol": {
+          "type": "string",
+          "readOnly": true
+        },
+        "nativeCurrency": {
+          "$ref": "#/definitions/v1Currency",
+          "description": "Native token symbol of the chain the fungible-token belongs to.\nNot dollar(USDT, USDC), \nand the prices and market cap fields will display dollar values together.",
+          "readOnly": true
+        },
+        "prices": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/v1Money"
+          },
+          "description": "Key is the `Currency` enum string, \nvalue is the price with the `Currency`.",
+          "readOnly": true
+        },
+        "marketCaps": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/v1Money"
+          },
+          "description": "Key is the `Currency` enum string, \nvalue is the market cap with the `Currency`.",
+          "readOnly": true
+        },
+        "priceChanges": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/v1PriceChangesByPeriod"
+          },
+          "title": "Key is the `Currency` enum string,\nvalue is the price changes with the `Currency`.\n{\n  \"CURRENCY_USDC\": {\n    \"PRICE_CHANGE_PERIOD_1_HOUR\": {\n      \"nominal_value\": {\n        \"currency\": \"CURRENCY_USDC\",\n        \"amount\": 0.0001\n      },\n      \"percentage_change\": {\n        \"value\": 0.0001\n      },\n      \"period\": \"PRICE_CHANGE_PERIOD_1_HOUR\"\n    },\n    \"CURRENCY_SOL\": { ... }\n}\nSupport Periods\n* PRICE_CHANGE_PERIOD_7_DAY",
+          "readOnly": true
+        },
+        "price": {
+          "$ref": "#/definitions/v1Money",
+          "title": "current price",
+          "readOnly": true
+        },
+        "marketCap": {
+          "$ref": "#/definitions/v1Money",
+          "title": "market cap",
+          "readOnly": true
+        },
+        "priceChange": {
+          "$ref": "#/definitions/v1PriceChangesByPeriod",
+          "title": "Example\n{\n  \"PRICE_CHANGE_PERIOD_7_DAY\": {\n      \"nominal_value\": {\n          \"currency\": \"CURRENCY_USDC\",\n          \"amount\": 0.0001\n      },\n      \"percentage_change\": {\n          \"value\": 0.0001\n      },\n      \"period\": \"PRICE_CHANGE_PERIOD_7_DAY\"\n  }\n  ...\n}\nSupport Periods\n* PRICE_CHANGE_PERIOD_7_DAY",
+          "readOnly": true
+        },
+        "fdvs": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/v1Money"
+          },
+          "description": "Fully Diluted Valuations\nKey is the `Currency` enum string, \nvalue is the market cap with the `Currency`.",
+          "readOnly": true
+        }
+      },
+      "description": "FungibleTokenMarket contains the market data for a fungible token."
+    },
+    "v1ListFungibleTokensMarketsResponse": {
+      "type": "object",
+      "properties": {
+        "fungibleTokenMarkets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1FungibleTokenMarket"
+          }
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Pagination token used to retrieve the next page of results.\nPass the content of this string as the `page_token` attribute of\nthe next request. `next_page_token` is not returned for the last\npage."
+        }
+      }
+    },
+    "v1Money": {
+      "type": "object",
+      "properties": {
+        "currency": {
+          "$ref": "#/definitions/v1Currency"
+        },
+        "formattedAmount": {
+          "type": "string"
+        },
+        "rawAmount": {
+          "type": "string"
+        },
+        "decimals": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "v1Percentage": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
+    "v1PriceChange": {
+      "type": "object",
+      "properties": {
+        "nominalValue": {
+          "$ref": "#/definitions/v1Money"
+        },
+        "percentageChange": {
+          "$ref": "#/definitions/v1Percentage"
+        },
+        "period": {
+          "$ref": "#/definitions/v1PriceChangePeriod"
+        }
+      }
+    },
+    "v1PriceChangePeriod": {
+      "type": "string",
+      "enum": [
+        "PRICE_CHANGE_PERIOD_UNSPECIFIED",
+        "PRICE_CHANGE_PERIOD_1_HOUR",
+        "PRICE_CHANGE_PERIOD_24_HOUR",
+        "PRICE_CHANGE_PERIOD_7_DAY",
+        "PRICE_CHANGE_PERIOD_30_DAY",
+        "PRICE_CHANGE_PERIOD_ALL_TIME"
+      ],
+      "default": "PRICE_CHANGE_PERIOD_UNSPECIFIED"
+    },
+    "v1PriceChangesByPeriod": {
+      "type": "object",
+      "properties": {
+        "priceChanges": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/v1PriceChange"
+          },
+          "title": "PriceChangePeriod enum sring to PriceChange"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,164 @@
+syntax = "proto3";
+
+package blast.v1.time;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/type/date.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/blast/v1/time;time";
+
+// TimeService
+service TimeService {
+  // GetCurrentTime
+  rpc GetCurrentTime(google.protobuf.Empty) returns (GetCurrentTimeResponse) {
+    option (google.api.http) = {
+        get: "/v1/time/currentTime"
+    };
+  }
+
+  // GetCurrentWeek
+  rpc GetCurrentWeek(google.protobuf.Empty) returns (GetCurrentWeekResponse) {
+    option (google.api.http) = {
+      get: "/v1/time/currentWeek"
+      additional_bindings {
+        get: "/currentWeek"
+      }
+    };
+    option deprecated = true; // use GetSpacebarWeekByDate with null date
+  }
+
+  // GetSpacebarWeek
+  rpc GetSpacebarWeek(GetSpacebarWeekRequest) returns (SpacebarWeek) {
+    option (google.api.http) = {
+      get: "/v1/time/spacebarWeeks/{week=*}"
+    };
+  }
+
+  // GetSpacebarWeekByDate
+  rpc GetSpacebarWeekByDate(GetSpacebarWeekByDateRequest) returns (SpacebarWeek) {
+    option (google.api.http) = {
+      post: "/v1/time/spacebarWeeks:getByDate"
+      body: "*"
+    };
+  }
+
+  // GetCurrentFullWeekBasedWeek
+  rpc GetCurrentFullWeekBasedWeek(google.protobuf.Empty) returns (GetCurrentFullWeekBasedWeekResponse) {
+    option (google.api.http) = {
+      get: "/v1/time/currentFullWeekBasedWeek"
+      additional_bindings {
+        get: "/currentFullWeekBasedWeek"
+      }
+    };
+    option deprecated = true;  // use GetCurrentSpacebarWeek
+  }
+
+  // GetCurrentFullWeekBasedMonth
+  rpc GetCurrentFullWeekBasedMonth(google.protobuf.Empty) returns (GetCurrentFullWeekBasedMonthResponse) {
+    option (google.api.http) = {
+      get: "/v1/time/currentFullWeekBasedMonth"
+      additional_bindings {
+        get: "/currentFullWeekBasedMonth"
+      }
+    };
+    option deprecated = true;  // use GetCurrentSpacebarWeek
+  }
+}
+
+// SpacebarWeek has the service-based incremental week number.
+// 2024/02/19 ~ 2024/02/25 => 1
+message SpacebarWeek {
+  // week. incremental value.
+  uint32 week = 1;
+
+  // date. [start_date, end_date]
+  // start_date. It's monday
+  google.type.Date start_date = 2;
+  // end_date. It's sunday
+  google.type.Date end_date = 3;
+
+  // Full Week Based.
+  // - The start_date and end_date must both be in the same month.
+  // - Week 1 through Week 3 only.
+  //   - A week with the first Monday of the month is Full Week Based Week Number 1
+  // If the above conditions are not met, the null
+  // 
+  // https://www.notion.so/spacebarxyz/Full-Week-Based-11b5c111d14d8043b729c8a5e799e55e?pvs=4
+
+  // full_week_based_year
+  optional uint32 full_week_based_year = 4;
+  // full_week_based_year
+  optional uint32 full_week_based_month = 5;
+  // full_week_based_week
+  optional uint32 full_week_based_week = 6;
+
+  // full_week_based_week_string
+  // Format: {year}-{month}-{week}. Example: 2021-01-W1
+  string full_week_based_week_string = 7;
+  // full_week_based_month_string
+  // Format: yyyy-MM. Example: 2021-01
+  string full_week_based_month_string = 8;
+}
+
+// GetCurrentTimeResponse
+message GetCurrentTimeResponse {
+  // time
+  google.protobuf.Timestamp time = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}
+
+// GetCurrentWeekResponse
+message GetCurrentWeekResponse {
+  // week
+  uint32 week = 1;
+}
+
+// GetSpacebarWeekRequest
+message GetSpacebarWeekRequest {
+  // week
+  uint32 week = 1;
+}
+
+// GetSpacebarWeekByDateRequest
+message GetSpacebarWeekByDateRequest {
+  // date
+  // if null, it's today (UTC)
+  optional google.type.Date date = 1;
+}
+
+// GetCurrentFullWeekBasedWeekResponse
+message GetCurrentFullWeekBasedWeekResponse {
+  // Format: {year}-{month}-{week}. Example: 2021-01-W1
+  string current_week = 1;
+  // Format: {year}-{month}-{week}. Example: 2021-01-W1
+  string previous_week = 2;
+}
+
+// GetFullWeekBasedWeekRequest
+message GetFullWeekBasedWeekRequest {
+  // base
+  oneof base {
+    // date
+    google.type.Date date = 1;
+    // week
+    uint32 week = 2;
+  }
+}
+
+// GetFullWeekBasedWeekResponse
+message GetFullWeekBasedWeekResponse {
+  // Format: {year}-{month}-{week}. Example: 2021-01-W1
+  string week = 1;
+}
+
+// GetCurrentFullWeekBasedMonthResponse
+message GetCurrentFullWeekBasedMonthResponse {
+  // Format: yyyy-MM. Example: 2021-01
+  string current_month = 1;
+  // Format: yyyy-MM. Example: 2021-01
+  string previous_month = 2;
+}

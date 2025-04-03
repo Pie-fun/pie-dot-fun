@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+package blast.v1.user;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/blast/v1/user;user";
+
+service DailyCheckinService {
+
+  // GetDailyCheckin will return the User's DailyCheckin
+  rpc GetDailyCheckin(GetDailyCheckinRequest) returns (DailyCheckin) {
+    option (google.api.http) = {
+      get: "/v1/{user=users/*}/daily_checkin"
+    };
+    option (google.api.method_signature) = "user";
+  }
+
+}
+
+
+message GetDailyCheckinRequest {
+  // Format: users/{address}
+  // Resource name alias "users/me" is supported.
+  string user = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/User"
+    }
+  ];
+}
+
+message ClaimDailyCheckinRequest {
+  // Format: users/{address}
+  // Resource name alias "users/me" is supported.
+  string user = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/User"
+    }
+  ];
+}
+
+
+message DailyCheckin {
+  string user = 1 [
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/User",
+    }
+  ];
+
+  uint32 current_streak = 2;
+
+  bool is_claimable = 3;
+
+  uint32 points = 4;
+
+  DailyCheckinClaim last_claim = 5;
+}
+
+message DailyCheckinClaim {
+  uint32 streak = 1;
+
+  uint32 points = 2;
+
+  google.protobuf.Timestamp claim_time = 3;
+}

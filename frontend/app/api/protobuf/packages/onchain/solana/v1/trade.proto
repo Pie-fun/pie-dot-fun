@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package onchain.solana.v1;
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/onchain/solana/v1;solana";
+
+// Trade
+// Reference: https://github.com/Topledger/solana-programs/blob/b6532ee5b9c0608903d6b8b9270cce7b161adf55/dex-trades/proto/output.proto
+message Trade {
+  // 블록 날짜
+  string block_date = 1;
+  // 블록 생성 시간 (Unix timestamp)
+  int64 block_time = 2;
+  // 블록 슬롯 번호
+  uint64 block_slot = 3;
+  // 트랜잭션 ID (시그니처)
+  string tx_id = 4;
+  // 트랜잭션 서명자의 주소
+  string signer = 5;
+  // 유동성 풀의 주소
+  string pool_address = 6;
+  // 기준 토큰(base token)의 민트 주소
+  string base_mint = 7;
+  // 상대 토큰(quote token)의 민트 주소
+  string quote_mint = 8;
+  // 기준 토큰의 보관 계정 주소
+  string base_vault = 9;
+  // 상대 토큰의 보관 계정 주소
+  string quote_vault = 10;
+  // 기준 토큰의 거래량
+  double base_amount = 11;
+  // 상대 토큰의 거래량
+  double quote_amount = 12;
+  // 내부 인스트럭션 여부
+  bool is_inner_instruction = 13;
+  // 인스트럭션 인덱스
+  uint32 instruction_index = 14;
+  // 인스트럭션 타입 (예: swap, deposit 등)
+  string instruction_type = 15;
+  // 내부 인스트럭션의 인덱스
+  uint32 inner_instruxtion_index = 16;
+  // 외부 프로그램 ID (호출한 프로그램)
+  string outer_program = 17;
+  // 내부 프로그램 ID (실제 실행된 프로그램)
+  string inner_program = 18;
+  // 트랜잭션 수수료 (lamports 단위)
+  uint64 txn_fee_lamports = 19;
+  // 서명자의 SOL 잔액 변화량 (lamports 단위)
+  int64 signer_lamports_change = 20;
+}

@@ -1,0 +1,136 @@
+syntax = "proto3";
+
+package piedotfun.v1;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+import "google/type/decimal.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/pie-dot-fun/v1;piedotfun";
+
+enum ChainType {
+  // Unspecified blockchain type.
+  CHAIN_UNSPECIFIED = 0;
+
+  // Solana Mainnet blockchain.
+  SOLANA = 1;
+  // Solana Testnet blockchain.
+  SOLANA_TESTNET = 1001;
+  // Solana Devnet blockchain.
+  SOLANA_DEVNET = 2001;
+
+  ETHEREUM = 2;
+  ETHEREUM_SEPOLIA = 1002;
+
+  BASE = 3;
+  BASE_SEPOLIA = 1003;
+}
+
+enum VMType {
+  // Unspecified VM type.
+  VM_UNSPECIFIED = 0;
+
+  // Solana Virtual Machine.
+  SVM = 1;
+
+  // Ethereum Virtual Machine.
+  EVM = 2;
+}
+
+enum Currency {
+  CURRENCY_UNSPECIFIED = 0;
+
+  CURRENCY_SOL = 1;
+
+  CURRENCY_USDC = 2;
+
+  CURRENCY_ETH = 3;
+}
+
+message Quantity {
+  string formatted_amount = 1;
+
+  string raw_amount = 2;
+
+  uint32 decimals = 3;
+}
+
+message Money {
+  Currency currency = 1;
+
+  string formatted_amount = 2;
+
+  string raw_amount = 3;
+
+  uint32 decimals = 4;
+}
+
+message Percentage {
+  double value = 1;
+}
+
+message PnLsByPeriod {
+  // map from period to PnL
+  map<string, PnL> pnls = 1;
+}
+
+message PnL {
+  Money nominal_value = 1;
+
+  Percentage percentage_change = 2;
+
+  PnLPeriod period = 3;
+}
+
+enum PnLPeriod {
+  PNL_PERIOD_UNSPECIFIED = 0;
+  PNL_PERIOD_1_HOUR = 1;
+  PNL_PERIOD_24_HOUR = 2;
+  PNL_PERIOD_ALL_TIME = 5;
+}
+
+message PriceChange {
+  Money nominal_value = 1;
+
+  Percentage percentage_change = 2;
+
+  PriceChangePeriod period = 3;
+}
+
+enum PriceChangePeriod {
+  PRICE_CHANGE_PERIOD_UNSPECIFIED = 0;
+  PRICE_CHANGE_PERIOD_1_HOUR = 1;
+  PRICE_CHANGE_PERIOD_24_HOUR = 2;
+  PRICE_CHANGE_PERIOD_7_DAY = 3;
+  PRICE_CHANGE_PERIOD_30_DAY = 4;
+  PRICE_CHANGE_PERIOD_ALL_TIME = 5;
+}
+
+message PriceChangesByPeriod {
+  // PriceChangePeriod enum sring to PriceChange
+  map<string, PriceChange> price_changes = 1;
+}
+
+message SNS {
+  enum SNSType {
+    SNS_TYPE_UNSPECIFIED = 0;
+    EMAIL = 1;
+    GOOGLE = 2;
+    TWITTER = 3;
+  }
+
+  SNSType type = 1;
+  string name = 3;
+  string profile_url = 4;
+}
+
+
+
+
+
+

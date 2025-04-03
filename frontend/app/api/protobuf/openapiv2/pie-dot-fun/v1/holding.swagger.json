@@ -1,0 +1,408 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "pie-dot-fun/v1/holding.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "HoldingService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/holdings": {
+      "get": {
+        "operationId": "HoldingService_ListHoldings",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListHoldingsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "pageSize",
+            "description": "The maximum number of holdings to return. The service may return fewer than\nthis value.\nIf unspecified, at most 50 rows will be returned.\nThe maximum value is 1024; values above 1024 will be coerced to 1024.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageToken",
+            "description": "Token of the page to retrieve. If not specified, the first\npage of results will be returned. Use the value obtained from\n`next_page_token` in the previous response in order to request\nthe next page of results.\n\nWhen paginating, all other parameters provided to `ListHoldings` must match\nthe call that provided the page token.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "filter",
+            "description": "Available Sequence and Operator\n* basket_token\n  * `=`\n* holding_wallet\n  * `=`\n* formatted_quantity, quantity (alias of formatted_quantity)\n  * `\u003e=`, `\u003c=`, `\u003e`, `\u003c`\n* raw_quantity\n  * `\u003e=`, `\u003c=`, `\u003e`, `\u003c`\n* market_value_sol\n  * `\u003e=`, `\u003c=`, `\u003e`, `\u003c`\n* market_value_usdc\n  * `\u003e=`, `\u003c=`, `\u003e`, `\u003c`\n\nAt least one filter is required. If none is provided, the service will return an error.\nExamples\n* basket_token=\"basketTokens/SOLANA/FZ4MT1HYJHd9GK8D5mJ9f3r7irLaDL5NxBNLjGqrLqs9\"\n* holding_wallet=\"holdingWallets/SVM/9b3b4b4b-1b1b-4b4b-9b9b-1b1b4b4b4b4b\"\n* quantity\u003e\"0\"\n* market_value_sol\u003e=\"100\"",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "orderBy",
+            "description": "One or more fields to compare and use to sort the output. (optional)\nDefault order for a field is descending by id\nTo specify ascending or descending order, append \" asc\" or \" desc\" to the field name. If not specified, the order is ascending.\n\nReference\n* https://google.aip.dev/132#ordering.\n\nSupported Fields\n* \"market_value\"\n\nExamples\n* order_by=market_value desc",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "currency",
+            "description": "Display the value in this currency. Default is USD.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "CURRENCY_UNSPECIFIED",
+              "CURRENCY_SOL",
+              "CURRENCY_USDC",
+              "CURRENCY_ETH"
+            ],
+            "default": "CURRENCY_UNSPECIFIED"
+          }
+        ],
+        "tags": [
+          "HoldingService"
+        ]
+      }
+    },
+    "/v1/holdings:statistics": {
+      "get": {
+        "summary": "GetHoldingsStatistics ListHoldings 와 같은 필터를 기준으로 Total Count, Total Market Value in USDC, Total Market Value in SOL 을 반환합니다.",
+        "operationId": "HoldingService_GetHoldingsStatistics",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetHoldingsStatisticsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "filter",
+            "description": "Available Sequence and Operator\n* basket_token\n  * `=`\n* holding_wallet\n  * `=`\n* user\n  * `=`\n* symbol\n  * `=`\n* market_value_sol\n  * `\u003e=`, `\u003c=`, `\u003e`, `\u003c`\n* market_value_usdc\n  * `\u003e=`, `\u003c=`, `\u003e`, `\u003c`\n\nAt least one filter is required. If none is provided, the service will return an error.\nExamples\n* basket_token=\"basketTokens/SOLANA/FZ4MT1HYJHd9GK8D5mJ9f3r7irLaDL5NxBNLjGqrLqs9\"\n* holding_wallet=\"holdingWallets/SOLANA/9b3b4b4b-1b1b-4b4b-9b9b-1b1b4b4b4b4b\"\n* user=\"users/1\"\n* symbol=\"MURAD\"\n* market_value_sol\u003e=10",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "HoldingService"
+        ]
+      }
+    },
+    "/v1/{holding}": {
+      "get": {
+        "operationId": "HoldingService_GetHolding",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1Holding"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "holding",
+            "description": "The name of the holding to retrieve.\nFormat : \"holdings/{chain}/basketTokens/{token_address}/holdingWallets/{holding_wallet_address}\"",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "holdings/[^/]+/basketTokens/[^/]+/holdingWallets/[^/]+"
+          },
+          {
+            "name": "currency",
+            "description": "Display the value in this currency. Default is USD.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "CURRENCY_UNSPECIFIED",
+              "CURRENCY_SOL",
+              "CURRENCY_USDC",
+              "CURRENCY_ETH"
+            ],
+            "default": "CURRENCY_UNSPECIFIED"
+          }
+        ],
+        "tags": [
+          "HoldingService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1ChainType": {
+      "type": "string",
+      "enum": [
+        "CHAIN_UNSPECIFIED",
+        "SOLANA",
+        "SOLANA_TESTNET",
+        "SOLANA_DEVNET",
+        "ETHEREUM",
+        "ETHEREUM_SEPOLIA",
+        "BASE",
+        "BASE_SEPOLIA"
+      ],
+      "default": "CHAIN_UNSPECIFIED",
+      "description": " - CHAIN_UNSPECIFIED: Unspecified blockchain type.\n - SOLANA: Solana Mainnet blockchain.\n - SOLANA_TESTNET: Solana Testnet blockchain.\n - SOLANA_DEVNET: Solana Devnet blockchain."
+    },
+    "v1Currency": {
+      "type": "string",
+      "enum": [
+        "CURRENCY_UNSPECIFIED",
+        "CURRENCY_SOL",
+        "CURRENCY_USDC",
+        "CURRENCY_ETH"
+      ],
+      "default": "CURRENCY_UNSPECIFIED"
+    },
+    "v1GetHoldingsStatisticsResponse": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "totalMarketValues": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Money"
+          }
+        },
+        "totalPnls": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1PnL"
+          }
+        }
+      }
+    },
+    "v1Holding": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "Format : \"holdings/{chain}/basketTokens/{token_address}/holdingWallets/{holding_wallet_address}\""
+        },
+        "chain": {
+          "$ref": "#/definitions/v1ChainType"
+        },
+        "basketToken": {
+          "type": "string",
+          "readOnly": true
+        },
+        "holdingWallet": {
+          "type": "string",
+          "readOnly": true
+        },
+        "quantity": {
+          "$ref": "#/definitions/v1Quantity",
+          "readOnly": true
+        },
+        "averageBuyPrices": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/v1Money"
+          },
+          "title": "map from currency to average buy price",
+          "readOnly": true
+        },
+        "marketValues": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/v1Money"
+          },
+          "title": "map from currency to market value",
+          "readOnly": true
+        },
+        "pnls": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/v1PnLsByPeriod"
+          },
+          "title": "map from currency to PnLsByPeriod",
+          "readOnly": true
+        },
+        "ownershipPercentage": {
+          "$ref": "#/definitions/v1Percentage",
+          "title": "Percentage of holding value in the basket token",
+          "readOnly": true
+        },
+        "createTime": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "updateTime": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "averageBuyPrice": {
+          "$ref": "#/definitions/v1Money",
+          "readOnly": true
+        },
+        "marketValue": {
+          "$ref": "#/definitions/v1Money",
+          "readOnly": true
+        },
+        "pnl": {
+          "$ref": "#/definitions/v1PnLsByPeriod",
+          "readOnly": true
+        }
+      }
+    },
+    "v1ListHoldingsResponse": {
+      "type": "object",
+      "properties": {
+        "holdings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Holding"
+          }
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Pagination token used to retrieve the next page of results.\nPass the content of this string as the `page_token` attribute of\nthe next request. `next_page_token` is not returned for the last\npage."
+        }
+      }
+    },
+    "v1Money": {
+      "type": "object",
+      "properties": {
+        "currency": {
+          "$ref": "#/definitions/v1Currency"
+        },
+        "formattedAmount": {
+          "type": "string"
+        },
+        "rawAmount": {
+          "type": "string"
+        },
+        "decimals": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "v1Percentage": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
+    "v1PnL": {
+      "type": "object",
+      "properties": {
+        "nominalValue": {
+          "$ref": "#/definitions/v1Money"
+        },
+        "percentageChange": {
+          "$ref": "#/definitions/v1Percentage"
+        },
+        "period": {
+          "$ref": "#/definitions/v1PnLPeriod"
+        }
+      }
+    },
+    "v1PnLPeriod": {
+      "type": "string",
+      "enum": [
+        "PNL_PERIOD_UNSPECIFIED",
+        "PNL_PERIOD_1_HOUR",
+        "PNL_PERIOD_24_HOUR",
+        "PNL_PERIOD_ALL_TIME"
+      ],
+      "default": "PNL_PERIOD_UNSPECIFIED"
+    },
+    "v1PnLsByPeriod": {
+      "type": "object",
+      "properties": {
+        "pnls": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/v1PnL"
+          },
+          "title": "map from period to PnL"
+        }
+      }
+    },
+    "v1Quantity": {
+      "type": "object",
+      "properties": {
+        "formattedAmount": {
+          "type": "string"
+        },
+        "rawAmount": {
+          "type": "string"
+        },
+        "decimals": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,335 @@
+syntax = "proto3";
+
+package piedotfun.v1;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+import "pie-dot-fun/v1/auth.proto";
+import "pie-dot-fun/v1/common.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/pie-dot-fun/v1;piedotfun";
+
+// BasketTokenService contains the function to interact with the BasketToken of the spacebar
+service BasketTokenService {
+  rpc GetBasketToken(GetBasketTokenRequest) returns (BasketToken) {
+    option (google.api.http) = {
+      get: "/v1/{basket_token=basketTokens/*/*}"
+    };
+    option (google.api.method_signature) = "basket_token";
+    option (gateway_registered) = true;
+    option (allow_unauthenticated) = true;
+    option (external) = true;
+  }
+
+  rpc ListBasketTokens(ListBasketTokensRequest) returns (ListBasketTokensResponse) {
+    option (google.api.http) = {
+      get: "/v1/basketTokens"
+    };
+    option (gateway_registered) = true;
+    option (allow_unauthenticated) = true;
+    option (external) = true;
+  }
+
+  rpc ListBasketTokenRebalancingHistories(ListRebalancingHistoriesRequest) returns (ListRebalancingHistoriesResponse) {
+    option (google.api.http) = {
+      get: "/v1/{basket_token=basketTokens/*/*}/rebalancingHistories"
+    };
+    option (gateway_registered) = true;
+    option (allow_unauthenticated) = true;
+    option (external) = true;
+  }
+}
+
+message GetBasketTokenRequest {
+  // The name of the basket token to retrieve.
+  // Format : "basketTokens/{chain}/{token_address}"
+  string basket_token = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "piedotfun.spacebarapis.xyz/BasketToken"
+    }];
+}
+
+// ListBasketTokensRequest payload
+// (-- api-linter: core::0158::request-page-token-field=disabled
+//     aip.dev/not-precedent: We need to do this because reasons. --)
+// (-- api-linter: core::0132::request-unknown-fields=disabled
+//     aip.dev/not-precedent: We really need this field because reasons. --)
+message ListBasketTokensRequest {
+  // The maximum number of basket tokens to return. The service may return fewer than
+  // this value.
+  // If unspecified, at most 50 rows will be returned.
+  // The maximum value is 1024; values above 1024 will be coerced to 1024.
+  int32 page_size = 1;
+
+  // Token of the page to retrieve. If not specified, the first
+  // page of results will be returned. Use the value obtained from
+  // `next_page_token` in the previous response in order to request
+  // the next page of results.
+  //
+  // When paginating, all other parameters provided to `ListBasketTokens` must match
+  // the call that provided the page token.
+  string page_token = 2;
+
+  // Available Sequence and Operator
+  // * name
+  //   * `=`
+  // * chain
+  //   * `=`
+  // * display_name
+  //   * `=`
+  // * symbol
+  //   * `=`
+  // * state
+  //   * `=` (CREATED, LISTED)
+  // * onchain_id
+  //   * `=`
+  // * market_cap_sol
+  //   * `=`, `>`, `<`, `>=`, `<=`
+  // * market_cap_usdc
+  //   * `=`, `>`, `<`, `>=`, `<=`
+  //
+  // Examples
+  // * name="basketTokens/SOLANA/FZ4MT1HYJHd9GK8D5mJ9f3r7irLaDL5NxBNLjGqrLqs9"
+  // * chain=SOLANA
+  // * symbol="MURAD"
+  // * state=LISTED
+  // * onchain_id="10"
+  // * market_cap_sol>=1000000
+  string filter = 3;
+
+  // One or more fields to compare and use to sort the output. (optional)
+  // Default order for a field is descending by id
+  // To specify ascending or descending order, append " asc" or " desc" to the field name. If not specified, the order is ascending.
+  //
+  // Reference
+  // * https://google.aip.dev/132#ordering.
+  //
+  // Supported Fields
+  // * "create_time", "market_cap_sol", "market_cap_usdc"
+  //
+  // Examples
+  // * order_by=create_time desc
+  // * order_by=market_cap_sol desc
+  string order_by = 4;
+}
+
+message ListBasketTokensResponse {
+  repeated BasketToken basket_tokens = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Pagination token used to retrieve the next page of results.
+  // Pass the content of this string as the `page_token` attribute of
+  // the next request. `next_page_token` is not returned for the last
+  // page.
+  string next_page_token = 2;
+}
+
+message ListRebalancingHistoriesRequest {
+  // The name of the basket token to retrieve.
+  // Format : "basketTokens/{chain}/{token_address}"
+  string basket_token = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "piedotfun.spacebarapis.xyz/BasketToken"
+    }
+  ];
+
+  // The maximum number of histories to return. The service may return fewer than
+  // this value.
+  // If unspecified, at most 50 rows will be returned.
+  // The maximum value is 1024; values above 1024 will be coerced to 1024.
+  int32 page_size = 2;
+
+  // Token of the page to retrieve. If not specified, the first
+  // page of results will be returned. Use the value obtained from
+  // `next_page_token` in the previous response in order to request
+  // the next page of results.
+  //
+  // When paginating, all other parameters provided to `ListUsers` must match
+  // the call that provided the page token.
+  string page_token = 3;
+
+  // Available Sequence and Operator
+  // * components_changed
+  //   * `negation`
+  //
+  // Examples
+  // * filter=components_changed
+  // * filter=NOT components_changed
+  string filter = 4;
+}
+
+message ListRebalancingHistoriesResponse {
+  repeated BasketTokenRebanlancingHistory rebalancing_histories = 1;
+
+  // Pagination token used to retrieve the next page of results.
+  // Pass the content of this string as the `page_token` attribute of
+  // the next request. `next_page_token` is not returned for the last
+  // page.
+  string next_page_token = 2;
+}
+
+message BasketToken {
+  option (google.api.resource) = {
+    type: "piedotfun.spacebarapis.xyz/BasketToken",
+    pattern: "basketTokens/{chain}/{address}"
+  };
+
+  // Format : "basketTokens/{chain}/{token_address}"
+  string name = 1;
+
+  ChainType chain = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  string address = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  string display_name = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  string symbol = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  string icon_image_uri = 6 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  string description = 7 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  string one_line_description = 8 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  BasketTokenState state = 9 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  TokenStrategy strategy = 10 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  RebalanceFrequency rebalance_frequency = 11 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  bool is_rebalancing = 12 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  //  // map from currency to market value
+  //  map<string, Money> market_values = 9 [
+  //    (google.api.field_behavior) = OUTPUT_ONLY
+  //  ];
+  //
+  //  // map from currency to market value
+  //  map<string, Money> price_changes = 10 [
+  //    (google.api.field_behavior) = OUTPUT_ONLY
+  //  ];
+
+  repeated Component components = 15 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The creator of the basket token
+  // Format : "users/{user_id}"
+  string creator = 16 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.resource_reference) = {
+      type: "piedotfun.spacebarapis.xyz/User"
+    }
+  ];
+
+  google.protobuf.Timestamp create_time = 17 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  google.protobuf.Timestamp expire_time = 18 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  google.protobuf.Timestamp last_rebalance_time = 19 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  Quantity total_supply = 20 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  uint64 total_holders = 21 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  string onchain_id = 22 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}
+
+message Component {
+  // Format : "fungibleTokens/{chain}/{token_address}"
+  string fungible_token = 1 [
+    (google.api.resource_reference) = {
+      type: "piedotfun.spacebarapis.xyz/FungibleToken"
+    }
+  ];
+
+  ChainType chain = 2;
+
+  string address = 3;
+
+  // The weight of the component in the basket token.
+  // The weight is a percentage of the total value within the basket token. (0.0 ~ 100.0 %)
+  Percentage weight = 4;
+}
+
+
+enum BasketTokenState {
+  BASKET_TOKEN_STATE_UNSPECIFIED = 0;
+  CREATED = 1;  // 온체인 상에서만 생성되고, 아직 우리 서비스에서 리스팅은 되지 않은 상태
+  LISTED = 2;   // 우리 서비스에서 리스팅된 상태
+}
+
+enum TokenStrategy {
+  TOKEN_STRATEGY_UNSPECIFIED = 0;
+  MARKET_CAP_WEIGHTED = 1;
+  EQUAL_WEIGHTED = 2;
+  FACTOR_WEIGHTED = 3;
+  FUNDAMENTAL_WEIGHTED = 4;
+  RISK_WEIGHTED = 5;
+  MOMENTUM_WEIGHTED = 6;
+  CUSTOM_WEIGHTED = 7;
+}
+
+enum RebalanceFrequency {
+  REBALANCE_FREQUENCY_UNSPECIFIED = 0;
+  MANUAL = 1;
+  DAILY = 2;
+  WEEKLY = 3;
+  MONTHLY = 4;
+}
+
+message BasketTokenRebanlancingHistory {
+  repeated string tx_signatures = 1;
+
+  repeated Component before_components = 2;
+
+  repeated Component after_components = 3;
+
+  google.protobuf.Timestamp rebalance_time = 4;
+
+  bool components_changed = 5;
+
+}

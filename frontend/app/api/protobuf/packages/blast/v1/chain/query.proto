@@ -1,0 +1,214 @@
+syntax = "proto3";
+
+package blast.v1.chain;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+import "blast/v1/nft/nft.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/blast/v1/chain;chain";
+
+// ChainQueryService is the service that handles all chain requests.
+service ChainQueryService {
+  rpc QueryReceipt(QueryReceiptRequest) returns (Receipt) {
+    option (google.api.http) = {
+      post: "/v1/chain:queryReceipt"
+      body: "*"
+    };
+  };
+
+  rpc QueryTransactionCount(QueryQueryTransactionCountRequest) returns (QueryQueryTransactionCountResponse) {
+    option (google.api.http) = {
+      post: "/v1/chain:queryTransactionCount"
+      body: "*"
+    };
+  }
+
+  rpc QueryDelegateCash(QueryDelegateCashRequest) returns (QueryDelegateCashResponse) {
+    option (google.api.http) = {
+      post: "/v1/chain:queryDelegateCash"
+      body: "*"
+    };
+  }
+
+  rpc QueryStakingContractAddress(QueryStakingContractAddressRequest) returns (QueryStakingContractAddressResponse) {
+    option (google.api.http) = {
+      post: "/v1/chain:queryStakingContractAddress"
+      body: "*"
+    };
+  }
+
+  rpc QueryStakingAmount(QueryStakingAmountRequest) returns (QueryStakingAmountResponse) {
+    option (google.api.http) = {
+      post: "/v1/chain:queryStakingAmount"
+      body: "*"
+    };
+  }
+
+  rpc QueryOwnerOf(QueryOwnerOfRequest) returns (QueryOwnerOfResponse) {
+    option (google.api.http) = {
+      post: "/v1/chain:queryOwnerOf"
+      body: "*"
+    };
+  }
+
+  rpc QueryBalanceOf(QueryBalanceOfRequest) returns (QueryBalanceOfResponse) {
+    option (google.api.http) = {
+      post: "/v1/chain:queryBalanceOf"
+      body: "*"
+    };
+  }
+
+}
+
+message QueryReceiptRequest {
+  string tx_hash = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  //
+  // e.g. "60s", "5m", "1h30m"
+  //
+  // The amount of time to wait for the transaction to be mined.
+  //
+  // If the transaction is not mined within this time, server will return 504 Gateway Timeout(DEADLINE_EXCEEDED).
+  //
+  // The default is 5 minutes.
+  //
+  // The maximum allowed timeout is 30 minutes. If the value is greater than 30 minutes, server will automatically set it to 30 minutes.
+  //
+  // If longer timeout is needed, please retry after the previous request times out.
+  string timeout = 2;
+}
+
+message QueryQueryTransactionCountRequest {
+  string address = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  uint64 block_number = 2;
+}
+
+message QueryQueryTransactionCountResponse {
+  uint64 count = 1;
+}
+
+message QueryDelegateCashRequest {
+  string address = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  repeated nft.ChainType chains = 2 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message QueryDelegateCashResponse {
+  repeated Delegate delegates = 1;
+}
+
+message QueryStakingContractAddressRequest {
+  string address = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message QueryStakingContractAddressResponse {
+  string contract_address = 1;
+}
+
+message QueryStakingAmountRequest {
+  string address = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message QueryStakingAmountResponse {
+  string staking_amount = 1;
+}
+
+message QueryOwnerOfRequest {
+  string contract_address = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  string token_id = 2 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message QueryOwnerOfResponse {
+  string owner_address = 1;
+}
+
+message QueryBalanceOfRequest {
+  string contract_address = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  string owner_address = 2 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message QueryBalanceOfResponse {
+  uint32 balance = 1;
+}
+
+message Delegate {
+  DelegationType type = 1;
+  string from = 2;
+  string to = 3;
+  string contract = 4;
+  string token_id = 5;
+}
+
+enum DelegationType {
+  DELEGATION_TYPE_UNSPECIFIED = 0;
+  DELEGATION_TYPE_ALL = 1;
+  DELEGATION_TYPE_CONTRACT = 2;
+  DELEGATION_TYPE_ERC721 = 3;
+}
+
+message Receipt {
+  ReceiptStatus status = 1;
+  string transaction_hash = 2;
+  string block_hash = 3;
+  string block_number = 4;
+  uint64 cumulative_gas_used = 5;
+  uint64 gas_used = 6;
+  string contract_address = 7;
+}
+
+// The state of the transaction receipt.
+enum ReceiptStatus {
+  // RECEIPT_STATUS_FAILED is the status code of a transaction if execution failed.
+  RECEIPT_STATUS_FAILED = 0;
+
+  // RECEIPT_STATUS_SUCCESSFUL is the status code of a transaction if execution succeeded.
+  RECEIPT_STATUS_SUCCESSFUL = 1;
+}
+
+message MintScoreEvent {
+  enum ScoreCategory {
+    SCORE_CATEGORY_UNSPECIFIED = 0;
+    SINGLE_PLAYER = 1;
+    MULTI_PLAYER = 2;
+  }
+
+  optional ScoreCategory category = 1;
+  optional uint64 score = 2;
+  optional string address = 3;
+  optional string token_id = 4;
+}
+
+message DeployTBAAndMintProtoShipEvent {
+  string profile_tba = 1;
+  string token_id = 2;
+}

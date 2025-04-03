@@ -1,0 +1,195 @@
+syntax = "proto3";
+
+package blast.v1.score;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/blast/v1/score;score";
+
+// InvitationalService
+service InvitationalService {
+
+  // ListSSIndividualInvitationals
+  // admin
+  rpc ListSSIndividualInvitationalEvents(ListSSIndividualInvitationalEventsRequest) returns (ListSSIndividualInvitationalEventsResponse) {
+    option (google.api.http) = {
+      get: "/v1/invitationals/SSIndividual/events"
+      additional_bindings {
+        get: "/v1/invitationals/SSIndividuals"
+      }
+    };
+  }
+
+  // CreateSSIndividualInvitationalEvent
+  // admin
+  rpc CreateSSIndividualInvitationalEvent(CreateSSIndividualInvitationalEventRequest) returns (SSIndividualInvitationalEvent) {
+    option (google.api.http) = {
+      post: "/v1/invitationals/SSIndividual/events"
+      body: "invitational_event"
+    };
+    option (google.api.method_signature) = "invitational_event";
+  }
+
+  // GetSSIndividualInvitationalLetter
+  // Get Active Invitational Letter
+  // deprecated: use ListInvitationLetters
+  rpc GetSSIndividualInvitationalLetter(GetSSIndividualInvitationalLetterRequest) returns (SSIndividualInvitationalLetter) {
+    option (google.api.http) = {
+      get: "/v1/invitationals/SSIndividual/letter"
+    };
+    option deprecated = true;
+  }
+
+  // InviteSSIndividualInvitationalEvent
+  // Send invitations based on past results.
+  // for admin, not public api.
+  rpc InviteSSIndividualInvitationalEvent(InviteSSIndividualInvitationalEventRequest) returns (InviteSSIndividualInvitationalEventResponse) {
+    option (google.api.http) = {
+      post: "/v1/{invitational_event=invitationals/SSIndividual/events/*}:invite"
+      body: "*"
+    };
+    option (google.api.method_signature) = "invitational_event";
+  }
+}
+
+// SSIndividualInvitationalEvent
+message SSIndividualInvitationalEvent {
+  option (google.api.resource) = {
+    type: "station.spacebarapis.xyz/SSIndividualInvitationalEvent",
+    pattern: "invitationals/SSIndividual/events/{event}"
+  };
+
+  // The resource name of SSIndividualInvitationalEvent.
+  // Format: invitationals/SSIndividual/events/{event}
+  string name = 1;
+
+  // target year month.
+  // This invitational event is held monthly.
+  // iso 8601 format. ex) 2024-02
+  string year_month = 2;
+
+  // The invitational event start date.
+  google.protobuf.Timestamp start_date = 3;
+  // The invitational event end date.
+  google.protobuf.Timestamp end_date = 4;
+
+  // The user should write username in discord.
+  string form_link = 5;
+}
+
+// SSIndividualInvitational
+message SSIndividualInvitational {
+  option deprecated = true; // Use SSIndividualInvitationalEvent instead.
+  option (google.api.resource) = {
+    type: "station.spacebarapis.xyz/SSIndividualInvitational",
+    pattern: "invitationals/SSIndividuals/{invitational}"
+  };
+
+  // The resource name of SSIndividualInvitational.
+  // Format: invitationals/SSIndividuals/{invitational}
+  string name = 1;
+
+  // target year month.
+  // This invitational is held monthly.
+  // iso 8601 format. ex) 2024-02
+  string year_month = 2;
+
+  // The invitational start date.
+  google.protobuf.Timestamp start_date = 3;
+  // The invitational end date.
+  google.protobuf.Timestamp end_date = 4;
+
+  // The user should write username in discord.
+  string form_link = 5;
+}
+
+// ListSSIndividualInvitationalEventsRequest
+message ListSSIndividualInvitationalEventsRequest {
+  // page size
+  int32 page_size = 1;
+}
+
+// ListSSIndividualInvitationalEventsResponse
+message ListSSIndividualInvitationalEventsResponse {
+  // The list of SSIndividualInvitationalEvents.
+  repeated SSIndividualInvitationalEvent invitational_events = 1;
+}
+
+// CreateSSIndividualInvitationalEventRequest
+message CreateSSIndividualInvitationalEventRequest {
+  // The SSIndividualInvitationalEvent to create.
+  SSIndividualInvitationalEvent invitational_event = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+// GetSSIndividualInvitationalLetterRequest
+message GetSSIndividualInvitationalLetterRequest {
+  option deprecated = true;
+}
+
+// SSIndividualInvitationalLetter
+message SSIndividualInvitationalLetter {
+  option deprecated = true;
+  // invitational
+  SSIndividualInvitational invitational = 1;
+}
+
+// InviteSSIndividualInvitationalEventRequest
+message InviteSSIndividualInvitationalEventRequest {
+
+  // The resource name of SSIndividualInvitationalEvent.
+  // Format: invitationals/SSIndividual/events/{event}
+  string invitational_event = 1 [
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/SSIndividualInvitationalEvent"
+    }
+  ];
+
+  // The list of invitees.
+  // Format: users/{user}
+  repeated string invitees = 2 [
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/User"
+    }
+  ];
+
+  // letter viewable start time
+  google.protobuf.Timestamp viewable_start_time = 3;
+  // letter viewable end time
+  google.protobuf.Timestamp viewable_end_time = 4;
+}
+
+// InviteSSIndividualInvitationalEventResponse
+message InviteSSIndividualInvitationalEventResponse {
+  // The resource name of SSIndividualInvitationalEvent.
+  // Format: invitationals/SSIndividual/events/{event}
+  string invitational_event = 1 [
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/SSIndividualInvitationalEvent"
+    }
+  ];
+
+  // The list of invitees.
+  // Format: users/{user}
+  repeated string invitees = 2 [
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/User"
+    }
+  ];
+
+  // letter viewable start time
+  google.protobuf.Timestamp viewable_start_time = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+  // letter viewable end time
+  google.protobuf.Timestamp viewable_end_time = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}

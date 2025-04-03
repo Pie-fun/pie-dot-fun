@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package ethereum.v1.chain;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/ethereum/v1/chain;chain";
+
+// ChainCommandService is the service that handles all chain requests.
+service ChainCommandService {
+  rpc MintProtoShipUniverse1(MintProtoShipUniverse1Request) returns (MintProtoShipUniverse1Response) {
+    option (google.api.http) = {
+      post: "/v1/chain:mintProtoShipUniverse1"
+    };
+    option (google.api.method_signature) = "token_contract,token_id";
+  };
+
+  rpc BurnProtoShipUniverse1(BurnProtoShipUniverse1Request) returns (Transaction) {
+    option (google.api.http) = {
+      post: "/v1/chain:burnProtoShipUniverse1"
+    };
+    option (google.api.method_signature) = "token_id";
+  };
+
+  rpc UpgradeToOwnerShipUniverse1(UpgradeToOwnerShipUniverse1Request) returns (Transaction) {
+    option (google.api.http) = {
+      post: "/v1/chain:upgradeToOwnerShipUniverse1"
+    };
+    option (google.api.method_signature) = "token_id";
+  };
+}
+
+message MintProtoShipUniverse1Request {
+  string token_contract = 1;
+  string token_id = 2;
+}
+
+message MintProtoShipUniverse1Response {
+  Transaction transaction = 1;
+  string address = 2;
+}
+
+message BurnProtoShipUniverse1Request {
+  string token_id = 1;
+}
+
+message UpgradeToOwnerShipUniverse1Request {
+  string token_id = 1;
+}
+
+message Transaction {
+  string hash = 1;
+  string chain_id = 2;
+  uint64 nonce = 3;
+  string gas_price = 4;
+  bytes data = 5;
+}
+
+enum EventType {
+  // default value. this value is unused.
+  EVENT_TYPE_UNSPECIFIED = 0;
+
+  MINT_SPACESHIP = 1;
+
+  BURN_SPACESHIP = 2;
+}

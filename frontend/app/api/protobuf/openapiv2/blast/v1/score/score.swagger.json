@@ -1,0 +1,1012 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "blast/v1/score/score.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "ScoreService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/rankings/bestScores/users": {
+      "get": {
+        "summary": "ListUserBestScoreRankings",
+        "operationId": "ScoreService_ListUserBestScoreRankings",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/scoreListUserBestScoreRankingsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userType",
+            "description": "The user type of the ranking to retrieve.\n\n - SCORE_RANK_USER_TYPE_UNSPECIFIED: default value. this value is unused.\n - ALL_USERS: All users in the spacebar.\nRanking persists regardless of the square.\n - ALL_MEMBERS: All members in the square.\nRanking persists only when the user is a member of the snapshot square.\n - SQUARE_MEMBERS: Members in the specific square.\nRanking persists only when the user is a member of the snapshot square.\n - SQUARE_USERS: All users in the specific square.\nRanking persists regardless of the square.",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "SCORE_RANK_USER_TYPE_UNSPECIFIED",
+              "ALL_USERS",
+              "ALL_MEMBERS",
+              "SQUARE_MEMBERS",
+              "SQUARE_USERS"
+            ],
+            "default": "SCORE_RANK_USER_TYPE_UNSPECIFIED"
+          },
+          {
+            "name": "timePeriod",
+            "description": "The type of ranking to retrieve.\n\n - SCORE_RANK_TIME_PERIOD_UNSPECIFIED: default value. this value is unused.",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "SCORE_RANK_TIME_PERIOD_UNSPECIFIED",
+              "ALL_TIME",
+              "WEEKLY",
+              "WEEKLY_FULL_WEEK_BASED",
+              "MONTHLY_FULL_WEEK_BASED"
+            ],
+            "default": "SCORE_RANK_TIME_PERIOD_UNSPECIFIED"
+          },
+          {
+            "name": "context",
+            "description": "The context needed to get the ranking according to the rank type.\nIf rank type is one of ALL_MEMBERS, SQUARE_MEMBERS, the context should contain the square.\n* snapshot_square=\"squares/{square_token_id}\"\n* snapshot_square_token_id=\"{square_token_id}\"\n\nIf rank type is ALL_USERS, the context should be empty.\n\nIf time period is WEEKLY, the week can be set. If not set, the current week will be used.\n* week=10",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "pageSize",
+            "description": "The maximum number of points to return. The service may return fewer than\nthis value.\nIf unspecified, at most 50 rows will be returned.\nThe maximum value is 1024; values above 1024 will be coerced to 1024.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageToken",
+            "description": "Token of the page to retrieve. If not specified, the first\npage of results will be returned. Use the value obtained from\n`next_page_token` in the previous response in order to request\nthe next page of results.\n\nWhen paginating, all other parameters provided to `ListPoints` must match\nthe call that provided the page token.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ScoreService"
+        ]
+      }
+    },
+    "/v1/rankings/cumulativeScores/squares": {
+      "get": {
+        "summary": "ListSquareCumulativeScoreRankings",
+        "operationId": "ScoreService_ListSquareCumulativeScoreRankings",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/scoreListSquareCumulativeScoreRankingsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "timePeriod",
+            "description": "The type of ranking to retrieve.\n\n - SCORE_RANK_TIME_PERIOD_UNSPECIFIED: default value. this value is unused.",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "SCORE_RANK_TIME_PERIOD_UNSPECIFIED",
+              "ALL_TIME",
+              "WEEKLY",
+              "WEEKLY_FULL_WEEK_BASED",
+              "MONTHLY_FULL_WEEK_BASED"
+            ],
+            "default": "SCORE_RANK_TIME_PERIOD_UNSPECIFIED"
+          },
+          {
+            "name": "context",
+            "description": "The context needed to get the ranking according to the rank type.\nIf time period is WEEKLY, the week can be set. If not set, the current week will be used.\n* week=10\nIf time period is WEEKLY_FULL_WEEK_BASED, the week can be set.\n* full_week_based_week=\"2024-08-W1\"\nIf time period is MONTH_FULL_WEEK_BASED, the week can be set.\n* full_week_based_month=\"2024-08\"",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "pageSize",
+            "description": "The maximum number of points to return. The service may return fewer than\nthis value.\nIf unspecified, at most 50 rows will be returned.\nThe maximum value is 1024; values above 1024 will be coerced to 1024.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageToken",
+            "description": "Token of the page to retrieve. If not specified, the first\npage of results will be returned. Use the value obtained from\n`next_page_token` in the previous response in order to request\nthe next page of results.\n\nWhen paginating, all other parameters provided to `ListPoints` must match\nthe call that provided the page token.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ScoreService"
+        ]
+      }
+    },
+    "/v1/rankings/cumulativeScores/users": {
+      "get": {
+        "summary": "ListUserCumulativeScoreRankings",
+        "operationId": "ScoreService_ListUserCumulativeScoreRankings",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/scoreListUserCumulativeScoreRankingsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userType",
+            "description": "The type of ranking to retrieve.\n\n - SCORE_RANK_USER_TYPE_UNSPECIFIED: default value. this value is unused.\n - ALL_USERS: All users in the spacebar.\nRanking persists regardless of the square.\n - ALL_MEMBERS: All members in the square.\nRanking persists only when the user is a member of the snapshot square.\n - SQUARE_MEMBERS: Members in the specific square.\nRanking persists only when the user is a member of the snapshot square.\n - SQUARE_USERS: All users in the specific square.\nRanking persists regardless of the square.",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "SCORE_RANK_USER_TYPE_UNSPECIFIED",
+              "ALL_USERS",
+              "ALL_MEMBERS",
+              "SQUARE_MEMBERS",
+              "SQUARE_USERS"
+            ],
+            "default": "SCORE_RANK_USER_TYPE_UNSPECIFIED"
+          },
+          {
+            "name": "timePeriod",
+            "description": "The type of ranking to retrieve.\n\n - SCORE_RANK_TIME_PERIOD_UNSPECIFIED: default value. this value is unused.",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "SCORE_RANK_TIME_PERIOD_UNSPECIFIED",
+              "ALL_TIME",
+              "WEEKLY",
+              "WEEKLY_FULL_WEEK_BASED",
+              "MONTHLY_FULL_WEEK_BASED"
+            ],
+            "default": "SCORE_RANK_TIME_PERIOD_UNSPECIFIED"
+          },
+          {
+            "name": "context",
+            "description": "The context needed to get the ranking according to the rank type.\nIf rank type is one of ALL_MEMBERS, SQUARE_MEMBERS, the context should contain the square.\n* snapshot_square=\"squares/{square_token_id}\"\n* snapshot_square_token_id=\"{square_token_id}\"\n\nIf rank type is ALL_USERS, the context should be empty.\n\nIf time period is WEEKLY, the week can be set. If not set, the current week will be used.\n* week=10\nIf time period is WEEKLY_FULL_WEEK_BASED, the week can be set.\n* full_week_based_week=\"2024-08-W1\"\nIf time period is MONTH_FULL_WEEK_BASED, the week can be set.\n* full_week_based_month=\"2024-08\"",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "pageSize",
+            "description": "The maximum number of points to return. The service may return fewer than\nthis value.\nIf unspecified, at most 50 rows will be returned.\nThe maximum value is 1024; values above 1024 will be coerced to 1024.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageToken",
+            "description": "Token of the page to retrieve. If not specified, the first\npage of results will be returned. Use the value obtained from\n`next_page_token` in the previous response in order to request\nthe next page of results.\n\nWhen paginating, all other parameters provided to `ListPoints` must match\nthe call that provided the page token.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ScoreService"
+        ]
+      }
+    },
+    "/v1/rankings/scores:invalidateByUser": {
+      "post": {
+        "summary": "InvalidateScoreRankingsByUser",
+        "operationId": "ScoreService_InvalidateScoreRankingsByUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/scoreInvalidateScoreRankingsByUserRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ScoreService"
+        ]
+      }
+    },
+    "/v1/scores:dryRunReward": {
+      "post": {
+        "summary": "DryRunReward\nfor admin.",
+        "operationId": "ScoreService_DryRunReward",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/scoreRewardResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/scoreRewardRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ScoreService"
+        ]
+      }
+    },
+    "/v1/scores:validateUploadAndSign": {
+      "post": {
+        "summary": "ValidateUploadScoreAndSign validate the upload score and then return signatrue if valid",
+        "operationId": "ScoreService_ValidateUploadScoreAndSign",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/scoreValidateUploadScoreAndSignResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/scoreValidateUploadScoreAndSignRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ScoreService"
+        ]
+      }
+    },
+    "/v1/{name}": {
+      "post": {
+        "summary": "CreateScore create Score with Score",
+        "operationId": "ScoreService_CreateScore",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/scoreScore"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "description": "The name of the score to create.\nFormat: users/{user_address}/scores/{game_id}",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "users/[^/]+/scores/[^/]+"
+          },
+          {
+            "name": "score",
+            "description": "score to create",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/scoreScore",
+              "required": [
+                "score"
+              ]
+            }
+          }
+        ],
+        "tags": [
+          "ScoreService"
+        ]
+      }
+    },
+    "/v1/{score}": {
+      "get": {
+        "summary": "GetScore",
+        "operationId": "ScoreService_GetScore",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/scoreScore"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "score",
+            "description": "The name of the score to retrieve.\nFormat: users/{user_address}/scores/{game_id}",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "users/[^/]+/scores/[^/]+"
+          }
+        ],
+        "tags": [
+          "ScoreService"
+        ]
+      }
+    },
+    "/v1/{squareCumulativeScoreRanking}": {
+      "get": {
+        "summary": "GetSquareCumulativeScoreRanking",
+        "operationId": "ScoreService_GetSquareCumulativeScoreRanking",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/scoreSquareCumulativeScoreRanking"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "squareCumulativeScoreRanking",
+            "description": "The name of the score ranking to retrieve.\nFormat: rankings/cumulativeScores/squares/{square_address}",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "rankings/cumulativeScores/squares/[^/]+"
+          },
+          {
+            "name": "timePeriod",
+            "description": "The type of ranking to retrieve.\n\n - SCORE_RANK_TIME_PERIOD_UNSPECIFIED: default value. this value is unused.",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "SCORE_RANK_TIME_PERIOD_UNSPECIFIED",
+              "ALL_TIME",
+              "WEEKLY",
+              "WEEKLY_FULL_WEEK_BASED",
+              "MONTHLY_FULL_WEEK_BASED"
+            ],
+            "default": "SCORE_RANK_TIME_PERIOD_UNSPECIFIED"
+          },
+          {
+            "name": "context",
+            "description": "The context needed to get the ranking according to the rank type.\nIf time period is WEEKLY, the week can be set. If not set, the current week will be used.\n* week=10\nIf time period is WEEKLY_FULL_WEEK_BASED, the week can be set.\n* full_week_based_week=\"2024-08-W1\"\nIf time period is MONTH_FULL_WEEK_BASED, the week can be set.\n* full_week_based_month=\"2024-08\"",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ScoreService"
+        ]
+      }
+    },
+    "/v1/{userBestScoreRanking}": {
+      "get": {
+        "summary": "GetUserBestScoreRanking",
+        "operationId": "ScoreService_GetUserBestScoreRanking",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/scoreUserBestScoreRanking"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userBestScoreRanking",
+            "description": "The name of the score ranking to retrieve.\nFormat: rankings/bestScores/users/{user_address}",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "rankings/bestScores/users/[^/]+"
+          },
+          {
+            "name": "userType",
+            "description": "The user type of the ranking to retrieve.\n\n - SCORE_RANK_USER_TYPE_UNSPECIFIED: default value. this value is unused.\n - ALL_USERS: All users in the spacebar.\nRanking persists regardless of the square.\n - ALL_MEMBERS: All members in the square.\nRanking persists only when the user is a member of the snapshot square.\n - SQUARE_MEMBERS: Members in the specific square.\nRanking persists only when the user is a member of the snapshot square.\n - SQUARE_USERS: All users in the specific square.\nRanking persists regardless of the square.",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "SCORE_RANK_USER_TYPE_UNSPECIFIED",
+              "ALL_USERS",
+              "ALL_MEMBERS",
+              "SQUARE_MEMBERS",
+              "SQUARE_USERS"
+            ],
+            "default": "SCORE_RANK_USER_TYPE_UNSPECIFIED"
+          },
+          {
+            "name": "timePeriod",
+            "description": "The type of ranking to retrieve.\n\n - SCORE_RANK_TIME_PERIOD_UNSPECIFIED: default value. this value is unused.",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "SCORE_RANK_TIME_PERIOD_UNSPECIFIED",
+              "ALL_TIME",
+              "WEEKLY",
+              "WEEKLY_FULL_WEEK_BASED",
+              "MONTHLY_FULL_WEEK_BASED"
+            ],
+            "default": "SCORE_RANK_TIME_PERIOD_UNSPECIFIED"
+          },
+          {
+            "name": "context",
+            "description": "The context needed to get the ranking according to the rank type.\nIf rank type is one of ALL_MEMBERS, SQUARE_MEMBERS, the context should contain the square.\n* snapshot_square=\"squares/{square_token_id}\"\n* snapshot_square_token_id=\"{square_token_id}\"\n\nIf rank type is ALL_USERS, the context should be empty.\n\nIf time period is WEEKLY, the week can be set. If not set, the current week will be used.\n* week=10",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ScoreService"
+        ]
+      }
+    },
+    "/v1/{userCumulativeScoreRanking}": {
+      "get": {
+        "summary": "GetUserCumulativeScoreRanking",
+        "operationId": "ScoreService_GetUserCumulativeScoreRanking",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/scoreUserCumulativeScoreRanking"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "userCumulativeScoreRanking",
+            "description": "The name of the score ranking to retrieve.\nFormat: rankings/cumulativeScores/users/{user_address}",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "rankings/cumulativeScores/users/[^/]+"
+          },
+          {
+            "name": "userType",
+            "description": "The type of ranking to retrieve.\n\n - SCORE_RANK_USER_TYPE_UNSPECIFIED: default value. this value is unused.\n - ALL_USERS: All users in the spacebar.\nRanking persists regardless of the square.\n - ALL_MEMBERS: All members in the square.\nRanking persists only when the user is a member of the snapshot square.\n - SQUARE_MEMBERS: Members in the specific square.\nRanking persists only when the user is a member of the snapshot square.\n - SQUARE_USERS: All users in the specific square.\nRanking persists regardless of the square.",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "SCORE_RANK_USER_TYPE_UNSPECIFIED",
+              "ALL_USERS",
+              "ALL_MEMBERS",
+              "SQUARE_MEMBERS",
+              "SQUARE_USERS"
+            ],
+            "default": "SCORE_RANK_USER_TYPE_UNSPECIFIED"
+          },
+          {
+            "name": "timePeriod",
+            "description": "The type of ranking to retrieve.\n\n - SCORE_RANK_TIME_PERIOD_UNSPECIFIED: default value. this value is unused.",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "SCORE_RANK_TIME_PERIOD_UNSPECIFIED",
+              "ALL_TIME",
+              "WEEKLY",
+              "WEEKLY_FULL_WEEK_BASED",
+              "MONTHLY_FULL_WEEK_BASED"
+            ],
+            "default": "SCORE_RANK_TIME_PERIOD_UNSPECIFIED"
+          },
+          {
+            "name": "context",
+            "description": "The context needed to get the ranking according to the rank type.\nIf rank type is one of ALL_MEMBERS, SQUARE_MEMBERS, the context should contain the square.\n* snapshot_square=\"squares/{square_token_id}\"\n* snapshot_square_token_id=\"{square_token_id}\"\n\nIf rank type is ALL_USERS, the context should be empty.\n\nIf time period is WEEKLY, the week can be set. If not set, the current week will be used.\n* week=10\nIf time period is WEEKLY_FULL_WEEK_BASED, the week can be set.\n* full_week_based_week=\"2024-08-W1\"\nIf time period is MONTH_FULL_WEEK_BASED, the week can be set.\n* full_week_based_month=\"2024-08\"",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ScoreService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "RewardRequestRewardType": {
+      "type": "string",
+      "enum": [
+        "REWARD_TYPE_UNSPECIFIED",
+        "WEEKLY_ALL_USERS_LEADERBOARD",
+        "WEEKLY_SQUARE_MEMBERS_LEADERBOARD",
+        "WEEKLY_SS_CHALLENGE",
+        "MONTHLY_SS_CHALLENGE",
+        "MONTHLY_SQUARE_COMPETITION"
+      ],
+      "default": "REWARD_TYPE_UNSPECIFIED",
+      "description": "- REWARD_TYPE_UNSPECIFIED: default value.",
+      "title": "RewardType"
+    },
+    "RewardResponseUserReward": {
+      "type": "object",
+      "properties": {
+        "userAddress": {
+          "type": "string",
+          "title": "user address"
+        },
+        "points": {
+          "$ref": "#/definitions/typeDecimal",
+          "title": "spacebar points"
+        },
+        "blastPoints": {
+          "$ref": "#/definitions/typeDecimal",
+          "title": "blast points"
+        },
+        "blastGold": {
+          "$ref": "#/definitions/typeDecimal",
+          "title": "blast gold"
+        }
+      },
+      "title": "user reward"
+    },
+    "chainUploadScoreParams": {
+      "type": "object",
+      "properties": {
+        "player": {
+          "type": "string"
+        },
+        "gameCode": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "squareIdOrZero": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "score": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "gameId": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "nonce": {
+          "type": "string"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "scoreGameType": {
+      "type": "string",
+      "enum": [
+        "GAME_TYPE_UNSPECIFIED",
+        "STAR_SWEEPERS"
+      ],
+      "default": "GAME_TYPE_UNSPECIFIED",
+      "description": " - GAME_TYPE_UNSPECIFIED: default value. this value is unused."
+    },
+    "scoreInvalidateScoreRankingsByUserRequest": {
+      "type": "object",
+      "properties": {
+        "users": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "The name of the score ranking to invalidate.\nFormat: users/{user_address}"
+        },
+        "context": {
+          "type": "string",
+          "title": "The context needed to decumulate the ranking according to the rank type.\nContext for square is always required.\n* snapshot_square=\"squares/{square_token_id}\"\n* snapshot_square_token_id=\"{square_token_id}\"\nContext for week is optional. If not set, the current week will be used.\n* week=10\nContext for full week based week is optional. If not set, the current date will be used.\n* full_week_based_week=\"2024-08-W1\"\nContext for full week based month is optional. If not set, the current date will be used.\n* full_week_based_month=\"2024-08\""
+        }
+      },
+      "required": [
+        "users",
+        "context"
+      ]
+    },
+    "scoreListSquareCumulativeScoreRankingsResponse": {
+      "type": "object",
+      "properties": {
+        "rankings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/scoreSquareCumulativeScoreRanking"
+          },
+          "description": "The list of rows that matched the query."
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Pagination token used to retrieve the next page of results.\nPass the content of this string as the `page_token` attribute of\nthe next request. `next_page_token` is not returned for the last\npage."
+        }
+      }
+    },
+    "scoreListUserBestScoreRankingsResponse": {
+      "type": "object",
+      "properties": {
+        "rankings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/scoreUserBestScoreRanking"
+          },
+          "description": "The list of rows that matched the query."
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Pagination token used to retrieve the next page of results.\nPass the content of this string as the `page_token` attribute of\nthe next request. `next_page_token` is not returned for the last\npage."
+        }
+      }
+    },
+    "scoreListUserCumulativeScoreRankingsResponse": {
+      "type": "object",
+      "properties": {
+        "rankings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/scoreUserCumulativeScoreRanking"
+          },
+          "description": "The list of rows that matched the query."
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Pagination token used to retrieve the next page of results.\nPass the content of this string as the `page_token` attribute of\nthe next request. `next_page_token` is not returned for the last\npage."
+        }
+      }
+    },
+    "scorePlayMode": {
+      "type": "string",
+      "enum": [
+        "PLAY_MODE_UNSPECIFIED",
+        "SINGLE_PLAYER"
+      ],
+      "default": "PLAY_MODE_UNSPECIFIED",
+      "description": " - PLAY_MODE_UNSPECIFIED: default value. this value is unused."
+    },
+    "scoreRewardRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/RewardRequestRewardType",
+          "title": "type"
+        }
+      },
+      "title": "RewardRequest",
+      "required": [
+        "type"
+      ]
+    },
+    "scoreRewardResponse": {
+      "type": "object",
+      "properties": {
+        "userRewards": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RewardResponseUserReward"
+          },
+          "title": "user rewards"
+        }
+      },
+      "title": "RewardResponse"
+    },
+    "scoreScore": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "The resource name of the Score.\nFormat: \"users/{user_address}/scores/{game_id}\""
+        },
+        "userAddress": {
+          "type": "string",
+          "description": "The user address of the member.",
+          "readOnly": true
+        },
+        "gameId": {
+          "type": "string",
+          "description": "The game ID of the Score.",
+          "readOnly": true
+        },
+        "createTime": {
+          "type": "string",
+          "format": "date-time",
+          "title": "created time of score",
+          "readOnly": true
+        },
+        "state": {
+          "$ref": "#/definitions/scoreScoreState",
+          "readOnly": true
+        },
+        "points": {
+          "type": "integer",
+          "format": "int64",
+          "title": "points got from game"
+        },
+        "gameType": {
+          "$ref": "#/definitions/scoreGameType",
+          "description": "Game mode of score."
+        },
+        "playMode": {
+          "$ref": "#/definitions/scorePlayMode",
+          "description": "Play mode of score."
+        },
+        "week": {
+          "type": "integer",
+          "format": "int64",
+          "title": "week of score",
+          "readOnly": true
+        },
+        "snapshotSquareTokenId": {
+          "type": "string",
+          "description": "The snapshot square token ID of the Score.\nThis field can be null if the score is not related to any square."
+        },
+        "blastGold": {
+          "type": "number",
+          "format": "float",
+          "description": "Thie field is internal use only."
+        }
+      }
+    },
+    "scoreScoreRankTimePeriod": {
+      "type": "string",
+      "enum": [
+        "SCORE_RANK_TIME_PERIOD_UNSPECIFIED",
+        "ALL_TIME",
+        "WEEKLY",
+        "WEEKLY_FULL_WEEK_BASED",
+        "MONTHLY_FULL_WEEK_BASED"
+      ],
+      "default": "SCORE_RANK_TIME_PERIOD_UNSPECIFIED",
+      "description": " - SCORE_RANK_TIME_PERIOD_UNSPECIFIED: default value. this value is unused."
+    },
+    "scoreScoreRankUserType": {
+      "type": "string",
+      "enum": [
+        "SCORE_RANK_USER_TYPE_UNSPECIFIED",
+        "ALL_USERS",
+        "ALL_MEMBERS",
+        "SQUARE_MEMBERS",
+        "SQUARE_USERS"
+      ],
+      "default": "SCORE_RANK_USER_TYPE_UNSPECIFIED",
+      "description": " - SCORE_RANK_USER_TYPE_UNSPECIFIED: default value. this value is unused.\n - ALL_USERS: All users in the spacebar.\nRanking persists regardless of the square.\n - ALL_MEMBERS: All members in the square.\nRanking persists only when the user is a member of the snapshot square.\n - SQUARE_MEMBERS: Members in the specific square.\nRanking persists only when the user is a member of the snapshot square.\n - SQUARE_USERS: All users in the specific square.\nRanking persists regardless of the square."
+    },
+    "scoreScoreState": {
+      "type": "string",
+      "enum": [
+        "SCORE_STATE_UNSPECIFIED",
+        "CREATED",
+        "UPLOADED"
+      ],
+      "default": "SCORE_STATE_UNSPECIFIED",
+      "description": "- SCORE_STATE_UNSPECIFIED: default value. this value is unused.\n - UPLOADED: The score is uploaded to onchain.",
+      "title": "The state of score"
+    },
+    "scoreSquareCumulativeScoreRanking": {
+      "type": "object",
+      "properties": {
+        "rank": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "timePeriod": {
+          "$ref": "#/definitions/scoreScoreRankTimePeriod"
+        },
+        "squareTokenId": {
+          "type": "string"
+        },
+        "totalPoints": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "pointsCount": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "participantsCount": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "scoreUserBestScoreRanking": {
+      "type": "object",
+      "properties": {
+        "rank": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "userType": {
+          "$ref": "#/definitions/scoreScoreRankUserType"
+        },
+        "timePeriod": {
+          "$ref": "#/definitions/scoreScoreRankTimePeriod"
+        },
+        "score": {
+          "$ref": "#/definitions/scoreScore"
+        }
+      }
+    },
+    "scoreUserCumulativeScoreRanking": {
+      "type": "object",
+      "properties": {
+        "rank": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "userType": {
+          "$ref": "#/definitions/scoreScoreRankUserType"
+        },
+        "timePeriod": {
+          "$ref": "#/definitions/scoreScoreRankTimePeriod"
+        },
+        "userAddress": {
+          "type": "string"
+        },
+        "totalPoints": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "scoreValidateUploadScoreAndSignRequest": {
+      "type": "object",
+      "properties": {
+        "score": {
+          "type": "string",
+          "title": "The name of the score to create.\nFormat: users/{user_address}/scores/{game_id}"
+        },
+        "nonce": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "score",
+        "nonce"
+      ]
+    },
+    "scoreValidateUploadScoreAndSignResponse": {
+      "type": "object",
+      "properties": {
+        "signature": {
+          "type": "string"
+        },
+        "params": {
+          "$ref": "#/definitions/chainUploadScoreParams"
+        }
+      }
+    },
+    "typeDecimal": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "description": "The decimal value, as a string.\n\nThe string representation consists of an optional sign, `+` (`U+002B`)\nor `-` (`U+002D`), followed by a sequence of zero or more decimal digits\n(\"the integer\"), optionally followed by a fraction, optionally followed\nby an exponent.\n\nThe fraction consists of a decimal point followed by zero or more decimal\ndigits. The string must contain at least one digit in either the integer\nor the fraction. The number formed by the sign, the integer and the\nfraction is referred to as the significand.\n\nThe exponent consists of the character `e` (`U+0065`) or `E` (`U+0045`)\nfollowed by one or more decimal digits.\n\nServices **should** normalize decimal values before storing them by:\n\n  - Removing an explicitly-provided `+` sign (`+2.5` -\u003e `2.5`).\n  - Replacing a zero-length integer value with `0` (`.5` -\u003e `0.5`).\n  - Coercing the exponent character to lower-case (`2.5E8` -\u003e `2.5e8`).\n  - Removing an explicitly-provided zero exponent (`2.5e0` -\u003e `2.5`).\n\nServices **may** perform additional normalization based on its own needs\nand the internal decimal implementation selected, such as shifting the\ndecimal point and exponent value together (example: `2.5e-1` \u003c-\u003e `0.25`).\nAdditionally, services **may** preserve trailing zeroes in the fraction\nto indicate increased precision, but are not required to do so.\n\nNote that only the `.` character is supported to divide the integer\nand the fraction; `,` **should not** be supported regardless of locale.\nAdditionally, thousand separators **should not** be supported. If a\nservice does support them, values **must** be normalized.\n\nThe ENBF grammar is:\n\n    DecimalString =\n      [Sign] Significand [Exponent];\n\n    Sign = '+' | '-';\n\n    Significand =\n      Digits ['.'] [Digits] | [Digits] '.' Digits;\n\n    Exponent = ('e' | 'E') [Sign] Digits;\n\n    Digits = { '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' };\n\nServices **should** clearly document the range of supported values, the\nmaximum supported precision (total number of digits), and, if applicable,\nthe scale (number of digits after the decimal point), as well as how it\nbehaves when receiving out-of-bounds values.\n\nServices **may** choose to accept values passed as input even when the\nvalue has a higher precision or scale than the service supports, and\n**should** round the value to fit the supported scale. Alternatively, the\nservice **may** error with `400 Bad Request` (`INVALID_ARGUMENT` in gRPC)\nif precision would be lost.\n\nServices **should** error with `400 Bad Request` (`INVALID_ARGUMENT` in\ngRPC) if the service receives a value outside of the supported range."
+        }
+      },
+      "description": "A representation of a decimal value, such as 2.5. Clients may convert values\ninto language-native decimal formats, such as Java's [BigDecimal][] or\nPython's [decimal.Decimal][].\n\n[BigDecimal]:\nhttps://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/math/BigDecimal.html\n[decimal.Decimal]: https://docs.python.org/3/library/decimal.html"
+    }
+  }
+}

@@ -1,0 +1,9 @@
+packages/**    linguist-generated=false
+
+go/**          linguist-generated=true
+openapiv2/**   linguist-generated=true
+python/**      linguist-generated=true
+rust/**        linguist-generated=true
+javascript/**  linguist-generated=true
+typescript/**  linguist-generated=true
+typescript_grpcjs/**  linguist-generated=true

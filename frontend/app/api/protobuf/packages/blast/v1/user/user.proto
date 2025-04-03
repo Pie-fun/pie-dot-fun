@@ -1,0 +1,384 @@
+syntax = "proto3";
+
+package blast.v1.user;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+import "blast/v1/nft/nft.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/blast/v1/user;user";
+
+// UserService contains the function to interact with the User of the spacebar
+service UserService {
+  // GetUser will return User.
+  rpc GetUser(GetUserRequest) returns (User) {
+    option (google.api.http) = {
+      get: "/v1/{user=users/*}"
+    };
+    option (google.api.method_signature) = "user";
+  }
+
+  // ListUsers
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
+    option (google.api.http) = {
+      get: "/v1/users"
+    };
+  }
+
+  // UpdateUser update User.
+  rpc UpdateUser(UpdateUserRequest) returns (User) {
+    option (google.api.http) = {
+      patch: "/v1/{user.name=users/*}"
+      body: "user"
+    };
+    option (google.api.method_signature) = "user,update_mask";
+  }
+
+  // ValidateNicknameAvailability identify User.
+  rpc ValidateNicknameAvailability(ValidateNicknameAvailabilityRequest) returns (ValidateNicknameAvailabilityResponse) {
+    option (google.api.http) = {
+      post: "/v1/users:validateNicknameAvailablity"
+      body: "*"
+    };
+  }
+
+  // IdentifyUser identify User.
+  rpc IdentifyUser(IdentifyUserRequest) returns (User) {
+    option (google.api.http) = {
+      post: "/v1/{user=users/*}:identify"
+      body: "*"
+    };
+    option (google.api.method_signature) = "user,nickname,nft,referral_code";
+  }
+}
+
+message GetUserRequest {
+  // The name of the user to retrieve.
+  // Format: users/{address}
+  // Alias "users/me" is supported.
+  string user = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/User"
+    }];
+
+  // Optional. The view to return.
+  // Defaults to FULL if not set.
+  //
+  // UserView enumeration represents the view of a user.
+  // The view controls the amount of information returned.
+  // The BASIC view omits the following fields:
+  // star_balance, sns_connections, gm_stats
+  //
+  // Reference
+  // https://cloud.google.com/apis/design/design_patterns#list_flattening and
+  // https://google.aip.dev/157
+  //  UserView view = 2;
+}
+
+// ListUsersRequest payload
+// (-- api-linter: core::0158::request-page-token-field=disabled
+//     aip.dev/not-precedent: We need to do this because reasons. --)
+// (-- api-linter: core::0132::request-unknown-fields=disabled
+//     aip.dev/not-precedent: We really need this field because reasons. --)
+message ListUsersRequest {
+  // The maximum number of users to return. The service may return fewer than
+  // this value.
+  // If unspecified, at most 50 rows will be returned.
+  // The maximum value is 1024; values above 1024 will be coerced to 1024.
+  int32 page_size = 1;
+
+  // Token of the page to retrieve. If not specified, the first
+  // page of results will be returned. Use the value obtained from
+  // `next_page_token` in the previous response in order to request
+  // the next page of results.
+  //
+  // When paginating, all other parameters provided to `ListUsers` must match
+  // the call that provided the page token.
+  string page_token = 2;
+
+  // Available Sequence and Operator
+  // * name
+  //   * `Equal`
+  // * address
+  //   * Equal`
+  // * nickname
+  //   * Equal`
+  // * state
+  //   * Equal`
+  //
+  // Examples
+  // * name="users/0x6F11EF2c07f2E381CbE514198DdE87A0c0a19442"
+  // * address="0x6F11EF2c07f2E381CbE514198DdE87A0c0a19442"
+  // * nickname="Alice"
+  // * state=SQUARE_OWNED
+  string filter = 3;
+}
+
+// ListUsersResponse
+// (-- api-linter: core::0158::response-next-page-token-field=disabled
+//     aip.dev/not-precedent: We need to do this because reasons. --)
+message ListUsersResponse {
+  // The list of rows that matched the query.
+  repeated User users = 1;
+
+  // Pagination token used to retrieve the next page of results.
+  // Pass the content of this string as the `page_token` attribute of
+  // the next request. `next_page_token` is not returned for the last
+  // page.
+  string next_page_token = 2;
+}
+
+message UpdateUserRequest {
+  // User to update
+  // Format: users/{address}
+  User user = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Field mask that specifies the fields to update.
+  // If no field mask is set, all fields will be updated.
+  // Wildcards are supported.
+  // Examples
+  // ["*"]
+  // ["nickname"]
+  // ["nft"]
+  google.protobuf.FieldMask update_mask = 2;
+}
+
+message IdentifyUserRequest {
+  // Format: users/{address}
+  string user = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/User"
+    }
+  ];
+
+  // The nickname of User.
+  string nickname = 2 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Format: nfts/{chain_type}/{contract_address}/{token_id}
+  string nft = 3 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "outpost.spacebarapis.xyz/NFT",
+    }
+  ];
+
+  // The referrer code of User.
+  string referral_code = 4;
+
+}
+
+
+message ValidateNicknameAvailabilityRequest {
+  // The nickname of User.
+  string nickname = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+}
+
+message ValidateNicknameAvailabilityResponse {
+  // The nickname of User.
+  string nickname = 1;
+
+  // The availability of the nickname.
+  bool available = 2;
+
+  // The reason of the nickname is not available.
+  // Example:
+  // - nickname should be less or equal than 12 characters
+  // - nickname should be more or equal than 4 characters
+  // - nickname should start with alphabet
+  // - nickname should be alphanumeric
+  optional string reason = 3;
+}
+
+
+// The state of user
+enum UserState {
+  // default value. this value is unused.
+  STATE_UNSPECIFIED = 0;
+
+  // User was firstly created but nickname, nft is not set yet.
+  // After nickname and nft is set, state will be changed to CREATED.
+  CREATED_PENDING = 1;
+
+  // User is neither owner nor member.
+  CREATED = 2;
+
+  // User is owner.
+  SQUARE_OWNED = 3;
+
+  // User is member.
+  SQUARE_JOINED = 4;
+}
+
+// The state of user
+enum UserType {
+  // default value. this value is unused.
+  TYPE_UNSPECIFIED = 0;
+
+  //
+  INDEPENDENT = 1;
+
+  //
+  SQUARE_OWNER = 2;
+
+  //
+  SQUARE_MEMBER = 3;
+
+}
+
+message User {
+  option (google.api.resource) = {
+    type: "station.spacebarapis.xyz/User",
+    pattern: "users/{address}"
+  };
+  // The resource name of the User.
+  // Format: users/{address}
+  string name = 1;
+
+  // The address of User, mostly EOA address.
+  string address = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The created time of User.
+  // RFC3339 format e.g. "2006-01-02T15:04:05Z07:00"
+  google.protobuf.Timestamp create_time = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The last updated time of User.
+  // RFC3339 format e.g. "2006-01-02T15:04:05Z07:00"
+  google.protobuf.Timestamp update_time = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The last updated time of User's NFT.
+  // RFC3339 format e.g. "2006-01-02T15:04:05Z07:00"
+  google.protobuf.Timestamp last_nft_update_time = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The type of User
+  UserType type = 6 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The state of User
+  // Deprecated: Use type instead
+  UserState state = 7 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The current pfp nft of User.
+  UserNFT nft = 8;
+
+  //  // The star account of User
+  //  StarAccount star_account = 8 [
+  //    (google.api.field_behavior) = OUTPUT_ONLY
+  //  ];
+
+  // The ens of user
+  // This field is optional
+  optional string ens = 9 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The nickname of User.
+  string nickname = 10;
+
+}
+
+// UserNFT message represents an User's NFT.
+message UserNFT {
+  // The resource name of the NFT asset.
+  // Format: nfts/{chain_type}/{contract_address}/{token_id}
+  // Examples: nfts/ETHEREUM/0x1f9090aaE28b8a3dCeaDf281B0F12828e676c326/1
+  string name = 1;
+
+  // Token ID of the NFT asset.
+  string token_id = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // Token Name of the NFT asset.
+  string token_name = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The URI of the NFT asset's image.
+  // This URI is cached version of image original URI
+  // e.g. "https://cdn.spacebar.xyz/nfts/ethereum/0x79fcdef22feed20eddacbb2587640e45491b757f/609"
+  string image_uri = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The contract that owns the NFT asset.
+  // Output only.
+  UserNFTContract contract = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}
+
+// NFTContract message represents an NFT contract.
+message UserNFTContract {
+  // The address of the NFT contract.
+  string address = 1 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The name of the NFT contract schema.
+  string display_name = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The symbol of the NFT contract.
+  string symbol = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The blockchain on which the NFT contract resides.
+  nft.ChainType chain = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The URI of the contract image
+  string image_uri = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}
+
+// UserView enumeration represents the view of a user.
+// The view controls the amount of information returned.
+// The BASIC view omits the following fields:
+// star_balance, sns_connections, gm_stats
+//
+// Reference
+// https://cloud.google.com/apis/design/design_patterns#list_flattening and
+// https://google.aip.dev/157
+enum UserView {
+  // The default / unset value.
+  // The API will default to the FULL view.
+  User_VIEW_UNSPECIFIED = 0;
+
+  // Include only basic info.
+  // Do not include `nft`, `star_balance`, `sns_connections`, `gm_stats`
+  BASIC = 1;
+
+  // Include everything.
+  // This is the default value for both ListUsers and GetUser.
+  FULL = 2;
+}

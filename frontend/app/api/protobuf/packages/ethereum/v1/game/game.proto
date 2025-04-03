@@ -1,0 +1,157 @@
+syntax = "proto3";
+
+package ethereum.v1.game;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/ethereum/v1/game;game";
+
+enum ClientMessageType {
+  CLIENT_MESSAGE_TYPE_UNSPECIFIED = 0;
+
+  CLIENT_START_GAME = 1;
+
+  CLIENT_END_GAME = 2;
+
+  CLIENT_TAKE_STAR = 3;
+
+  CLIENT_DESTROY_OBJECT = 4;
+
+  CLIENT_SPACESHIP_POSITION = 5;
+
+  CLIENT_SPACESHIP_EVENT = 6;
+
+  CLIENT_KEYBOARD_EVENT = 7;
+
+  CLIENT_DICONNECT = 8;
+}
+
+enum ServerMessageType {
+  SERVER_MESSAGE_TYPE_UNSPECIFIED = 0;
+
+  SERVER_CONNECT = 1;
+
+  SERVER_DISCONNECT = 2;
+
+  SERVER_START_GAME = 3;
+
+  SERVER_END_GAME = 4;
+
+  SERVER_TAKE_STAR = 5;
+
+  SERVER_DESTROY_OBJECT = 6;
+
+  SERVER_SPACESHIP_POSITION = 7;
+
+  SERVER_SPACESHIP_EVENT = 8;
+
+  SERVER_KEYBOARD_EVENT = 9;
+}
+
+enum ServerAckType {
+  SERVER_RESPONSE_TYPE_UNSPECIFIED = 0;
+
+  // Message sent to client when message from client is accepted
+  ACK = 100;
+
+  // Message sent to client when message from client is rejected
+  NACK = 200;
+
+  //
+  NACK_UNAUTHENTICATED = 201;
+
+  //
+  NACK_SESSION_ALREADY_EXISTS = 202;
+
+  //
+  NACK_DAILY_ROUND_EXCEEDED = 203;
+
+  // Message sent to client when internal server error occurs
+  ERR = 300;
+}
+
+message ClientMessage {
+  ClientMessageType msg_type = 1;
+  string payload = 2;
+}
+
+message ServerMessage {
+  ServerMessageType msg_type = 1;
+  ServerAckType ack_type = 2;
+  string payload = 3;
+}
+
+message ConnectServerPayload {
+  string session_id = 1;
+  Game game = 2;
+}
+
+message TakeStarClientPayload {
+  Star star = 1;
+}
+
+message SpceshipPosiitionClientPayload {
+  Position position = 1;
+}
+
+message SpaceshipEventClientPayload {
+  string event = 1;
+}
+
+message KeyboardEventClientPayload {
+  string event = 1;
+}
+
+
+message DestroyObjectClientPayload {
+  Position position = 1;
+}
+
+message Star {
+  string id = 1;
+  Position position = 2;
+  int32 score = 3;
+}
+
+message Capsule {
+  string id = 1;
+  Position position = 2;
+}
+
+message Position {
+  float x = 1;
+  float y = 2;
+}
+
+message Map {
+  repeated Star stars = 1;
+  repeated Capsule capsules = 2;
+}
+
+message Spaceship {
+  Position position = 1;
+  int32 booster = 2;
+  int32 bullet = 3;
+}
+
+message Game {
+  // UUID of the game. Used to identify the game in the api server which means new game score will be created using this id.
+  string id = 1;
+
+  Map map = 2;
+
+  Spaceship spaceship = 3;
+
+  int32 score = 4;
+
+  google.protobuf.Timestamp create_time = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+}

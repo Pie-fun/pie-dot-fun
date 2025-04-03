@@ -1,0 +1,244 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "ethereum/v1/score/score.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "ScoreService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/scores": {
+      "get": {
+        "summary": "ListScores will return scores.",
+        "operationId": "ScoreService_ListScores",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/scoreListScoresResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "pageSize",
+            "description": "The maximum number of scores to return. The service may return fewer than\nthis value.\nIf unspecified, at most 50 rows will be returned.\nThe maximum value is 1024; values above 1024 will be coerced to 1024.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageToken",
+            "description": "Token of the page to retrieve. If not specified, the first\npage of results will be returned. Use the value obtained from\n`next_page_token` in the previous response in order to request\nthe next page of results.\n\nWhen paginating, all other parameters provided to `ListScores` must match\nthe call that provided the page token.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "filter",
+            "description": "Available Sequence and Operator\n* point\n  * `\u003e`, `\u003e=`, `=`, `\u003c=`, `\u003c`\n* week\n  * `\u003e`, `\u003e=`, `=`, `\u003c=`, `\u003c`\n* minted\n  * `negation`\n* play_mode\n  * equal`\n* game_mode\n  * equal`\n\nExamples\n* filter=week=10\n* filter=point\u003e300\n* filter=minted\n* filter=game_mode=\"SINGLE_PLAYER\"\n* filter=play_mode=\"TIME_ATTACK\"\n* filter=week=10 AND minted AND play_mode=\"TIME_ATTACK\"\n* filter=week\u003e10 AND week\u003c20 AND minted AND play_mode=\"TIME_ATTACK\"",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "orderBy",
+            "description": "Optional. One or more fields to compare and use to sort the output.\nDefault order for a field is descending by create_time\nReference\n* https://google.aip.dev/132#ordering.\n\nExamples\n* order_by=\"point desc,create_time asc\"",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ScoreService"
+        ]
+      },
+      "post": {
+        "summary": "CreateScore create Score with Score",
+        "operationId": "ScoreService_CreateScore",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/scoreScore"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "score",
+            "description": "score to create",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/scoreScore",
+              "required": [
+                "score"
+              ]
+            }
+          }
+        ],
+        "tags": [
+          "ScoreService"
+        ]
+      }
+    },
+    "/v1/{score}": {
+      "get": {
+        "summary": "GetScore",
+        "operationId": "ScoreService_GetScore",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/scoreScore"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "score",
+            "description": "The name of the score to retrieve.\nFormat: scores/{score_uuid}",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "scores/[^/]+"
+          }
+        ],
+        "tags": [
+          "ScoreService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "scoreGameMode": {
+      "type": "string",
+      "enum": [
+        "GAME_MODE_UNSPECIFIED",
+        "TIME_ATTACK"
+      ],
+      "default": "GAME_MODE_UNSPECIFIED",
+      "title": "- GAME_MODE_UNSPECIFIED: default value. this value is unused.\n - TIME_ATTACK: time_attack"
+    },
+    "scoreListScoresResponse": {
+      "type": "object",
+      "properties": {
+        "scores": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/scoreScore"
+          },
+          "description": "The list of rows that matched the query."
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Pagination token used to retrieve the next page of results.\nPass the content of this string as the `page_token` attribute of\nthe next request. `next_page_token` is not returned for the last\npage."
+        }
+      },
+      "title": "ListScoresResponse response\n(-- api-linter: core::0158::response-next-page-token-field=disabled\n    aip.dev/not-precedent: We need to do this because reasons. --)"
+    },
+    "scorePlayMode": {
+      "type": "string",
+      "enum": [
+        "PLAY_MODE_UNSPECIFIED",
+        "SINGLE_PLAYER"
+      ],
+      "default": "PLAY_MODE_UNSPECIFIED",
+      "description": " - PLAY_MODE_UNSPECIFIED: default value. this value is unused."
+    },
+    "scoreScore": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "The resource name of the Score.\nFormat: scores/{uuid}"
+        },
+        "profile": {
+          "type": "string",
+          "title": "The resource name of the owner Profile.\nFormat: profiles/{address}"
+        },
+        "createTime": {
+          "type": "string",
+          "format": "date-time",
+          "title": "created time of score",
+          "readOnly": true
+        },
+        "point": {
+          "type": "integer",
+          "format": "int64",
+          "title": "point of score"
+        },
+        "gameMode": {
+          "$ref": "#/definitions/scoreGameMode",
+          "description": "Game mode of score."
+        },
+        "playMode": {
+          "$ref": "#/definitions/scorePlayMode",
+          "description": "Play mode of score."
+        },
+        "week": {
+          "type": "integer",
+          "format": "int64",
+          "title": "week of score",
+          "readOnly": true
+        }
+      }
+    }
+  }
+}

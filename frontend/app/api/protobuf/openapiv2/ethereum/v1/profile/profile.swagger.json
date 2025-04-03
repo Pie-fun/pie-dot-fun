@@ -1,0 +1,952 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "ethereum/v1/profile/profile.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "ProfileService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/profiles": {
+      "get": {
+        "summary": "ListProfiles will return Profiles.",
+        "operationId": "ProfileService_ListProfiles",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/profileListProfilesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "pageSize",
+            "description": "The maximum number of profiles to return. The service may return fewer than\nthis value.\nIf unspecified, at most 50 rows will be returned.\nThe maximum value is 1024; values above 1024 will be coerced to 1024.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageToken",
+            "description": "Token of the page to retrieve. If not specified, the first\npage of results will be returned. Use the value obtained from\n`next_page_token` in the previous response in order to request\nthe next page of results.\n\nWhen paginating, all other parameters provided to `ListProfiles` must match\nthe call that provided the page token.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "filter",
+            "description": "Available Sequence and Operator\n* name\n  * `Equal`\n* create_time\n  * `\u003e`\n* identified\n  * Equal`\n\nExamples\n* name=\"profiles/0x6F11EF2c07f2E381CbE514198DdE87A0c0a19442\"\n* create_time\u003e\"2020-04-21T11:30:00Z\"\n* identifed",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "view",
+            "description": "Optional. The view to return.\nDefaults to FULL if not set.\n\nProfileView enumeration represents the view of a profile.\nThe view controls the amount of information returned.\nThe BASIC view omits the following fields:\nstar_balance, sns_connections, gm_stats\n\nReference\nhttps://cloud.google.com/apis/design/design_patterns#list_flattening and\nhttps://google.aip.dev/157\n\n - Profile_VIEW_UNSPECIFIED: The default / unset value.\nThe API will default to the FULL view.\n - BASIC: Include only basic info.\nDo not include `nft`, `star_balance`, `sns_connections`, `gm_stats`\n - FULL: Include everything.\nThis is the default value for both ListProfiles and GetProfile.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "Profile_VIEW_UNSPECIFIED",
+              "BASIC",
+              "FULL"
+            ],
+            "default": "Profile_VIEW_UNSPECIFIED"
+          }
+        ],
+        "tags": [
+          "ProfileService"
+        ]
+      }
+    },
+    "/v1/{profile.name}": {
+      "patch": {
+        "summary": "UpdateProfile update Profile.",
+        "operationId": "ProfileService_UpdateProfile",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/profileProfile"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "profile.name",
+            "description": "The resource name of the Profile.\nFormat: profiles/{address}",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "profiles/[^/]+"
+          },
+          {
+            "name": "profile",
+            "description": "Profile to update\nFormat: profiles/{address}",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "address": {
+                  "type": "string",
+                  "description": "EIP-6551 TBA Address of the Profile NFT.",
+                  "readOnly": true
+                },
+                "createTime": {
+                  "type": "string",
+                  "format": "date-time",
+                  "title": "The created time of Profile.\nRFC3339 format e.g. \"2006-01-02T15:04:05Z07:00\"",
+                  "readOnly": true
+                },
+                "updateTime": {
+                  "type": "string",
+                  "format": "date-time",
+                  "title": "The last updated time of Profile.\nRFC3339 format e.g. \"2006-01-02T15:04:05Z07:00\"",
+                  "readOnly": true
+                },
+                "number": {
+                  "type": "string",
+                  "format": "uint64",
+                  "description": "The number of Profile.",
+                  "readOnly": true
+                },
+                "state": {
+                  "$ref": "#/definitions/profileProfileState",
+                  "title": "The state of Profile",
+                  "readOnly": true
+                },
+                "nft": {
+                  "$ref": "#/definitions/profileProfileNFT",
+                  "description": "The current pfp nft of Profile."
+                },
+                "starAccount": {
+                  "$ref": "#/definitions/profileStarAccount",
+                  "title": "The star account of Profile",
+                  "readOnly": true
+                },
+                "ens": {
+                  "type": "string",
+                  "title": "The ens of profile\nThis field is optional",
+                  "readOnly": true
+                },
+                "nickname": {
+                  "type": "string",
+                  "description": "The nickname of Profile.\nThis field is optional."
+                },
+                "isTutorialDone": {
+                  "type": "boolean",
+                  "title": "Whether Profile finished tutorial or not",
+                  "readOnly": true
+                },
+                "isIdentified": {
+                  "type": "boolean",
+                  "title": "Whether Profile is identified or not",
+                  "readOnly": true
+                }
+              },
+              "title": "Profile to update\nFormat: profiles/{address}"
+            }
+          },
+          {
+            "name": "updateMask",
+            "description": "Field mask that specifies the fields to update.\nIf no field mask is set, all fields will be updated.\nWildcards are supported.\nExamples\n[\"*\"]\n[\"nickname\"]\n[\"nickname\", \"nft\"]",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ProfileService"
+        ]
+      }
+    },
+    "/v1/{profile}": {
+      "get": {
+        "summary": "GetProfile will return Profile.",
+        "operationId": "ProfileService_GetProfile",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/profileProfile"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "profile",
+            "description": "The name of the profile to retrieve.\nFormat: profiles/{address}\nAlias \"profiles/me\" is supported.",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "profiles/[^/]+"
+          },
+          {
+            "name": "view",
+            "description": "Optional. The view to return.\nDefaults to FULL if not set.\n\nProfileView enumeration represents the view of a profile.\nThe view controls the amount of information returned.\nThe BASIC view omits the following fields:\nstar_balance, sns_connections, gm_stats\n\nReference\nhttps://cloud.google.com/apis/design/design_patterns#list_flattening and\nhttps://google.aip.dev/157\n\n - Profile_VIEW_UNSPECIFIED: The default / unset value.\nThe API will default to the FULL view.\n - BASIC: Include only basic info.\nDo not include `nft`, `star_balance`, `sns_connections`, `gm_stats`\n - FULL: Include everything.\nThis is the default value for both ListProfiles and GetProfile.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "Profile_VIEW_UNSPECIFIED",
+              "BASIC",
+              "FULL"
+            ],
+            "default": "Profile_VIEW_UNSPECIFIED"
+          }
+        ],
+        "tags": [
+          "ProfileService"
+        ]
+      }
+    },
+    "/v1/{profile}/daily_play_count": {
+      "get": {
+        "summary": "GetProfileDailyPlayCount will return the Profile's daily play count.",
+        "operationId": "ProfileService_GetProfileDailyPlayCount",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/profileGetProfileDailyPlayCountResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "profile",
+            "description": "Format: profiles/{address}",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "profiles/[^/]+"
+          }
+        ],
+        "tags": [
+          "ProfileService"
+        ]
+      }
+    },
+    "/v1/{profile}/daily_play_count:increment": {
+      "post": {
+        "summary": "IncrementProfileDailyPlayCount will return the Profile's daily play count.",
+        "operationId": "ProfileService_IncrementProfileDailyPlayCount",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/profileIncrementProfileDailyPlayCountResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "profile",
+            "description": "Format: profiles/{address}",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "profiles/[^/]+"
+          }
+        ],
+        "tags": [
+          "ProfileService"
+        ]
+      }
+    },
+    "/v1/{profile}/my_space": {
+      "get": {
+        "summary": "GetMySpace will return the Profile's MySpace.",
+        "operationId": "ProfileService_GetMySpace",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/profileMySpace"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "profile",
+            "description": "The profile whose my space assets should be listed.\nFormat: profiles/{address}",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "profiles/[^/]+"
+          }
+        ],
+        "tags": [
+          "ProfileService"
+        ]
+      },
+      "put": {
+        "summary": "UpdateMySpace update Profile's MySpace.",
+        "operationId": "ProfileService_UpdateMySpace",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/profileMySpace"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "profile",
+            "description": "The profile whose my space assets should be updated.\nFormat: profiles/{address}",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "profiles/[^/]+"
+          },
+          {
+            "name": "mySpace",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/profileMySpace",
+              "required": [
+                "mySpace"
+              ]
+            }
+          }
+        ],
+        "tags": [
+          "ProfileService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "outpostChainType": {
+      "type": "string",
+      "enum": [
+        "CHAIN_UNSPECIFIED",
+        "ETHEREUM",
+        "POLYGON",
+        "ARBITRUM",
+        "OPTIMISM",
+        "BASE",
+        "BLAST",
+        "ETHEREUM_SEPOLIA",
+        "POLYGON_MUMBAI",
+        "BLAST_SEPOLIA"
+      ],
+      "default": "CHAIN_UNSPECIFIED",
+      "description": "- CHAIN_UNSPECIFIED: Unspecified blockchain type.\n - ETHEREUM: Ethereum Mainnet blockchain.\n - POLYGON: Polygon Mainnet blockchain.\n - ARBITRUM: Arbitrum Mainnet blockchain.\n - OPTIMISM: Optimism Mainnet blockchain.\n - BASE: Base Mainnet blockchain.\n - BLAST: Blast Mainnet blockchain.\n - ETHEREUM_SEPOLIA: Sepolia Testnet blockchain.\n - POLYGON_MUMBAI: Polygon Testnet blockchain.\n - BLAST_SEPOLIA: Blast Testnet blockchain.",
+      "title": "ChainType enumeration represents the type of blockchain.\nDoes not support optimism, zksync, bsc yet"
+    },
+    "profileAlphabetAsset": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uint64",
+          "description": "The ID of the Alphabet asset."
+        },
+        "imageUri": {
+          "type": "string",
+          "description": "The URI of the Alphabet asset image."
+        },
+        "position": {
+          "$ref": "#/definitions/profilePosition",
+          "description": "The position of the Alphabet asset."
+        },
+        "createTime": {
+          "type": "string",
+          "format": "date-time",
+          "title": "The timestamp of the Alphabet asset creation.\nRFC3339 format e.g. \"2006-01-02T15:04:05Z07:00\"",
+          "readOnly": true
+        },
+        "updateTime": {
+          "type": "string",
+          "format": "date-time",
+          "title": "The timestamp of the Alphabet asset update.\nRFC3339 format e.g. \"2006-01-02T15:04:05Z07:00\"",
+          "readOnly": true
+        },
+        "character": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The character of the Alphabet asset."
+        }
+      },
+      "description": "AlphabetAsset message represents an Alphabet asset."
+    },
+    "profileAssets": {
+      "type": "object",
+      "properties": {
+        "spaceships": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/profileSpaceshipAsset"
+          },
+          "description": "The profile's Spaceships assets."
+        },
+        "badges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/profileBadgeAsset"
+          },
+          "description": "The profile's Badges assets."
+        },
+        "scores": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/profileScoreAsset"
+          },
+          "description": "The profile's Scores assets."
+        },
+        "alphabets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/profileAlphabetAsset"
+          },
+          "description": "The profile's Alphabets assets."
+        },
+        "blocks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/profileBlockAsset"
+          },
+          "description": "The profile's Blocks assets."
+        }
+      },
+      "description": "Assets message represents a profile's assets."
+    },
+    "profileBadgeAsset": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uint64",
+          "description": "The ID of the Badge asset."
+        },
+        "imageUri": {
+          "type": "string",
+          "description": "The URI of the Badge asset image."
+        },
+        "position": {
+          "$ref": "#/definitions/profilePosition",
+          "description": "The position of the Badge asset."
+        },
+        "createTime": {
+          "type": "string",
+          "format": "date-time",
+          "title": "The timestamp of the Badge asset creation.\nRFC3339 format e.g. \"2006-01-02T15:04:05Z07:00\"",
+          "readOnly": true
+        },
+        "updateTime": {
+          "type": "string",
+          "format": "date-time",
+          "title": "The timestamp of the Badge asset update.\nRFC3339 format e.g. \"2006-01-02T15:04:05Z07:00\"",
+          "readOnly": true
+        },
+        "reference": {
+          "$ref": "#/definitions/profileBadgeReference",
+          "description": "The reference to the Badge."
+        }
+      },
+      "description": "BadgeAsset message represents a Badge asset."
+    },
+    "profileBadgeReference": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The resource name of the Badge."
+        }
+      },
+      "description": "BadgeReference message represents a Badge."
+    },
+    "profileBlockAsset": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uint64",
+          "description": "The ID of the Block asset."
+        },
+        "imageUri": {
+          "type": "string",
+          "description": "The URI of the Block asset image."
+        },
+        "position": {
+          "$ref": "#/definitions/profilePosition",
+          "description": "The position of the Block asset."
+        },
+        "createTime": {
+          "type": "string",
+          "format": "date-time",
+          "title": "The timestamp of the Alphabet block creation.\nRFC3339 format e.g. \"2006-01-02T15:04:05Z07:00\"",
+          "readOnly": true
+        },
+        "updateTime": {
+          "type": "string",
+          "format": "date-time",
+          "title": "The timestamp of the Alphabet block update.\nRFC3339 format e.g. \"2006-01-02T15:04:05Z07:00\"",
+          "readOnly": true
+        }
+      },
+      "description": "BlockAsset message represents a Block asset."
+    },
+    "profileGetProfileDailyPlayCountResponse": {
+      "type": "object",
+      "properties": {
+        "dailyPlayCount": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The daily play count of the profile."
+        }
+      }
+    },
+    "profileIncrementProfileDailyPlayCountResponse": {
+      "type": "object",
+      "properties": {
+        "dailyPlayCount": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The daily play count of the profile."
+        }
+      }
+    },
+    "profileListProfilesResponse": {
+      "type": "object",
+      "properties": {
+        "profiles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/profileProfile"
+          },
+          "description": "The list of rows that matched the query."
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Pagination token used to retrieve the next page of results.\nPass the content of this string as the `page_token` attribute of\nthe next request. `next_page_token` is not returned for the last\npage."
+        }
+      },
+      "title": "ListProfilesResponse\n(-- api-linter: core::0158::response-next-page-token-field=disabled\n    aip.dev/not-precedent: We need to do this because reasons. --)"
+    },
+    "profileMySpace": {
+      "type": "object",
+      "properties": {
+        "profile": {
+          "type": "string",
+          "title": "The name of Profile of the MySpace",
+          "readOnly": true
+        },
+        "assets": {
+          "$ref": "#/definitions/profileAssets",
+          "description": "The profile's assets."
+        },
+        "starDoodles": {
+          "$ref": "#/definitions/profileStarDoodles",
+          "description": "The profile's StarDoodles."
+        }
+      },
+      "description": "MySpace message represents a profile's MySpace."
+    },
+    "profilePosition": {
+      "type": "object",
+      "properties": {
+        "left": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The left position."
+        },
+        "top": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The top position."
+        },
+        "right": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The right position."
+        },
+        "bottom": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The bottom position."
+        }
+      },
+      "description": "Position message represents a position."
+    },
+    "profileProfile": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "The resource name of the Profile.\nFormat: profiles/{address}"
+        },
+        "address": {
+          "type": "string",
+          "description": "EIP-6551 TBA Address of the Profile NFT.",
+          "readOnly": true
+        },
+        "createTime": {
+          "type": "string",
+          "format": "date-time",
+          "title": "The created time of Profile.\nRFC3339 format e.g. \"2006-01-02T15:04:05Z07:00\"",
+          "readOnly": true
+        },
+        "updateTime": {
+          "type": "string",
+          "format": "date-time",
+          "title": "The last updated time of Profile.\nRFC3339 format e.g. \"2006-01-02T15:04:05Z07:00\"",
+          "readOnly": true
+        },
+        "number": {
+          "type": "string",
+          "format": "uint64",
+          "description": "The number of Profile.",
+          "readOnly": true
+        },
+        "state": {
+          "$ref": "#/definitions/profileProfileState",
+          "title": "The state of Profile",
+          "readOnly": true
+        },
+        "nft": {
+          "$ref": "#/definitions/profileProfileNFT",
+          "description": "The current pfp nft of Profile."
+        },
+        "starAccount": {
+          "$ref": "#/definitions/profileStarAccount",
+          "title": "The star account of Profile",
+          "readOnly": true
+        },
+        "ens": {
+          "type": "string",
+          "title": "The ens of profile\nThis field is optional",
+          "readOnly": true
+        },
+        "nickname": {
+          "type": "string",
+          "description": "The nickname of Profile.\nThis field is optional."
+        },
+        "isTutorialDone": {
+          "type": "boolean",
+          "title": "Whether Profile finished tutorial or not",
+          "readOnly": true
+        },
+        "isIdentified": {
+          "type": "boolean",
+          "title": "Whether Profile is identified or not",
+          "readOnly": true
+        }
+      }
+    },
+    "profileProfileNFT": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "The resource name of the NFT asset.\nFormat: nfts/{chain_type}/{contract_address}/{token_id}\nExamples: nfts/ETHEREUM/0x1f9090aaE28b8a3dCeaDf281B0F12828e676c326/1"
+        },
+        "tokenId": {
+          "type": "string",
+          "description": "Token ID of the NFT asset.",
+          "readOnly": true
+        },
+        "tokenName": {
+          "type": "string",
+          "description": "Token Name of the NFT asset.",
+          "readOnly": true
+        },
+        "imageUri": {
+          "type": "string",
+          "title": "The URI of the NFT asset's image.\nThis URI is cached version of image original URI\ne.g. \"https://cdn.spacebar.xyz/nfts/ethereum/0x79fcdef22feed20eddacbb2587640e45491b757f/609\"",
+          "readOnly": true
+        },
+        "contract": {
+          "$ref": "#/definitions/profileProfileNFTContract",
+          "description": "The contract that owns the NFT asset.\nOutput only.",
+          "readOnly": true
+        }
+      },
+      "description": "ProfileNFT message represents an Profile's NFT."
+    },
+    "profileProfileNFTContract": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string",
+          "description": "The address of the NFT contract.",
+          "readOnly": true
+        },
+        "displayName": {
+          "type": "string",
+          "description": "The name of the NFT contract schema.",
+          "readOnly": true
+        },
+        "symbol": {
+          "type": "string",
+          "description": "The symbol of the NFT contract.",
+          "readOnly": true
+        },
+        "chain": {
+          "$ref": "#/definitions/outpostChainType",
+          "description": "The blockchain on which the NFT contract resides.",
+          "readOnly": true
+        },
+        "imageUri": {
+          "type": "string",
+          "title": "The URI of the contract image",
+          "readOnly": true
+        }
+      },
+      "description": "NFTContract message represents an NFT contract."
+    },
+    "profileProfileState": {
+      "type": "string",
+      "enum": [
+        "STATE_UNSPECIFIED",
+        "CREATED",
+        "PROTOSHIP_MINTED",
+        "PROTOSHIP_BURNED",
+        "OWNERSHIP_ACQUIRED"
+      ],
+      "default": "STATE_UNSPECIFIED",
+      "description": "- STATE_UNSPECIFIED: default value. this value is unused.\n - CREATED: Profile was firstly created but not started to rent base spaceship.\nThis state is very transitory state because next transaction will change it to PROTOSHIP_MINTED or OWNERSHIP_ACQUIRED state immediately.\n - PROTOSHIP_MINTED: Profile was firstly created with base spaceship rental.\n - PROTOSHIP_BURNED: Profile was created with base spaceship rental but failed to acquire\n - OWNERSHIP_ACQUIRED: Profile has acquired ownership.",
+      "title": "The state of profile"
+    },
+    "profileProfileView": {
+      "type": "string",
+      "enum": [
+        "Profile_VIEW_UNSPECIFIED",
+        "BASIC",
+        "FULL"
+      ],
+      "default": "Profile_VIEW_UNSPECIFIED",
+      "description": "Reference\nhttps://cloud.google.com/apis/design/design_patterns#list_flattening and\nhttps://google.aip.dev/157\n\n - Profile_VIEW_UNSPECIFIED: The default / unset value.\nThe API will default to the FULL view.\n - BASIC: Include only basic info.\nDo not include `nft`, `star_balance`, `sns_connections`, `gm_stats`\n - FULL: Include everything.\nThis is the default value for both ListProfiles and GetProfile.",
+      "title": "ProfileView enumeration represents the view of a profile.\nThe view controls the amount of information returned.\nThe BASIC view omits the following fields:\nstar_balance, sns_connections, gm_stats"
+    },
+    "profileScoreAsset": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uint64",
+          "description": "The ID of the Score asset."
+        },
+        "imageUri": {
+          "type": "string",
+          "description": "The URI of the Score asset image."
+        },
+        "position": {
+          "$ref": "#/definitions/profilePosition",
+          "description": "The position of the Score asset."
+        },
+        "createTime": {
+          "type": "string",
+          "format": "date-time",
+          "title": "The timestamp of the Score asset creation.\nRFC3339 format e.g. \"2006-01-02T15:04:05Z07:00\"",
+          "readOnly": true
+        },
+        "updateTime": {
+          "type": "string",
+          "format": "date-time",
+          "title": "The timestamp of the Score asset update.\nRFC3339 format e.g. \"2006-01-02T15:04:05Z07:00\"",
+          "readOnly": true
+        },
+        "reference": {
+          "$ref": "#/definitions/profileScoreReference",
+          "description": "The reference to the Score."
+        }
+      },
+      "description": "ScoreAsset message represents a Score asset."
+    },
+    "profileScoreReference": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The resource name of the Score."
+        },
+        "tokenId": {
+          "type": "string",
+          "description": "The token_id of Score NFT."
+        },
+        "imageUri": {
+          "type": "string",
+          "description": "The image uri of Score NFT."
+        }
+      },
+      "description": "ScoreReference message represents a Score."
+    },
+    "profileSpaceshipAsset": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uint64",
+          "description": "The ID of the Spaceship asset."
+        },
+        "imageUri": {
+          "type": "string",
+          "description": "The URI of the Spaceship asset image."
+        },
+        "position": {
+          "$ref": "#/definitions/profilePosition",
+          "description": "The position of the Spaceship asset."
+        },
+        "createTime": {
+          "type": "string",
+          "format": "date-time",
+          "title": "The timestamp of the Spaceship asset creation.\nRFC3339 format e.g. \"2006-01-02T15:04:05Z07:00\"",
+          "readOnly": true
+        },
+        "updateTime": {
+          "type": "string",
+          "format": "date-time",
+          "title": "The timestamp of the Spaceship asset update.\nRFC3339 format e.g. \"2006-01-02T15:04:05Z07:00\"",
+          "readOnly": true
+        },
+        "reference": {
+          "$ref": "#/definitions/profileSpaceshipReference",
+          "description": "The reference to the Spaceship."
+        }
+      },
+      "description": "SpaceshipAsset message represents a Spaceship asset."
+    },
+    "profileSpaceshipReference": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The resource name of the Spaceship."
+        },
+        "nickname": {
+          "type": "string",
+          "description": "The nickname of the Spaceship."
+        },
+        "tokenId": {
+          "type": "string",
+          "description": "The token_id of Spaceship NFT."
+        },
+        "imageUri": {
+          "type": "string",
+          "description": "The image uri of Spaceship NFT."
+        }
+      },
+      "description": "SpaceshipReference message represents a Spaceship."
+    },
+    "profileStarAccount": {
+      "type": "object",
+      "properties": {
+        "balance": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The current balance of stars.",
+          "readOnly": true
+        },
+        "cumulativeTotal": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The cumulative total of stars.",
+          "readOnly": true
+        }
+      },
+      "description": "StarAccount message represents a balance of stars for a profile."
+    },
+    "profileStarDoodles": {
+      "type": "object",
+      "properties": {
+        "imageUri": {
+          "type": "string",
+          "description": "The URI of the StarDoodles image."
+        },
+        "positions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/profilePosition"
+          },
+          "description": "The positions of the StarDoodles."
+        }
+      },
+      "description": "StarDoodles message represents a profile's StarDoodles."
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

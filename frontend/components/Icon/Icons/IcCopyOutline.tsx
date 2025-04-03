@@ -1,0 +1,28 @@
+import { SVGProps } from 'react'
+
+export default function IcCopyOutline({
+  ...props
+}: Readonly<SVGProps<SVGSVGElement>>) {
+  return (
+    <svg
+      xmlns='http://www.w3.org/2000/svg'
+      width='72'
+      height='72'
+      fill='currentColor'
+      viewBox='0 0 72 72'
+      data-icon
+      {...props}
+    >
+      <path
+        fillRule='evenodd'
+        d='M13.5 15a4.5 4.5 0 0 1 4.5-4.5h27a4.5 4.5 0 0 1 4.5 4.5v6h-3v-6a1.5 1.5 0 0 0-1.5-1.5H18a1.5 1.5 0 0 0-1.5 1.5v33a1.5 1.5 0 0 0 1.5 1.5h6v3h-6a4.5 4.5 0 0 1-4.5-4.5V15Z'
+        clipRule='evenodd'
+      />
+      <path
+        fillRule='evenodd'
+        d='M22.5 24a4.5 4.5 0 0 1 4.5-4.5h27a4.5 4.5 0 0 1 4.5 4.5v33a4.5 4.5 0 0 1-4.5 4.5H27a4.5 4.5 0 0 1-4.5-4.5V24Zm4.5-1.5a1.5 1.5 0 0 0-1.5 1.5v33a1.5 1.5 0 0 0 1.5 1.5h27a1.5 1.5 0 0 0 1.5-1.5V24a1.5 1.5 0 0 0-1.5-1.5H27Z'
+        clipRule='evenodd'
+      />
+    </svg>
+  )
+}

@@ -1,0 +1,173 @@
+syntax = "proto3";
+
+package ethereum.v1.outpost;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/ethereum/v1/outpost;outpost";
+
+// GMService contains the function to interact with the GM of the spacebar
+service GMService {
+  // SendGM send GM to another Profile.
+  rpc SendGM(SendGMRequest) returns (GM) {
+    option (google.api.http) = {
+      post: "/v1/{profile=profiles/*}/gm"
+      body: "*"
+    };
+    option (google.api.method_signature) = "to";
+  }
+
+  // Lists GM messages based on "from" and/or "to" filters.
+  rpc ListGMs(ListGMsRequest) returns (ListGMsResponse) {
+    option (google.api.http) = {
+      get: "/v1/gms"
+    };
+    option (google.api.method_signature) = "from,to";
+  }
+}
+
+// SendGMRequest message represents the request to send a GM message.
+message SendGMRequest {
+  // The profile whom the GM should be sent from.
+  // Format: profiles/{address}
+  // Resource name alias for the sender, "profiles/me" is supported.
+  string profile = 1 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Profile"
+    }
+  ];
+
+  // The profile whom the GM should be sent to.
+  // Format: profiles/{address}
+  string to = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Profile"
+    }
+  ];
+}
+
+
+
+// Request message for ListGMs.
+// At least one of the following fields must be set
+// if both "from" and "to" are empty, the server will return an error
+message ListGMsRequest {
+  // The maximum number of gms to return. The service may return fewer than
+  // this value.
+  // If unspecified, at most 50 rows will be returned.
+  // The maximum value is 1024; values above 1024 will be coerced to 1024.
+  int32 page_size = 1;
+
+  // Token of the page to retrieve. If not specified, the first
+  // page of results will be returned. Use the value obtained from
+  // `next_page_token` in the previous response in order to request
+  // the next page of results.
+  //
+  // When paginating, all other parameters provided to `ListGMs` must match
+  // the call that provided the page token.
+  string page_token = 2;
+
+  // Optional. The resource name of the profile to list GM messages from.
+  // Format: profiles/{address}
+  string from = 3 [
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Profile",
+    }
+  ];
+
+  // Optional. The resource name of the profile to list GM messages to.
+  // Format: profiles/{address}
+  string to = 4 [
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Profile",
+    }
+  ];
+}
+
+// Response message for ListGMs.
+message ListGMsResponse {
+  // The list of GM messages that match the filters.
+  repeated GM gms = 1;
+
+  // Pagination token used to retrieve the next page of results.
+  string next_page_token = 2;
+}
+
+// GMStats message represents the statistics of a profile's profile.
+message GMStats {
+  option (google.api.resource) = {
+    type: "station.spacebarapis.xyz/Profile",
+    pattern: "profiles/{address}/gm_statistics"
+  };
+
+  // The resource name of the profile.
+  // Format: profiles/{address}/gm_statistics
+  string name = 1;
+
+  // The profile name.
+  string profile = 2 [
+    (google.api.field_behavior) = OUTPUT_ONLY,
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Profile",
+    }
+  ];
+
+  // The number of messages sent by the profile.
+  int32 sent_count = 3 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The number of messages received by the profile.
+  int32 received_count = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The list of messages sent by the profile.
+  repeated GM sent_gms = 5 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+
+  // The list of messages received by the profile.
+  repeated GM received_gms = 6 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}
+
+// GM message represents a message sent or received by a profile.
+message GM {
+  option (google.api.resource) = {
+    type: "outpost.spacebarapis.xyz/GM",
+    pattern: "gms/{gm}"
+  };
+
+  // The resource name of the GM message.
+  string name = 1;
+
+  // The profile name of the sender.
+  string from = 2 [
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Profile",
+    }
+  ];
+
+  // The profile name of the receiver.
+  string to = 3 [
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Profile",
+    }
+  ];
+
+  // The time when the message was sent or received.
+  google.protobuf.Timestamp create_time = 4 [
+    (google.api.field_behavior) = OUTPUT_ONLY
+  ];
+}
+

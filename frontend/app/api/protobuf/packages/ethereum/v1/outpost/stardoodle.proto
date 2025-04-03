@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+package ethereum.v1.outpost;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/ethereum/v1/outpost;outpost";
+
+// StarDoodleService contains the function to interact with the StarDoodle of the spacebar
+service StarDoodleService {
+  rpc ListStarDoodles(ListStarDoodlesRequest) returns (ListStarDoodlesResponse) {
+    option (google.api.http) = {
+      get: "/v1/star_doodles"
+    };
+    option (google.api.method_signature) = "";
+  }
+}
+
+// Request message for ListStarDoodles.
+// If location filter is not specified, the server will return an error.
+message ListStarDoodlesRequest {
+  // Available Sequence and Operator
+  // * location
+  //   * `Equal`
+  //
+  // Examples
+  // * filter=location="SQUARE"
+  // * filter=location="BACKSPACE/0x06fAfC5d2fe61fF8d15A5Ca55FD6D3cf6069E2aB"
+  string filter = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+// Response message for ListStarDoodles.
+message ListStarDoodlesResponse {
+  // The list of StarDoodle messages that match the filters.
+  repeated StarDoodle star_doodles = 1;
+}
+
+// StarDoodle message represents the star doodle
+message StarDoodle {
+
+  enum LocationType {
+    // default value. this value is unused.
+    TYPE_UNSPECIFIED = 0;
+    //
+    SQUARE = 1;
+    //
+    BACKSPACE = 2;
+  }
+
+  // The profile name of doodle the star
+  // Format: profiles/{wallet_address}
+  string doodler = 1 [
+    (google.api.resource_reference) = {
+      type: "station.spacebarapis.xyz/Profile",
+    }
+  ];
+
+  // To where the star is doodled.
+  LocationType location_type = 2;
+
+  // The coordinates of the star doodle.
+  Position position = 3;
+}
+
+message Position {
+  // The x coordinate of the star doodle.
+  int32 x = 1;
+
+  // The y coordinate of the star doodle.
+  int32 y = 2;
+}
+
+message Star {
+  enum StarColor {
+    // default value. this value is unused.
+    COLOR_UNSPECIFIED = 0;
+    //
+    YELLOW = 1;
+    //
+    RED = 2;
+
+    GREEN = 3;
+
+    BLUE = 4;
+  }
+
+  StarColor color = 1;
+}
+
+enum StarDoodleAction {
+  // default value. this value is unused.
+  TYPE_UNSPECIFIED = 0;
+  //
+  DOODLE = 1;
+  //
+  MINE = 2;
+}

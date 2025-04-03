@@ -1,0 +1,524 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "blast/v1/user/user.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "UserService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/users": {
+      "get": {
+        "summary": "ListUsers",
+        "operationId": "UserService_ListUsers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/userListUsersResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "pageSize",
+            "description": "The maximum number of users to return. The service may return fewer than\nthis value.\nIf unspecified, at most 50 rows will be returned.\nThe maximum value is 1024; values above 1024 will be coerced to 1024.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageToken",
+            "description": "Token of the page to retrieve. If not specified, the first\npage of results will be returned. Use the value obtained from\n`next_page_token` in the previous response in order to request\nthe next page of results.\n\nWhen paginating, all other parameters provided to `ListUsers` must match\nthe call that provided the page token.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "filter",
+            "description": "Available Sequence and Operator\n* name\n  * `Equal`\n* address\n  * Equal`\n* nickname\n  * Equal`\n* state\n  * Equal`\n\nExamples\n* name=\"users/0x6F11EF2c07f2E381CbE514198DdE87A0c0a19442\"\n* address=\"0x6F11EF2c07f2E381CbE514198DdE87A0c0a19442\"\n* nickname=\"Alice\"\n* state=SQUARE_OWNED",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "UserService"
+        ]
+      }
+    },
+    "/v1/users:validateNicknameAvailablity": {
+      "post": {
+        "summary": "ValidateNicknameAvailability identify User.",
+        "operationId": "UserService_ValidateNicknameAvailability",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/userValidateNicknameAvailabilityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/userValidateNicknameAvailabilityRequest"
+            }
+          }
+        ],
+        "tags": [
+          "UserService"
+        ]
+      }
+    },
+    "/v1/{user.name}": {
+      "patch": {
+        "summary": "UpdateUser update User.",
+        "operationId": "UserService_UpdateUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/userUser"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "user.name",
+            "description": "The resource name of the User.\nFormat: users/{address}",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "users/[^/]+"
+          },
+          {
+            "name": "user",
+            "description": "User to update\nFormat: users/{address}",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "address": {
+                  "type": "string",
+                  "description": "The address of User, mostly EOA address.",
+                  "readOnly": true
+                },
+                "createTime": {
+                  "type": "string",
+                  "format": "date-time",
+                  "title": "The created time of User.\nRFC3339 format e.g. \"2006-01-02T15:04:05Z07:00\"",
+                  "readOnly": true
+                },
+                "updateTime": {
+                  "type": "string",
+                  "format": "date-time",
+                  "title": "The last updated time of User.\nRFC3339 format e.g. \"2006-01-02T15:04:05Z07:00\"",
+                  "readOnly": true
+                },
+                "lastNftUpdateTime": {
+                  "type": "string",
+                  "format": "date-time",
+                  "title": "The last updated time of User's NFT.\nRFC3339 format e.g. \"2006-01-02T15:04:05Z07:00\"",
+                  "readOnly": true
+                },
+                "type": {
+                  "$ref": "#/definitions/userUserType",
+                  "title": "The type of User",
+                  "readOnly": true
+                },
+                "state": {
+                  "$ref": "#/definitions/userUserState",
+                  "title": "The state of User\nDeprecated: Use type instead",
+                  "readOnly": true
+                },
+                "nft": {
+                  "$ref": "#/definitions/userUserNFT",
+                  "description": "The current pfp nft of User."
+                },
+                "ens": {
+                  "type": "string",
+                  "title": "The ens of user\nThis field is optional",
+                  "readOnly": true
+                },
+                "nickname": {
+                  "type": "string",
+                  "description": "The nickname of User."
+                }
+              },
+              "title": "User to update\nFormat: users/{address}"
+            }
+          },
+          {
+            "name": "updateMask",
+            "description": "Field mask that specifies the fields to update.\nIf no field mask is set, all fields will be updated.\nWildcards are supported.\nExamples\n[\"*\"]\n[\"nickname\"]\n[\"nft\"]",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "UserService"
+        ]
+      }
+    },
+    "/v1/{user}": {
+      "get": {
+        "summary": "GetUser will return User.",
+        "operationId": "UserService_GetUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/userUser"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "user",
+            "description": "The name of the user to retrieve.\nFormat: users/{address}\nAlias \"users/me\" is supported.",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "users/[^/]+"
+          }
+        ],
+        "tags": [
+          "UserService"
+        ]
+      }
+    },
+    "/v1/{user}:identify": {
+      "post": {
+        "summary": "IdentifyUser identify User.",
+        "operationId": "UserService_IdentifyUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/userUser"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "user",
+            "description": "Format: users/{address}",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "users/[^/]+"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "nickname": {
+                  "type": "string",
+                  "description": "The nickname of User."
+                },
+                "nft": {
+                  "type": "string",
+                  "title": "Format: nfts/{chain_type}/{contract_address}/{token_id}"
+                },
+                "referralCode": {
+                  "type": "string",
+                  "description": "The referrer code of User."
+                }
+              },
+              "required": [
+                "nickname",
+                "nft"
+              ]
+            }
+          }
+        ],
+        "tags": [
+          "UserService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "nftChainType": {
+      "type": "string",
+      "enum": [
+        "CHAIN_UNSPECIFIED",
+        "ETHEREUM",
+        "POLYGON",
+        "ARBITRUM",
+        "OPTIMISM",
+        "BASE",
+        "BLAST",
+        "ETHEREUM_SEPOLIA",
+        "POLYGON_MUMBAI",
+        "BLAST_SEPOLIA"
+      ],
+      "default": "CHAIN_UNSPECIFIED",
+      "description": "- CHAIN_UNSPECIFIED: Unspecified blockchain type.\n - ETHEREUM: Ethereum Mainnet blockchain.\n - POLYGON: Polygon Mainnet blockchain.\n - ARBITRUM: Arbitrum Mainnet blockchain.\n - OPTIMISM: Optimism Mainnet blockchain.\n - BASE: Base Mainnet blockchain.\n - BLAST: Blast Mainnet blockchain.\n - ETHEREUM_SEPOLIA: Sepolia Testnet blockchain.\n - POLYGON_MUMBAI: Polygon Testnet blockchain.\n - BLAST_SEPOLIA: Blast Testnet blockchain.",
+      "title": "ChainType enumeration represents the type of blockchain.\nDoes not support optimism, zksync, bsc yet"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "userListUsersResponse": {
+      "type": "object",
+      "properties": {
+        "users": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/userUser"
+          },
+          "description": "The list of rows that matched the query."
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Pagination token used to retrieve the next page of results.\nPass the content of this string as the `page_token` attribute of\nthe next request. `next_page_token` is not returned for the last\npage."
+        }
+      },
+      "title": "ListUsersResponse\n(-- api-linter: core::0158::response-next-page-token-field=disabled\n    aip.dev/not-precedent: We need to do this because reasons. --)"
+    },
+    "userUser": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "The resource name of the User.\nFormat: users/{address}"
+        },
+        "address": {
+          "type": "string",
+          "description": "The address of User, mostly EOA address.",
+          "readOnly": true
+        },
+        "createTime": {
+          "type": "string",
+          "format": "date-time",
+          "title": "The created time of User.\nRFC3339 format e.g. \"2006-01-02T15:04:05Z07:00\"",
+          "readOnly": true
+        },
+        "updateTime": {
+          "type": "string",
+          "format": "date-time",
+          "title": "The last updated time of User.\nRFC3339 format e.g. \"2006-01-02T15:04:05Z07:00\"",
+          "readOnly": true
+        },
+        "lastNftUpdateTime": {
+          "type": "string",
+          "format": "date-time",
+          "title": "The last updated time of User's NFT.\nRFC3339 format e.g. \"2006-01-02T15:04:05Z07:00\"",
+          "readOnly": true
+        },
+        "type": {
+          "$ref": "#/definitions/userUserType",
+          "title": "The type of User",
+          "readOnly": true
+        },
+        "state": {
+          "$ref": "#/definitions/userUserState",
+          "title": "The state of User\nDeprecated: Use type instead",
+          "readOnly": true
+        },
+        "nft": {
+          "$ref": "#/definitions/userUserNFT",
+          "description": "The current pfp nft of User."
+        },
+        "ens": {
+          "type": "string",
+          "title": "The ens of user\nThis field is optional",
+          "readOnly": true
+        },
+        "nickname": {
+          "type": "string",
+          "description": "The nickname of User."
+        }
+      }
+    },
+    "userUserNFT": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "The resource name of the NFT asset.\nFormat: nfts/{chain_type}/{contract_address}/{token_id}\nExamples: nfts/ETHEREUM/0x1f9090aaE28b8a3dCeaDf281B0F12828e676c326/1"
+        },
+        "tokenId": {
+          "type": "string",
+          "description": "Token ID of the NFT asset.",
+          "readOnly": true
+        },
+        "tokenName": {
+          "type": "string",
+          "description": "Token Name of the NFT asset.",
+          "readOnly": true
+        },
+        "imageUri": {
+          "type": "string",
+          "title": "The URI of the NFT asset's image.\nThis URI is cached version of image original URI\ne.g. \"https://cdn.spacebar.xyz/nfts/ethereum/0x79fcdef22feed20eddacbb2587640e45491b757f/609\"",
+          "readOnly": true
+        },
+        "contract": {
+          "$ref": "#/definitions/userUserNFTContract",
+          "description": "The contract that owns the NFT asset.\nOutput only.",
+          "readOnly": true
+        }
+      },
+      "description": "UserNFT message represents an User's NFT."
+    },
+    "userUserNFTContract": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string",
+          "description": "The address of the NFT contract.",
+          "readOnly": true
+        },
+        "displayName": {
+          "type": "string",
+          "description": "The name of the NFT contract schema.",
+          "readOnly": true
+        },
+        "symbol": {
+          "type": "string",
+          "description": "The symbol of the NFT contract.",
+          "readOnly": true
+        },
+        "chain": {
+          "$ref": "#/definitions/nftChainType",
+          "description": "The blockchain on which the NFT contract resides.",
+          "readOnly": true
+        },
+        "imageUri": {
+          "type": "string",
+          "title": "The URI of the contract image",
+          "readOnly": true
+        }
+      },
+      "description": "NFTContract message represents an NFT contract."
+    },
+    "userUserState": {
+      "type": "string",
+      "enum": [
+        "STATE_UNSPECIFIED",
+        "CREATED_PENDING",
+        "CREATED",
+        "SQUARE_OWNED",
+        "SQUARE_JOINED"
+      ],
+      "default": "STATE_UNSPECIFIED",
+      "description": "- STATE_UNSPECIFIED: default value. this value is unused.\n - CREATED_PENDING: User was firstly created but nickname, nft is not set yet.\nAfter nickname and nft is set, state will be changed to CREATED.\n - CREATED: User is neither owner nor member.\n - SQUARE_OWNED: User is owner.\n - SQUARE_JOINED: User is member.",
+      "title": "The state of user"
+    },
+    "userUserType": {
+      "type": "string",
+      "enum": [
+        "TYPE_UNSPECIFIED",
+        "INDEPENDENT",
+        "SQUARE_OWNER",
+        "SQUARE_MEMBER"
+      ],
+      "default": "TYPE_UNSPECIFIED",
+      "description": "- TYPE_UNSPECIFIED: default value. this value is unused.",
+      "title": "The state of user"
+    },
+    "userValidateNicknameAvailabilityRequest": {
+      "type": "object",
+      "properties": {
+        "nickname": {
+          "type": "string",
+          "description": "The nickname of User."
+        }
+      },
+      "required": [
+        "nickname"
+      ]
+    },
+    "userValidateNicknameAvailabilityResponse": {
+      "type": "object",
+      "properties": {
+        "nickname": {
+          "type": "string",
+          "description": "The nickname of User."
+        },
+        "available": {
+          "type": "boolean",
+          "description": "The availability of the nickname."
+        },
+        "reason": {
+          "type": "string",
+          "title": "The reason of the nickname is not available.\nExample:\n- nickname should be less or equal than 12 characters\n- nickname should be more or equal than 4 characters\n- nickname should start with alphabet\n- nickname should be alphanumeric"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,232 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "pie-dot-fun/v1/fungible-token.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "FungibleTokenService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/fungibleTokens": {
+      "get": {
+        "operationId": "FungibleTokenService_ListFungibleTokens",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListFungibleTokensResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "pageSize",
+            "description": "The maximum number of fungible tokens to return. The service may return fewer than\nthis value.\nIf unspecified, at most 50 rows will be returned.\nThe maximum value is 1024; values above 1024 will be coerced to 1024.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "pageToken",
+            "description": "Token of the page to retrieve. If not specified, the first\npage of results will be returned. Use the value obtained from\n`next_page_token` in the previous response in order to request\nthe next page of results.\n\nWhen paginating, all other parameters provided to `ListFungibleTokens` must match\nthe call that provided the page token.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "filter",
+            "description": "Available Sequence and Operator\n* name\n  * `=`\n* chain\n  * `=`\n* symbol\n  * `=`\n* market_cap_sol\n  * `=`, `\u003e`, `\u003c`, `\u003e=`, `\u003c=`\n* market_cap_usdc\n  * `=`, `\u003e`, `\u003c`, `\u003e=`, `\u003c=`\n\nExamples\n* name=\"fungibleTokens/SOLANA/FZ4MT1HYJHd9GK8D5mJ9f3r7irLaDL5NxBNLjGqrLqs9\"\n* chain=SOLANA\n* symbol=\"MURAD\"\n* market_cap_sol\u003e=1,000,000",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "orderBy",
+            "description": "One or more fields to compare and use to sort the output. (optional)\nDefault order for a field is descending by id\nTo specify ascending or descending order, append \" asc\" or \" desc\" to the field name. If not specified, the order is ascending.\n\nReference\n* https://google.aip.dev/132#ordering.\n\nSupported Fields\n* \"market_cap\", \"create_date\"\n\nExamples\n* order_by=create_date desc\n* order_by=market_cap desc",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "FungibleTokenService"
+        ]
+      }
+    },
+    "/v1/{fungibleToken}": {
+      "get": {
+        "operationId": "FungibleTokenService_GetFungibleToken",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1FungibleToken"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "fungibleToken",
+            "description": "The name of the fungible token to retrieve.\nFormat : \"fungibleTokens/{chain}/{token_address}\"",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "fungibleTokens/[^/]+/[^/]+"
+          }
+        ],
+        "tags": [
+          "FungibleTokenService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "SNSSNSType": {
+      "type": "string",
+      "enum": [
+        "SNS_TYPE_UNSPECIFIED",
+        "EMAIL",
+        "GOOGLE",
+        "TWITTER"
+      ],
+      "default": "SNS_TYPE_UNSPECIFIED"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1ChainType": {
+      "type": "string",
+      "enum": [
+        "CHAIN_UNSPECIFIED",
+        "SOLANA",
+        "SOLANA_TESTNET",
+        "SOLANA_DEVNET",
+        "ETHEREUM",
+        "ETHEREUM_SEPOLIA",
+        "BASE",
+        "BASE_SEPOLIA"
+      ],
+      "default": "CHAIN_UNSPECIFIED",
+      "description": " - CHAIN_UNSPECIFIED: Unspecified blockchain type.\n - SOLANA: Solana Mainnet blockchain.\n - SOLANA_TESTNET: Solana Testnet blockchain.\n - SOLANA_DEVNET: Solana Devnet blockchain."
+    },
+    "v1FungibleToken": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "Format : \"fungibleTokens/{chain}/{token_address}\""
+        },
+        "chain": {
+          "$ref": "#/definitions/v1ChainType",
+          "readOnly": true
+        },
+        "address": {
+          "type": "string",
+          "readOnly": true
+        },
+        "displayName": {
+          "type": "string",
+          "readOnly": true
+        },
+        "symbol": {
+          "type": "string",
+          "readOnly": true
+        },
+        "iconImageUrl": {
+          "type": "string",
+          "readOnly": true
+        },
+        "decimals": {
+          "type": "integer",
+          "format": "int32",
+          "readOnly": true
+        },
+        "sns": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1SNS"
+          },
+          "readOnly": true
+        }
+      }
+    },
+    "v1ListFungibleTokensResponse": {
+      "type": "object",
+      "properties": {
+        "fungibleTokens": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1FungibleToken"
+          }
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Pagination token used to retrieve the next page of results.\nPass the content of this string as the `page_token` attribute of\nthe next request. `next_page_token` is not returned for the last\npage."
+        }
+      },
+      "required": [
+        "fungibleTokens"
+      ]
+    },
+    "v1SNS": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/SNSSNSType"
+        },
+        "name": {
+          "type": "string"
+        },
+        "profileUrl": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

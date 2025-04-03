@@ -1,0 +1,338 @@
+syntax = "proto3";
+
+package piedotfun.v1;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/empty.proto";
+import "google/api/resource.proto";
+import "google/api/client.proto";
+
+import "pie-dot-fun/v1/auth.proto";
+
+option go_package = "github.com/ao-labs/spacebar-apis/go/pie-dot-fun/v1;piedotfun";
+
+service PieProgramService {
+  rpc GetProgramState(google.protobuf.Empty) returns (ProgramState) {
+    option (google.api.http) = {
+      get: "/v1/pie-program/state"
+    };
+  }
+
+  rpc GetBasketConfigByID(GetBasketConfigByIDRequest) returns (BasketConfig) {
+    option (google.api.http) = {
+      get: "/v1/pie-program/basket-config/{basket_id}"
+    };
+    option (google.api.method_signature) = "basket_id";
+  }
+
+  rpc GetBasket(GetBasketRequest) returns (Basket) {
+    option (google.api.http) = {
+      get: "/v1/pie-program/baskets/{mint}"
+    };
+    option (google.api.method_signature) = "mint";
+  }
+
+  // Get Basket Vault
+  rpc GetBasketVault(GetBasketVaultRequest) returns (GetBasketVaultResponse) {
+    option (google.api.http) = {
+      get: "/v1/pie-program/baskets-vault/{mint}"
+    };
+  }
+
+  // Batch Create Token Pools
+  rpc BatchCreateTokenPools(BatchCreateTokenPoolsRequest) returns (BatchCreateTokenPoolsResponse) {
+    option (google.api.http) = {
+      post: "/v1/pie-program/token-pools/batchCreate"
+      body: "*"
+    };
+    option (google.api.method_signature) = "token_pools";
+  }
+
+  // Build Rebalance Trasaction
+  rpc BuildRebalanceTx(BuildRebalanceTxRequest) returns (SerializedTxBundle) {
+    option (google.api.http) = {
+      post: "/v1/pie-program/build-tx/execute-rebalance-basket"
+      body: "*"
+    };
+  }
+
+  // Build Mint Transaction
+  rpc BuildMintTx(BuildMintTxRequest) returns (SerializedTxBundle) {
+    option (google.api.http) = {
+      post: "/v1/pie-program/build-tx/mint-basket"
+      body: "*"
+    };
+  }
+
+  // Build Redeem Transaction
+  rpc BuildRedeemTx(BuildRedeemTxRequest) returns (SerializedTxBundle) {
+    option (google.api.http) = {
+      post: "/v1/pie-program/build-tx/redeem-basket"
+      body: "*"
+    };
+  }
+
+  // Send Create Basket Transaction to Solana
+  rpc CommandCreateBasket(Basket) returns (Basket) {
+    option (google.api.http) = {
+      post: "/v1/pie-program/command/create-basket"
+      body: "*"
+    };
+  }
+
+  rpc CommandStartRebalanceBasket(Basket) returns (TxResponse) {
+    option (google.api.http) = {
+      post: "/v1/pie-program/command/start-rebalance-basket"
+      body: "*"
+    };
+  }
+
+  rpc CommandStopRebalanceBasket(Basket) returns (TxResponse) {
+    option (google.api.http) = {
+      post: "/v1/pie-program/command/stop-rebalance-basket"
+      body: "*"
+    };
+  }
+}
+
+
+message GetBasketVaultRequest {
+  string mint = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message GetBasketVaultResponse {
+  repeated BasketVaultElement vault = 1;
+}
+
+message BasketVaultElement {
+  string mint = 1;
+  uint64 balance = 2;
+}
+
+message RebalanceAction {
+  string input_mint = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  string output_mint = 2 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  BaseType base_type = 3 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Raw amount of the mint that `base_type` references.
+  // BASE_IN: amount of `input_mint`
+  // BASE_OUT: amount of `output_mint`
+  string amount = 4 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // Threshold for the other amount
+  // BASE_IN: Minimum amount of `output_mint` token to be received
+  // BASE_OUT: Maximum amount of `input_mint` token to be spent
+  optional string other_amount_threshold = 5;
+}
+
+message SerializedTxBundle {
+  repeated string serialized_txs = 1;
+}
+
+message BuildRebalanceTxRequest {
+  string basket_mint = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  double slippage_percentage = 2 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  repeated RebalanceAction actions = 3 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message BuySwapData {
+  string mint = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+  string amount_in = 2 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+  string max_amount_in = 3 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+  string amount_out = 4 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message BuildMintTxRequest {
+  string basket_mint = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  string mint_amount = 2 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  string input_amount = 3 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  string owner_address = 4 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  repeated BuySwapData buy_swap_data = 5 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // percentage
+  // If null, value is set to 10(%)
+  optional uint64 max_slippage = 6;
+}
+
+message BuildRedeemTxRequest {
+  string basket_mint = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  string amount = 2 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  string owner_address = 3 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  // percentage
+  // If null, value is set to 10(%)
+  optional uint64 max_slippage = 4;
+}
+
+message GetBasketConfigByIDRequest {
+  string basket_id = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message GetBasketMintByIDRequest {
+  string basket_id = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message GetBasketMintByIDResponse {
+  string mint = 1;
+}
+
+message CommandCreateBasketRequest {
+}
+
+message GetBasketRequest {
+  string mint = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message BatchCreateTokenPoolsRequest {
+  repeated TokenPool token_pools = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message BatchCreateTokenPoolsResponse {
+  repeated TokenPool token_pools = 1;
+}
+
+message TxResponse {
+  string tx = 1;
+}
+
+//
+
+message Basket {
+  string mint = 1;
+
+  uint64 basket_id = 2;
+
+  string name = 3 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  string symbol = 4 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  string uri = 5 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  repeated BasketComponent components = 6 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message TokenPool {
+  string mint = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  PoolType pool_type = 2 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  string pool_id = 3 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+
+  string lookup_table = 4;
+}
+
+enum PoolType {
+  POOL_TYPE_UNSPECIFIED = 0;
+  AMM = 1;
+  CLMM = 2;
+  CPMM = 3;
+}
+
+enum BaseType {
+  BASE_TYPE_UNSPECIFIED = 0;
+  BASE_IN = 1;
+  BASE_OUT = 2;
+}
+
+message ProgramState {
+  uint32 bump = 1;
+  string admin = 2;
+  string platform_fee_wallet = 3;
+  string basket_counter = 4;
+  string rebalance_margin_lamports = 5;
+  string creator_fee_percentage = 6;
+  string platform_fee_percentage = 7;
+  bool enable_creator = 8;
+  bool is_initialized = 9;
+}
+
+message BasketConfig {
+  uint32 bump = 1;
+  uint64 id = 2;
+  string creator = 3;
+  string rebalancer = 4;
+  string mint = 5;
+  bool is_rebalancing = 6;
+  repeated BasketComponent components = 7;
+}
+
+message BasketComponent {
+  string mint = 1;
+  // In system raw amount
+  uint64 quantity = 2;  // quantityInSysDecimal. quantity * 10^6
+}
