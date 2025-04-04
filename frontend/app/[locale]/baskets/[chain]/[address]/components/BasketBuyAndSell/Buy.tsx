@@ -93,6 +93,7 @@ import solana from '@wormhole-foundation/sdk/solana'
 import { MayanRouteSWIFT } from '@mayanfinance/wormhole-sdk-route'
 import { PrivyEvmSigner } from '@/libs/privy/PrivyEvmSigner'
 import { PrivySvmSigner } from '@/libs/privy/PrivySvmSigner'
+import { getQueryClient } from '@/providers/QueryClientProvider/getQueryClient'
 
 type BuyProps = {
   chain: ChainType
@@ -117,6 +118,7 @@ export function Buy({ chain, address }: Readonly<BuyProps>) {
   const { pollUntilChange } = usePolling()
   const extraFeeInLamports = '17500000'
   const { sendTransaction } = useSendTransaction()
+  const queryClient = getQueryClient()
 
   const pieProgram = useMemo(() => {
     return new PieProgram(
@@ -444,6 +446,10 @@ export function Buy({ chain, address }: Readonly<BuyProps>) {
           throw CommonFrontError.notFound({ entity: 'svmWallet' })
         }
 
+        if (!evmWallet) {
+          throw CommonFrontError.notFound({ entity: 'evmWallet' })
+        }
+
         let swapAmount = ''
 
         if (
@@ -610,6 +616,18 @@ export function Buy({ chain, address }: Readonly<BuyProps>) {
           })
 
           pollUntilChange({
+            queryKey: queryKeys.solana.getBalanceQuery({
+              address: svmWallet.address,
+            }).queryKey,
+          })
+
+          queryClient.invalidateQueries({
+            queryKey: queryKeys.proxy.getBalancesEVMQuery({
+              address: evmWallet.address,
+            }).queryKey,
+          })
+
+          queryClient.invalidateQueries({
             queryKey: queryKeys.solana.getBalanceQuery({
               address: svmWallet.address,
             }).queryKey,
