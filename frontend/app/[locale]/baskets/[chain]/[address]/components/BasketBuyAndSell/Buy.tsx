@@ -25,7 +25,11 @@ import {
   ChainType,
   Currency,
 } from '@/app/api/protobuf/typescript_only_types/pie-dot-fun/v1/common'
-import { useSolanaWallets } from '@privy-io/react-auth'
+import {
+  useSendTransaction,
+  useSolanaWallets,
+  useWallets,
+} from '@privy-io/react-auth'
 import { PrivyLoginButton } from '@/app/components/PrivyLoginButton/PrivyLoginButton'
 import { Slippage } from '@/app/[locale]/baskets/[chain]/[address]/components/BasketBuyAndSell/Slippage'
 import { CurrencyWithQuantity } from '@/components/CurrencyWithQuantity/CurrencyWithQuantity'
@@ -83,6 +87,12 @@ import { Currency as CurrencyPrimitive } from '@/components/Currency/Currency'
 import { getBalancesEVMQuery } from '@/app/api/backend/proxy/queries'
 import { getLamportsToSol } from '@/libs/solana-web3/getLamportsToSol'
 import { ChainAndTokenType } from '@/types/blockChain'
+import { Wormhole, wormhole, routes } from '@wormhole-foundation/sdk'
+import evm from '@wormhole-foundation/sdk/evm'
+import solana from '@wormhole-foundation/sdk/solana'
+import { MayanRouteSWIFT } from '@mayanfinance/wormhole-sdk-route'
+import { PrivyEvmSigner } from '@/libs/privy/PrivyEvmSigner'
+import { PrivySvmSigner } from '@/libs/privy/PrivySvmSigner'
 
 type BuyProps = {
   chain: ChainType
@@ -94,10 +104,11 @@ export function Buy({ chain, address }: Readonly<BuyProps>) {
   const { toast } = useToast()
   const searchParams = useSearchParams()
   const { connection, cluster } = useSolana()
-  const { isAuthenticated, wallet } = useUser({ vmType: 'SVM' })
+  const { isAuthenticated, wallet: svmWallet } = useUser({ vmType: 'SVM' })
   const { wallet: evmWallet } = useUser({ vmType: 'EVM' })
   const form = useFormContext<BuyAndSellSchema>()
-  const { wallets } = useSolanaWallets()
+  const { wallets: svmWallets } = useSolanaWallets()
+  const { wallets: evmWallets } = useWallets()
   const { buyAmount, slippage, buyMethod } = useWatch({ control: form.control })
   const [isLoading, startLoading] = useTransition()
   const [step, setStep] =
@@ -105,6 +116,7 @@ export function Buy({ chain, address }: Readonly<BuyProps>) {
   const bufferPct = searchParams.get('bufferPct')
   const { pollUntilChange } = usePolling()
   const extraFeeInLamports = '17500000'
+  const { sendTransaction } = useSendTransaction()
 
   const pieProgram = useMemo(() => {
     return new PieProgram(
@@ -120,7 +132,12 @@ export function Buy({ chain, address }: Readonly<BuyProps>) {
   }, [pieProgram])
 
   const { wallet: privySvmEmbeddedWallet } = usePrivyWallet({
-    wallets,
+    wallets: svmWallets,
+    type: 'embedded',
+  })
+
+  const { wallet: privyEvmEmbeddedWallet } = usePrivyWallet({
+    wallets: evmWallets,
     type: 'embedded',
   })
 
@@ -158,16 +175,16 @@ export function Buy({ chain, address }: Readonly<BuyProps>) {
     ? new PublicKey(basketToken.address)
     : undefined
 
-  const walletPublicKey = wallet?.address
-    ? new PublicKey(wallet.address)
+  const walletPublicKey = svmWallet?.address
+    ? new PublicKey(svmWallet.address)
     : undefined
 
   const { data: balanceInLamports } = useQuery({
     ...getBalanceQuery({
       connection,
-      address: wallet?.address!,
+      address: svmWallet?.address!,
     }),
-    enabled: !!wallet?.address,
+    enabled: !!svmWallet?.address,
   })
 
   const { data: balancesEVM } = useQuery({
@@ -246,6 +263,114 @@ export function Buy({ chain, address }: Readonly<BuyProps>) {
 
   const isValidBuyAmount = new BigNumber(buyAmount ?? 0).isGreaterThan(0)
 
+  const swap = async () => {
+    if (!buyMethod?.address) {
+      throw CommonFrontError.notFound({ entity: 'buyMethodAddress' })
+    }
+
+    if (!evmWallet?.address) {
+      throw CommonFrontError.notFound({ entity: 'evmWallet' })
+    }
+
+    if (!svmWallet?.address) {
+      throw CommonFrontError.notFound({ entity: 'svmWallet' })
+    }
+
+    if (!privyEvmEmbeddedWallet) {
+      throw CommonFrontError.notFound({ entity: 'privyEvmEmbeddedWallet' })
+    }
+
+    if (!privySvmEmbeddedWallet) {
+      throw CommonFrontError.notFound({ entity: 'privySvmEmbeddedWallet' })
+    }
+
+    if (!buyAmount) {
+      throw CommonFrontError.notFound({ entity: 'buyAmount' })
+    }
+
+    const chains = {
+      BASE: 'Base',
+      BASE_SEPOLIA: 'BaseSepolia',
+      CHAIN_UNSPECIFIED: 'Solana',
+      ETHEREUM: 'Ethereum',
+      ETHEREUM_SEPOLIA: 'Sepolia',
+      SOLANA: 'Solana',
+      SOLANA_DEVNET: 'Solana',
+      SOLANA_TESTNET: 'Solana',
+    } satisfies Record<ChainType, FirstParameter<typeof wh.getChain>>
+
+    const wh = await wormhole(
+      process.env.NEXT_PUBLIC_IS_USE_TESTNET === 'true' ? 'Testnet' : 'Mainnet',
+      [evm, solana],
+    )
+
+    const buyMethodChain = chains[buyMethod.chain as ChainType]
+    const resolver = wh.resolver([MayanRouteSWIFT])
+    const privyEvmSigner = new PrivyEvmSigner(
+      evmWallet.address,
+      buyMethodChain,
+      sendTransaction,
+    )
+    const privySvmSigner = new PrivySvmSigner(
+      svmWallet.address,
+      'Solana',
+      privySvmEmbeddedWallet,
+      connection,
+    )
+    const sendChain = wh.getChain(buyMethodChain)
+    const receiveChain = wh.getChain('Solana')
+
+    const source = Wormhole.tokenId(
+      sendChain.chain,
+      buyMethod?.type === 'native' ? 'native' : buyMethod?.address,
+    )
+
+    const destination = Wormhole.tokenId(receiveChain.chain, 'native')
+
+    const transferRequest = await routes.RouteTransferRequest.create(wh, {
+      source,
+      destination,
+    })
+
+    const [bestRoute] = await resolver.findRoutes(transferRequest)
+
+    const validated = await bestRoute.validate(transferRequest, {
+      amount: buyAmount,
+      options: bestRoute.getDefaultOptions(),
+    })
+
+    if (!validated.valid) {
+      console.error(validated.error)
+
+      return
+    }
+
+    const quote = await bestRoute.quote(transferRequest, validated.params)
+
+    if (!quote.success) {
+      console.error(`Error fetching a quote: ${quote.error.message}`)
+
+      return
+    }
+
+    const receipt = await bestRoute.initiate(
+      transferRequest,
+      privyEvmSigner,
+      quote,
+      Wormhole.chainAddress(destination.chain, svmWallet.address),
+    )
+
+    const transferReceipt = await routes.checkAndCompleteTransfer(
+      bestRoute,
+      receipt,
+      privySvmSigner,
+      15 * 60 * 1000,
+    )
+
+    // @ts-expect-error TODO @ted get amount from receipt
+    return transferReceipt.txstatus.refundAmount as string
+  }
+
   const jitoSimulateBundle = async ({
     signedTransactions,
     encodedTransactions,
@@ -315,11 +440,22 @@ export function Buy({ chain, address }: Readonly<BuyProps>) {
           throw CommonFrontError.notFound({ entity: 'walletPublicKey' })
         }
 
-        if (!wallet) {
-          throw CommonFrontError.notFound({ entity: 'wallet' })
+        if (!svmWallet) {
+          throw CommonFrontError.notFound({ entity: 'svmWallet' })
         }
 
-        const userInputInLamports = new BigNumber(buyAmount)
+        let swapAmount = ''
+
+        if (
+          !(
+            buyMethod?.chain === ChainType.SOLANA &&
+            buyMethod?.type === 'native'
+          )
+        ) {
+          swapAmount = (await swap()) ?? ''
+        }
+
+        const userInputInLamports = new BigNumber(swapAmount || buyAmount)
           .multipliedBy(LAMPORTS_PER_SOL)
           .toString()
 
@@ -475,7 +611,7 @@ export function Buy({ chain, address }: Readonly<BuyProps>) {
 
           pollUntilChange({
             queryKey: queryKeys.solana.getBalanceQuery({
-              address: wallet.address,
+              address: svmWallet.address,
             }).queryKey,
           })
         }
