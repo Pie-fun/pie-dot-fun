@@ -408,7 +408,7 @@ export function Sell({ chain, address }: Readonly<SellProps>) {
                       <Box orientation='vertical' gap='xxs'>
                         <TokenAvatar
                           shape='square'
-                          size='xs'
+                          size='m'
                           alt={basketToken.displayName}
                           src={basketToken.iconImageUri}
                         />

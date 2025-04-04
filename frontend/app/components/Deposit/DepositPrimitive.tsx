@@ -558,8 +558,8 @@ function QRCodeEVMCard() {
                     <CurrencyWithQuantity
                       currencyType='fiat'
                       value={
-                        ethereumBalance?.value
-                          ? formatEther(ethereumBalance.value)
+                        baseEthereumBalance?.value
+                          ? formatEther(baseEthereumBalance.value)
                           : 0
                       }
                       size='s'
