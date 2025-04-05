@@ -693,7 +693,7 @@ export function Sell({ chain, address }: Readonly<SellProps>) {
 
                     field.onChange({ chain, type, address })
                   }}
-                  defaultValue={`${chain}/native/${WRAPPED_NATIVE_TOKEN_ADDRESSES[chain]}`}
+                  defaultValue={`${sellMethod?.chain}/${sellMethod?.type}/${sellMethod?.address}`}
                 >
                   <Form.Control>
                     <Select.Trigger

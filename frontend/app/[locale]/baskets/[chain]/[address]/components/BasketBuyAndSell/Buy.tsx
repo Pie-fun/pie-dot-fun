@@ -736,7 +736,7 @@ export function Buy({ chain, address }: Readonly<BuyProps>) {
                     field.onChange({ chain, type, address })
                     form.setValue('buyAmount', '')
                   }}
-                  defaultValue={`${chain}/native/${WRAPPED_NATIVE_TOKEN_ADDRESSES[chain]}`}
+                  defaultValue={`${buyMethod?.chain}/${buyMethod?.type}/${buyMethod?.address}`}
                 >
                   <Form.Control>
                     <Select.Trigger
