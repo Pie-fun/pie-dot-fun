@@ -132,11 +132,11 @@ pub fn verify_query(
         response.responses.len()
     );
 
-    // 기본 토큰 잔액 초기화
+    // Initialize token balance
     let mut token_balance = TokenBalance::new();
     let mut valid_calldata_found = false;
 
-    // 요청에서 EthCallData 확인
+    // Check EthCallData in the request
     for req_idx in 0..response.request.requests.len() {
         let request = &response.request.requests[req_idx];
         match &request.query {
@@ -148,9 +148,9 @@ pub fn verify_query(
                     let to_addr = call.to;
                     let data = &call.data;
 
-                    // data가 충분한 길이인지 확인 (최소 4바이트 함수 시그니처 + 32바이트 파라미터)
+                    // Check if data is of sufficient length (minimum 4 bytes function signature + 32 bytes parameter)
                     if data.len() >= 36 {
-                        // balanceOf 함수 시그니처 확인 (0x70a08231)
+                        // Verify balanceOf function signature (0x70a08231)
                         if data[0] == BALANCE_OF_SIG[0] &&
                             data[1] == BALANCE_OF_SIG[1] &&
                             data[2] == BALANCE_OF_SIG[2] &&
@@ -170,13 +170,13 @@ pub fn verify_query(
         }
     }
 
-    // 유효한 balanceOf 호출이 없으면 오류 반환
+    // Return error if no valid balanceOf call is found
     if !valid_calldata_found {
         msg!("No valid balanceOf calldata found");
         return Err(PieError::FailedToParseResponse.into());
     }
 
-    // 응답에서 토큰 잔액 찾기
+    // Find token balance in the response
     let mut balance_found = false;
 
     for idx in 0..response.responses.len() {
@@ -195,7 +195,7 @@ pub fn verify_query(
                 for result_idx in 0..eth_response.results.len() {
                     let result = &eth_response.results[result_idx];
 
-                    // balanceOf 결과 처리
+                    // Process balanceOf result
                     if !result.is_empty() && result.len() == 32 {
                         token_balance = TokenBalance::from_bytes(result, token_balance.token_address);
                         balance_found = true;
