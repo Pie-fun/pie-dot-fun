@@ -29,11 +29,6 @@ pub fn initialize(
 ) -> Result<()> {
     let program_state = &mut ctx.accounts.program_state;
 
-    require!(
-        ctx.accounts.initializer.key() == INITIALIZER,
-        PieError::Unauthorized
-    );
-
     if program_state.is_initialized {
         return Err(PieError::ProgramInitialized.into());
     }

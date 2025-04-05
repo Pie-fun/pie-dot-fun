@@ -139,6 +139,14 @@ pub mod pie {
         Ok(())
     }
 
+    pub fn mint_multichain_basket_token(
+        ctx: Context<MintMultichainBasketTokenContext>,
+        amount: u64,
+    ) -> Result<()> {
+        instructions::mint_multichain_basket_token(ctx, amount)?;
+        Ok(())
+    }
+
     pub fn redeem_basket_token(ctx: Context<RedeemBasketTokenContext>, amount: u64) -> Result<()> {
         instructions::redeem_basket_token(ctx, amount)?;
         Ok(())
@@ -182,6 +190,11 @@ pub mod pie {
         Ok(())
     }
 
+    pub fn deposit_component(ctx: Context<DepositComponent>, amount: u64) -> Result<()> {
+        instructions::deposit_component(ctx, amount)?;
+        Ok(())
+    }
+
     pub fn sell_component(
         ctx: Context<SellComponentContext>,
         amount_in: u64,
@@ -217,6 +230,11 @@ pub mod pie {
 
     pub fn withdraw_wsol(ctx: Context<WithdrawWsol>, amount: u64) -> Result<()> {
         instructions::withdraw_wsol(ctx, amount)?;
+        Ok(())
+    }
+
+    pub fn withdraw_component(ctx: Context<WithdrawComponent>, amount: u64) -> Result<()> {
+        instructions::withdraw_component(ctx, amount)?;
         Ok(())
     }
 }

@@ -691,45 +691,52 @@ export class PieProgram {
     amount: string;
     mint: PublicKey;
   }): Promise<Transaction> {
-    const basketConfig = this.basketConfigPDA({ basketId });
-    const tx = new Transaction();
+    try {
+      const basketConfig = this.basketConfigPDA({ basketId });
+      const tx = new Transaction();
 
-    const { tokenAccount: userTokenAccount } = await getOrCreateTokenAccountTx(
-      this.connection,
-      mint,
-      user,
-      user
-    );
+      const { tokenAccount: userTokenAccount, tx: userTokenTx } =
+        await getOrCreateTokenAccountTx(this.connection, mint, user, user);
 
-    const { tokenAccount: outputTokenAccount, tx: outputTx } =
-      await getOrCreateTokenAccountTx(
-        this.connection,
-        mint,
-        user,
-        basketConfig
-      );
+      if (isValidTransaction(userTokenTx)) {
+        tx.add(userTokenTx);
+      }
 
-    if (isValidTransaction(outputTx)) {
-      tx.add(outputTx);
+      const { tokenAccount: outputTokenAccount, tx: outputTx } =
+        await getOrCreateTokenAccountTx(
+          this.connection,
+          mint,
+          user,
+          basketConfig
+        );
+
+      if (isValidTransaction(outputTx)) {
+        tx.add(outputTx);
+      }
+
+      const depositComponentTx = await this.program.methods
+        .depositComponent(new BN(amount))
+        .accountsPartial({
+          user,
+          programState: this.programStatePDA,
+          userFund: this.userFundPDA({ user, basketId }),
+          basketConfig: basketConfig,
+          userTokenAccount,
+          vaultTokenAccount: outputTokenAccount,
+          platformFeeTokenAccount: await this.getPlatformFeeTokenAccount(),
+          creatorTokenAccount: await this.getCreatorFeeTokenAccount({
+            basketId,
+          }),
+        })
+        .transaction();
+
+      tx.add(depositComponentTx);
+
+      return tx;
+    } catch (error) {
+      console.log(error);
+      throw error;
     }
-
-    const depositComponentTx = await this.program.methods
-      .depositComponent(new BN(amount))
-      .accountsPartial({
-        user,
-        programState: this.programStatePDA,
-        userFund: this.userFundPDA({ user, basketId }),
-        basketConfig: basketConfig,
-        userTokenAccount,
-        vaultTokenAccount: outputTokenAccount,
-        platformFeeTokenAccount: await this.getPlatformFeeTokenAccount(),
-        creatorTokenAccount: await this.getCreatorFeeTokenAccount({ basketId }),
-      })
-      .transaction();
-
-    tx.add(depositComponentTx);
-
-    return tx;
   }
 
   /**
@@ -1526,6 +1533,45 @@ export class PieProgram {
     return tx;
   }
 
+  /**
+   * Mints a multichain basket token.
+   * @param user - The user account.
+   * @param basketId - The basket ID.
+   * @param amount - The amount.
+   * @returns A promise that resolves to a transaction.
+   */
+  async mintMultichainBasketToken({
+    user,
+    basketId,
+    amount,
+  }: {
+    user: PublicKey;
+    basketId: BN;
+    amount: string;
+  }): Promise<Transaction> {
+    const tx = new Transaction();
+    const basketMint = this.basketMintPDA({ basketId });
+    const basketConfig = this.basketConfigPDA({ basketId });
+    const userFund = this.userFundPDA({ user, basketId });
+    const { tokenAccount: userBasketTokenAccount, tx: userBasketTokenTx } =
+      await getOrCreateTokenAccountTx(this.connection, basketMint, user, user);
+    if (isValidTransaction(userBasketTokenTx)) {
+      tx.add(userBasketTokenTx);
+    }
+    const mintBasketTokenTx = await this.program.methods
+      .mintMultichainBasketToken(new BN(amount))
+      .accountsPartial({
+        user,
+        programState: this.programStatePDA,
+        basketConfig,
+        userFund,
+        basketMint,
+        userBasketTokenAccount,
+      })
+      .transaction();
+    tx.add(mintBasketTokenTx);
+    return tx;
+  }
   /**
    * Redeems a basket token.
    * @param user - The user account.
