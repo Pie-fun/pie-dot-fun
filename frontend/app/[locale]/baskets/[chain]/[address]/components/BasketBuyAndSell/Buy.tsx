@@ -25,11 +25,7 @@ import {
   ChainType,
   Currency,
 } from '@/app/api/protobuf/typescript_only_types/pie-dot-fun/v1/common'
-import {
-  useSendTransaction,
-  useSolanaWallets,
-  useWallets,
-} from '@privy-io/react-auth'
+import { useSendTransaction, useSolanaWallets } from '@privy-io/react-auth'
 import { PrivyLoginButton } from '@/app/components/PrivyLoginButton/PrivyLoginButton'
 import { Slippage } from '@/app/[locale]/baskets/[chain]/[address]/components/BasketBuyAndSell/Slippage'
 import { CurrencyWithQuantity } from '@/components/CurrencyWithQuantity/CurrencyWithQuantity'
@@ -109,7 +105,6 @@ export function Buy({ chain, address }: Readonly<BuyProps>) {
   const { wallet: evmWallet } = useUser({ vmType: 'EVM' })
   const form = useFormContext<BuyAndSellSchema>()
   const { wallets: svmWallets } = useSolanaWallets()
-  const { wallets: evmWallets } = useWallets()
   const { buyAmount, slippage, buyMethod } = useWatch({ control: form.control })
   const [isLoading, startLoading] = useTransition()
   const [step, setStep] =
@@ -135,11 +130,6 @@ export function Buy({ chain, address }: Readonly<BuyProps>) {
 
   const { wallet: privySvmEmbeddedWallet } = usePrivyWallet({
     wallets: svmWallets,
-    type: 'embedded',
-  })
-
-  const { wallet: privyEvmEmbeddedWallet } = usePrivyWallet({
-    wallets: evmWallets,
     type: 'embedded',
   })
 
@@ -278,10 +268,6 @@ export function Buy({ chain, address }: Readonly<BuyProps>) {
       throw CommonFrontError.notFound({ entity: 'svmWallet' })
     }
 
-    if (!privyEvmEmbeddedWallet) {
-      throw CommonFrontError.notFound({ entity: 'privyEvmEmbeddedWallet' })
-    }
-
     if (!privySvmEmbeddedWallet) {
       throw CommonFrontError.notFound({ entity: 'privySvmEmbeddedWallet' })
     }
@@ -308,17 +294,20 @@ export function Buy({ chain, address }: Readonly<BuyProps>) {
 
     const buyMethodChain = chains[buyMethod.chain as ChainType]
     const resolver = wh.resolver([MayanRouteSWIFT])
+
     const privyEvmSigner = new PrivyEvmSigner(
       evmWallet.address,
       buyMethodChain,
       sendTransaction,
     )
+
     const privySvmSigner = new PrivySvmSigner(
       svmWallet.address,
       'Solana',
       privySvmEmbeddedWallet,
       connection,
     )
+
     const sendChain = wh.getChain(buyMethodChain)
     const receiveChain = wh.getChain('Solana')
 
@@ -419,7 +408,6 @@ export function Buy({ chain, address }: Readonly<BuyProps>) {
   }
 
   const buy = () => {
-    // TODO @ted svm evm branch
     startLoading(async () => {
       try {
         if (!privySvmEmbeddedWallet) {

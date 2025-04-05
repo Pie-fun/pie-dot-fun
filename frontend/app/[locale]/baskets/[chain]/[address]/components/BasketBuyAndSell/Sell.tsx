@@ -7,7 +7,7 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { Input } from '@/components/Input/Input'
 import { Button } from '@/components/Button/Button'
 import { Typography } from '@/components/Typography/Typography'
-import { useSolanaWallets } from '@privy-io/react-auth'
+import { useSendTransaction, useSolanaWallets } from '@privy-io/react-auth'
 import { PrivyLoginButton } from '@/app/components/PrivyLoginButton/PrivyLoginButton'
 import { Slippage } from '@/app/[locale]/baskets/[chain]/[address]/components/BasketBuyAndSell/Slippage'
 import { TokenAvatar } from '@/components/TokenAvatar/TokenAvatar'
@@ -23,7 +23,7 @@ import { usePrivyWallet } from '@/libs/privy/usePrivyWallet'
 import { getUnFormattedNumber } from '@/utils/getUnFormattedNumber'
 import { BuyAndSellSchema } from '@/app/[locale]/baskets/[chain]/[address]/useBuyAndSellSchema'
 import { SetBasketTokenAmountToSellButtons } from '@/app/[locale]/baskets/[chain]/[address]/components/BasketBuyAndSell/SetBasketTokenAmountToSellButtons'
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { getBasketTokenMarketQuery } from '@/app/api/backend/v1/basketTokenMarket/queries'
 import { getBasketTokenQuery } from '@/app/api/backend/v1/basketToken/queries'
 import BigNumber from 'bignumber.js'
@@ -43,7 +43,11 @@ import {
   useState,
   useTransition,
 } from 'react'
-import { DECIMALS, SLIPPAGE_PERCENTAGE } from '@/constants/blockChains'
+import {
+  DECIMALS,
+  SLIPPAGE_PERCENTAGE,
+  WRAPPED_NATIVE_TOKEN_ADDRESSES,
+} from '@/constants/blockChains'
 import { FirstParameter } from '@/types/utility'
 import { useSolana } from '@/hooks/useSolana'
 import { getHoldingResource } from '@/app/api/backend/v1/holding/resource'
@@ -51,7 +55,12 @@ import { sendGTMEvent } from '@/libs/next-third-parties/sendGTMEvent'
 import { TransactionStatus } from '@/app/[locale]/baskets/[chain]/[address]/components/BasketBuyAndSell/TransactionStatus'
 import { flushSync } from 'react-dom'
 import { Icon } from '@/components/Icon/Icon'
-import { IcLoadingCircleDashFill } from '@/components/Icon/Icons'
+import {
+  IcEthereumFixedColorFill,
+  IcLoadingCircleDashFill,
+  IcSolanaFixedColorFill,
+  IcTetherFixedColorFill,
+} from '@/components/Icon/Icons'
 import { RebalancingCard } from '@/app/[locale]/baskets/[chain]/[address]/components/BasketBuyAndSell/RebalancingCard'
 import { MevTooltip } from '@/app/[locale]/baskets/[chain]/[address]/components/BasketBuyAndSell/MevTooltip'
 import { CollateralizedTooltip } from '@/app/[locale]/baskets/[chain]/[address]/components/BasketBuyAndSell/CollateralizedTooltip'
@@ -59,6 +68,17 @@ import { SellContractError } from '@/utils/contractErrors'
 import { CommonFrontError, SellFrontError } from '@/utils/frontErrors'
 import { usePolling } from '@/hooks/usePolling'
 import { queryKeys } from '@/libs/react-query/queryKeys'
+import * as Select from '@/components/Select/Select'
+import { Currency as CurrencyPrimitive } from '@/components/Currency/Currency'
+import { getBalanceQuery } from '@/app/api/external/node/v1/solana/queries'
+import { getBalancesEVMQuery } from '@/app/api/backend/proxy/queries'
+import { getLamportsToSol } from '@/libs/solana-web3/getLamportsToSol'
+import { routes, Wormhole, wormhole } from '@wormhole-foundation/sdk'
+import evm from '@wormhole-foundation/sdk/evm'
+import solana from '@wormhole-foundation/sdk/solana'
+import { MayanRouteSWIFT } from '@mayanfinance/wormhole-sdk-route'
+import { PrivyEvmSigner } from '@/libs/privy/PrivyEvmSigner'
+import { PrivySvmSigner } from '@/libs/privy/PrivySvmSigner'
 
 type SellProps = {
   chain: ChainType
@@ -70,10 +90,14 @@ export function Sell({ chain, address }: Readonly<SellProps>) {
   const { connection, cluster } = useSolana()
   const { toast } = useToast()
   const { isAuthenticated } = useUser()
-  const { wallet } = useUser({ vmType: 'SVM' })
-  const { wallets } = useSolanaWallets()
+  const { wallet: svmWallet } = useUser({ vmType: 'SVM' })
+  const { wallet: evmWallet } = useUser({ vmType: 'EVM' })
+  const { wallets: svmWallets } = useSolanaWallets()
+  const { sendTransaction } = useSendTransaction()
   const form = useFormContext<BuyAndSellSchema>()
-  const { sellAmount, slippage } = useWatch({ control: form.control })
+  const { sellAmount, slippage, sellMethod } = useWatch({
+    control: form.control,
+  })
   const [isLoading, startLoading] = useTransition()
   const [step, setStep] =
     useState<ComponentProps<typeof TransactionStatus>['step']>('idle')
@@ -93,7 +117,7 @@ export function Sell({ chain, address }: Readonly<SellProps>) {
   }, [pieProgram])
 
   const { wallet: privySvmEmbeddedWallet } = usePrivyWallet({
-    wallets,
+    wallets: svmWallets,
     type: 'embedded',
   })
 
@@ -105,8 +129,8 @@ export function Sell({ chain, address }: Readonly<SellProps>) {
 
   const basketTokenPublicKey = new PublicKey(basketToken.address)
 
-  const walletPublicKey = wallet?.address
-    ? new PublicKey(wallet.address)
+  const svmWalletPublicKey = svmWallet?.address
+    ? new PublicKey(svmWallet.address)
     : undefined
 
   const { data: basketTokenMarket } = useSuspenseQuery({
@@ -119,6 +143,190 @@ export function Sell({ chain, address }: Readonly<SellProps>) {
   const price = new BigNumber(basketTokenMarket?.value?.formattedAmount ?? 0)
     .multipliedBy(getUnFormattedNumber({ value: sellAmount }) || 0)
     .toString()
+
+  const { data: balanceInLamports } = useQuery({
+    ...getBalanceQuery({
+      connection,
+      address: svmWallet?.address!,
+    }),
+    enabled: !!svmWallet?.address,
+  })
+
+  const { data: balancesEVM } = useQuery({
+    ...getBalancesEVMQuery({
+      address: evmWallet?.address!,
+    }),
+    enabled: !!evmWallet?.address,
+  })
+
+  const solanaNativeBalanceAmount = getLamportsToSol({
+    lamports: balanceInLamports || 0,
+  })
+
+  const ethereumNativeBalance = balancesEVM?.balances.find(
+    ({ address, chain }) => address === 'native' && chain === 'ethereum',
+  )
+
+  const ethereumNativeBalanceAmount = new BigNumber(
+    ethereumNativeBalance?.amount || '',
+  )
+    .dividedBy(
+      ethereumNativeBalance?.decimals
+        ? 10 ** ethereumNativeBalance?.decimals
+        : 1,
+    )
+    .toString()
+
+  const ethereumUsdtBalance = balancesEVM?.balances.find(
+    ({ address, chain }) =>
+      address === '0xdAC17F958D2ee523a2206206994597C13D831ec7' &&
+      chain === 'ethereum',
+  )
+
+  const ethereumUsdtBalanceAmount = new BigNumber(
+    ethereumUsdtBalance?.amount || '',
+  )
+    .dividedBy(
+      ethereumUsdtBalance?.decimals ? 10 ** ethereumUsdtBalance?.decimals : 1,
+    )
+    .toString()
+
+  const baseNativeBalance = balancesEVM?.balances.find(
+    ({ address, chain }) => address === 'native' && chain === 'base',
+  )
+
+  const baseNativeBalanceAmount = new BigNumber(baseNativeBalance?.amount || '')
+    .dividedBy(
+      baseNativeBalance?.decimals ? 10 ** baseNativeBalance?.decimals : 1,
+    )
+    .toString()
+
+  const baseUsdtBalance = balancesEVM?.balances.find(
+    ({ address, chain }) =>
+      address === '0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2' &&
+      chain === 'base',
+  )
+
+  const baseUsdtBalanceAmount = new BigNumber(baseUsdtBalance?.amount || '')
+    .dividedBy(baseUsdtBalance?.decimals ? 10 ** baseUsdtBalance?.decimals : 1)
+    .toString()
+
+  const swap = async () => {
+    if (!sellMethod?.address) {
+      throw CommonFrontError.notFound({ entity: 'sellMethodAddress' })
+    }
+
+    if (!evmWallet?.address) {
+      throw CommonFrontError.notFound({ entity: 'evmWallet' })
+    }
+
+    if (!svmWallet?.address) {
+      throw CommonFrontError.notFound({ entity: 'svmWallet' })
+    }
+
+    if (!privySvmEmbeddedWallet) {
+      throw CommonFrontError.notFound({ entity: 'privySvmEmbeddedWallet' })
+    }
+
+    if (!sellAmount) {
+      throw CommonFrontError.notFound({ entity: 'sellAmount' })
+    }
+
+    const chains = {
+      BASE: 'Base',
+      BASE_SEPOLIA: 'BaseSepolia',
+      CHAIN_UNSPECIFIED: 'Solana',
+      ETHEREUM: 'Ethereum',
+      ETHEREUM_SEPOLIA: 'Sepolia',
+      SOLANA: 'Solana',
+      SOLANA_DEVNET: 'Solana',
+      SOLANA_TESTNET: 'Solana',
+    } satisfies Record<ChainType, FirstParameter<typeof wh.getChain>>
+
+    const wh = await wormhole(
+      process.env.NEXT_PUBLIC_IS_USE_TESTNET === 'true' ? 'Testnet' : 'Mainnet',
+      [evm, solana],
+      {
+        chains: {
+          Solana: {
+            rpc: process.env.NEXT_PUBLIC_NODE_SOLANA_ENDPOINT,
+          },
+        },
+      },
+    )
+
+    const sellMethodChain = chains[sellMethod.chain as ChainType]
+    const resolver = wh.resolver([MayanRouteSWIFT])
+
+    const privyEvmSigner = new PrivyEvmSigner(
+      evmWallet.address,
+      sellMethodChain,
+      sendTransaction,
+    )
+
+    const privySvmSigner = new PrivySvmSigner(
+      svmWallet.address,
+      'Solana',
+      privySvmEmbeddedWallet,
+      connection,
+    )
+
+    const sendChain = wh.getChain('Solana')
+    const receiveChain = wh.getChain(sellMethodChain)
+
+    const source = Wormhole.tokenId(
+      sendChain.chain,
+      sellMethod?.type === 'native' ? 'native' : sellMethod?.address,
+    )
+
+    const destination = Wormhole.tokenId(
+      receiveChain.chain,
+      sellMethod.type === 'native' ? 'native' : sellMethod.address,
+    )
+
+    const transferRequest = await routes.RouteTransferRequest.create(wh, {
+      source,
+      destination,
+    })
+
+    const [bestRoute] = await resolver.findRoutes(transferRequest)
+
+    const validated = await bestRoute.validate(transferRequest, {
+      amount: sellAmount,
+      options: bestRoute.getDefaultOptions(),
+    })
+
+    if (!validated.valid) {
+      console.error(validated.error)
+
+      return
+    }
+
+    const quote = await bestRoute.quote(transferRequest, validated.params)
+
+    if (!quote.success) {
+      console.error(`Error fetching a quote: ${quote.error.message}`)
+
+      return
+    }
+
+    const receipt = await bestRoute.initiate(
+      transferRequest,
+      privySvmSigner,
+      quote,
+      Wormhole.chainAddress(destination.chain, evmWallet.address),
+    )
+
+    const transferReceipt = await routes.checkAndCompleteTransfer(
+      bestRoute,
+      receipt,
+      privyEvmSigner,
+      15 * 60 * 1000,
+    )
+
+    // @ts-expect-error TODO @ted get amount from receipt
+    return transferReceipt.txstatus.refundAmount as string
+  }
 
   const jitoSimulateBundle = async ({
     signedTransactions,
@@ -166,7 +374,6 @@ export function Sell({ chain, address }: Readonly<SellProps>) {
   }
 
   const sell = () => {
-    // TODO @ted svm evm branch
     startLoading(async () => {
       try {
         if (!privySvmEmbeddedWallet) {
@@ -181,12 +388,12 @@ export function Sell({ chain, address }: Readonly<SellProps>) {
           throw CommonFrontError.notFound({ entity: 'sellAmount' })
         }
 
-        if (!walletPublicKey) {
-          throw CommonFrontError.notFound({ entity: 'walletPublicKey' })
+        if (!svmWalletPublicKey) {
+          throw CommonFrontError.notFound({ entity: 'svmWalletPublicKey' })
         }
 
-        if (!wallet) {
-          throw CommonFrontError.notFound({ entity: 'wallet' })
+        if (!svmWallet) {
+          throw CommonFrontError.notFound({ entity: 'svmWallet' })
         }
 
         flushSync(() => setStep('creatingTransaction'))
@@ -273,6 +480,15 @@ export function Sell({ chain, address }: Readonly<SellProps>) {
         }
 
         if (bundleStatus === 'Landed') {
+          if (
+            !(
+              sellMethod?.chain === ChainType.SOLANA &&
+              sellMethod?.type === 'native'
+            )
+          ) {
+            await swap()
+          }
+
           form.setValue('sellAmount', '')
 
           toast({
@@ -285,13 +501,13 @@ export function Sell({ chain, address }: Readonly<SellProps>) {
           pollUntilChange({
             queryKey: queryKeys.pieProgram.getTokenBalanceQuery({
               mint: basketTokenPublicKey,
-              owner: walletPublicKey,
+              owner: svmWalletPublicKey,
             }).queryKey,
           })
 
           pollUntilChange({
             queryKey: queryKeys.solana.getBalanceQuery({
-              address: wallet.address,
+              address: svmWallet.address,
             }).queryKey,
           })
         }
@@ -379,10 +595,10 @@ export function Sell({ chain, address }: Readonly<SellProps>) {
                     </Typography>
                   </Form.Label>
                   <Box gap='xxs' align='center'>
-                    {walletPublicKey ? (
+                    {svmWalletPublicKey ? (
                       <BasketTokenBalance
                         mint={basketTokenPublicKey}
-                        owner={walletPublicKey}
+                        owner={svmWalletPublicKey}
                       />
                     ) : (
                       <Typography
@@ -442,11 +658,250 @@ export function Sell({ chain, address }: Readonly<SellProps>) {
             )
           }}
         />
+        <Form.Field
+          control={form.control}
+          name='sellMethod'
+          render={({ field }) => {
+            return (
+              <Form.Item>
+                <Form.Label>
+                  <Typography
+                    typography='body1'
+                    fontWeight='regular'
+                    color='primary'
+                  >
+                    {/* TODO @ted langpack */}
+                    Receive In
+                  </Typography>
+                </Form.Label>
+                <Select.Root
+                  onValueChange={(value) => {
+                    const [chain, type, address] = value.split('/')
+
+                    field.onChange({ chain, type, address })
+                  }}
+                  defaultValue={`${chain}/native/${WRAPPED_NATIVE_TOKEN_ADDRESSES[chain]}`}
+                >
+                  <Form.Control>
+                    <Select.Trigger
+                      layout='fillWidth'
+                      color='default'
+                      shape='square'
+                    >
+                      <Select.Value />
+                    </Select.Trigger>
+                  </Form.Control>
+                  <Select.Content layout='triggerWidth'>
+                    <Select.Group>
+                      <Select.Label>Solana</Select.Label>
+                      <Select.Item
+                        layout='fillWidth'
+                        value={`${ChainType.SOLANA}/native/${WRAPPED_NATIVE_TOKEN_ADDRESSES.SOLANA}`}
+                      >
+                        <CurrencyPrimitive chain={ChainType.SOLANA}>
+                          <Icon size='m' shape='circle'>
+                            <IcSolanaFixedColorFill />
+                          </Icon>
+                        </CurrencyPrimitive>
+                        <Box
+                          layout='fillWidth'
+                          orientation='horizontal'
+                          gap='s'
+                          align='spaceBetweenCenter'
+                        >
+                          <Typography
+                            typography='body1'
+                            fontWeight='regular'
+                            color='primary'
+                          >
+                            SOL
+                          </Typography>
+                          {!!solanaNativeBalanceAmount && (
+                            <Typography
+                              typography='caption2'
+                              fontWeight='regular'
+                              color='secondary'
+                            >
+                              <CurrencyWithQuantity
+                                currencyType='fiat'
+                                value={solanaNativeBalanceAmount}
+                                size='xs'
+                                fontWeight='regular'
+                              />
+                            </Typography>
+                          )}
+                        </Box>
+                      </Select.Item>
+                    </Select.Group>
+                    <Select.Group>
+                      <Select.Label>Ethereum</Select.Label>
+                      <Select.Item
+                        layout='fillWidth'
+                        value={`${ChainType.ETHEREUM}/native/${WRAPPED_NATIVE_TOKEN_ADDRESSES.ETHEREUM}`}
+                      >
+                        <CurrencyPrimitive chain={ChainType.ETHEREUM}>
+                          <Icon size='m' shape='circle'>
+                            <IcEthereumFixedColorFill />
+                          </Icon>
+                        </CurrencyPrimitive>
+                        <Box
+                          layout='fillWidth'
+                          orientation='horizontal'
+                          gap='s'
+                          align='spaceBetweenCenter'
+                        >
+                          <Typography
+                            typography='body1'
+                            fontWeight='regular'
+                            color='primary'
+                          >
+                            ETH
+                          </Typography>
+                          {!!ethereumNativeBalanceAmount && (
+                            <Typography
+                              typography='caption2'
+                              fontWeight='regular'
+                              color='secondary'
+                            >
+                              <CurrencyWithQuantity
+                                currencyType='fiat'
+                                value={ethereumNativeBalanceAmount}
+                                size='xs'
+                                fontWeight='regular'
+                              />
+                            </Typography>
+                          )}
+                        </Box>
+                      </Select.Item>
+                      <Select.Item
+                        layout='fillWidth'
+                        value={`${ChainType.ETHEREUM}/USDT/0xdAC17F958D2ee523a2206206994597C13D831ec7`}
+                      >
+                        <CurrencyPrimitive chain={ChainType.ETHEREUM}>
+                          <Icon size='m' shape='circle'>
+                            <IcTetherFixedColorFill />
+                          </Icon>
+                        </CurrencyPrimitive>
+                        <Box
+                          layout='fillWidth'
+                          orientation='horizontal'
+                          gap='s'
+                          align='spaceBetweenCenter'
+                        >
+                          <Typography
+                            typography='body1'
+                            fontWeight='regular'
+                            color='primary'
+                          >
+                            USDT
+                          </Typography>
+                          {!!ethereumUsdtBalanceAmount && (
+                            <Typography
+                              typography='caption2'
+                              fontWeight='regular'
+                              color='secondary'
+                            >
+                              <CurrencyWithQuantity
+                                currencyType='fiat'
+                                value={ethereumUsdtBalanceAmount}
+                                size='xs'
+                                fontWeight='regular'
+                              />
+                            </Typography>
+                          )}
+                        </Box>
+                      </Select.Item>
+                    </Select.Group>
+                    <Select.Group>
+                      <Select.Label>Base</Select.Label>
+                      <Select.Item
+                        layout='fillWidth'
+                        value={`${ChainType.BASE}/native/${WRAPPED_NATIVE_TOKEN_ADDRESSES.BASE}`}
+                      >
+                        <CurrencyPrimitive chain={ChainType.BASE}>
+                          <Icon size='m' shape='circle'>
+                            <IcEthereumFixedColorFill />
+                          </Icon>
+                        </CurrencyPrimitive>
+                        <Box
+                          layout='fillWidth'
+                          orientation='horizontal'
+                          gap='s'
+                          align='spaceBetweenCenter'
+                        >
+                          <Typography
+                            typography='body1'
+                            fontWeight='regular'
+                            color='primary'
+                          >
+                            ETH
+                          </Typography>
+                          {!!baseNativeBalanceAmount && (
+                            <Typography
+                              typography='caption2'
+                              fontWeight='regular'
+                              color='secondary'
+                            >
+                              <CurrencyWithQuantity
+                                currencyType='fiat'
+                                value={baseNativeBalanceAmount}
+                                size='xs'
+                                fontWeight='regular'
+                              />
+                            </Typography>
+                          )}
+                        </Box>
+                      </Select.Item>
+                      <Select.Item
+                        layout='fillWidth'
+                        value={`${ChainType.BASE}/USDT/0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2`}
+                      >
+                        <CurrencyPrimitive chain={ChainType.BASE}>
+                          <Icon size='m' shape='circle'>
+                            <IcTetherFixedColorFill />
+                          </Icon>
+                        </CurrencyPrimitive>
+                        <Box
+                          layout='fillWidth'
+                          orientation='horizontal'
+                          gap='s'
+                          align='spaceBetweenCenter'
+                        >
+                          <Typography
+                            typography='body1'
+                            fontWeight='regular'
+                            color='primary'
+                          >
+                            USDT
+                          </Typography>
+                          {!!baseUsdtBalanceAmount && (
+                            <Typography
+                              typography='caption2'
+                              fontWeight='regular'
+                              color='secondary'
+                            >
+                              <CurrencyWithQuantity
+                                currencyType='fiat'
+                                value={baseUsdtBalanceAmount}
+                                size='xs'
+                                fontWeight='regular'
+                              />
+                            </Typography>
+                          )}
+                        </Box>
+                      </Select.Item>
+                    </Select.Group>
+                  </Select.Content>
+                </Select.Root>
+              </Form.Item>
+            )
+          }}
+        />
         <Box layout='fillWidth' gap='s'>
-          {!!walletPublicKey && (
+          {!!svmWalletPublicKey && (
             <SetBasketTokenAmountToSellButtons
               mint={basketTokenPublicKey}
-              owner={walletPublicKey}
+              owner={svmWalletPublicKey}
             />
           )}
         </Box>

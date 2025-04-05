@@ -43,6 +43,11 @@ export function Form({
         type: 'native',
       },
       buyAmount: '',
+      sellMethod: {
+        chain,
+        address: WRAPPED_NATIVE_TOKEN_ADDRESSES[chain],
+        type: 'native',
+      },
       sellAmount: '',
       slippage: SLIPPAGE_PERCENTAGE.default,
       isShowSlippage: false,

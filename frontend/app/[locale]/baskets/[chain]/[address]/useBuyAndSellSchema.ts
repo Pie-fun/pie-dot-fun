@@ -39,6 +39,11 @@ export function useBuyAndSellSchema({
       type: z.string(),
     }),
     buyAmount: z.string(),
+    sellMethod: z.object({
+      chain: z.string(),
+      address: z.string(),
+      type: z.string(),
+    }),
     sellAmount: z.string().refine((value) => {
       if (data && value) {
         const isValid = new BigNumber(
