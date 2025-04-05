@@ -47,6 +47,7 @@ import { getBasketTokenResource } from '@/app/api/backend/v1/basketToken/resourc
 import { getBasketTokenMarket } from '@/app/api/backend/v1/basketTokenMarket/requests'
 import { getBasketTokenMarketResource } from '@/app/api/backend/v1/basketTokenMarket/resource'
 import {
+  BN,
   PieProgram,
   getOrCreateNativeMintATA,
   isValidTransaction,
@@ -92,7 +93,7 @@ import { Currency as CurrencyPrimitive } from '@/components/Currency/Currency'
 import { getBalancesEVMQuery } from '@/app/api/backend/proxy/queries'
 import { getLamportsToSol } from '@/libs/solana-web3/getLamportsToSol'
 import { ChainAndTokenType } from '@/types/blockChain'
-import { Wormhole, wormhole, routes } from '@wormhole-foundation/sdk'
+import { Wormhole, wormhole, routes, amount } from '@wormhole-foundation/sdk'
 import evm from '@wormhole-foundation/sdk/evm'
 import solana from '@wormhole-foundation/sdk/solana'
 import { MayanRouteSWIFT } from '@mayanfinance/wormhole-sdk-route'
@@ -417,9 +418,17 @@ export function Buy({ chain, address }: Readonly<BuyProps>) {
   }
 
   const buyMultichain = async () => {
+    if (!buyAmount) {
+      throw CommonFrontError.notFound({ entity: 'buyAmount' })
+    }
+
     if (!privySvmEmbeddedWallet) {
       throw CommonFrontError.notFound({ entity: 'privySvmEmbeddedWallet' })
     }
+
+    if (!basketToken) return
+
+    flushSync(() => setStep('creatingTransaction'))
 
     const tx = new Transaction()
 
@@ -435,7 +444,7 @@ export function Buy({ chain, address }: Readonly<BuyProps>) {
 
     const instructions = wrapSOLInstruction(
       walletPublicKey!,
-      0.017 * 5 * LAMPORTS_PER_SOL,
+      Number(buyAmount) * LAMPORTS_PER_SOL,
     )
 
     tx.add(...instructions)
@@ -460,6 +469,7 @@ export function Buy({ chain, address }: Readonly<BuyProps>) {
       fromAddress: walletPublicKey?.toBase58() ?? '',
       toAddress: baseAddress,
       baseTokens,
+      amount: Number(buyAmount) / 5,
     })
 
     const signedTransactions = await Promise.all(
@@ -493,8 +503,34 @@ export function Buy({ chain, address }: Readonly<BuyProps>) {
     )
 
     console.info({ bundleId })
-
     flushSync(() => setStep('waitingForConfirmation'))
+
+    const mintTx = await pieProgram.mintMultichainBasketToken({
+      basketId: new BN(19),
+      amount: new BigNumber(buyAmount).multipliedBy(10 ** 6).toString(),
+      user: walletPublicKey!,
+    })
+
+    mintTx.feePayer = walletPublicKey!
+
+    mintTx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash
+
+    const mintTxHash = await privySvmEmbeddedWallet.sendTransaction(
+      mintTx,
+      connection,
+    )
+
+    console.info({ mintTxHash })
+
+    toast({
+      title: t('basketBuy.toastMessge.success', {
+        amount: getFormattedNumber({
+          value: Number(buyAmount) * 10 ** 6,
+          decimalDivisor: 10 ** DECIMALS.BASKET_TOKEN,
+        }),
+        ticker: basketToken?.symbol,
+      }),
+    })
   }
 
   const buy = () => {
