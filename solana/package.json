@@ -28,11 +28,12 @@
     "rebuild-mainnet": "rm -rf target && mkdir -p target/deploy && cp -f .local/mainnet/pie-keypair.json target/deploy/pie-keypair.json && anchor keys sync && anchor build"
   },
   "dependencies": {
-    "@coral-xyz/anchor": "^0.30.1",
+    "@coral-xyz/anchor": "0.30.1",
     "@mayanfinance/swap-sdk": "^10.4.0",
     "@raydium-io/raydium-sdk-v2": "^0.1.99-alpha",
     "@solana/spl-token": "^0.4.9",
     "@solana/web3.js": "^1.95.5",
+    "@wormhole-foundation/wormhole-query-sdk": "^0.0.14",
     "axios": "^1.7.9",
     "bs58": "^6.0.0",
     "console-table-printer": "^2.12.1",

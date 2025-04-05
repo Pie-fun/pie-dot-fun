@@ -59,6 +59,33 @@ pub enum PieError {
     #[msg("Max whitelisted creators exceeded")]
     MaxWhitelistedCreatorsExceeded,
 
-    #[msg("Invalid token program")]
+    #[msg("Wormhole UseQuery Invalid token program")]
     InvalidTokenProgram,
+
+    #[msg("Wormhole UseQuery WriteAuthorityMismatch")]
+    WriteAuthorityMismatch,
+
+    #[msg("Wormhole UseQuery GuardianSetExpired")]
+    GuardianSetExpired,
+
+    #[msg("Wormhole UseQuery InvalidMessageHash")]
+    InvalidMessageHash,
+
+    #[msg("Wormhole UseQuery NoQuorum")]
+    NoQuorum,
+
+    #[msg("Wormhole UseQuery InvalidGuardianIndexNonIncreasing")]
+    InvalidGuardianIndexNonIncreasing,
+
+    #[msg("Wormhole UseQuery InvalidGuardianIndexOutOfRange")]
+    InvalidGuardianIndexOutOfRange,
+
+    #[msg("Wormhole UseQuery InvalidSignature")]
+    InvalidSignature,
+
+    #[msg("Wormhole UseQuery InvalidGuardianKeyRecovery")]
+    InvalidGuardianKeyRecovery,
+
+    #[msg("Wormhole UseQuery FailedToParseResponse")]
+    FailedToParseResponse,
 }

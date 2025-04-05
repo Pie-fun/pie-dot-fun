@@ -14,3 +14,7 @@ pub const NATIVE_MINT: Pubkey = pubkey!("So1111111111111111111111111111111111111
 pub const INITIALIZER: Pubkey = pubkey!("6tfUrp38Q5jRysrgLhNadxmrmXVKt7Rz5dC593x1wu1Q");
 
 pub const BASIS_POINTS: u64 = 10_000;
+
+pub const CORE_BRIDGE_PROGRAM_ID: Pubkey =
+pubkey!("worm2ZoG2kUd4vFXhvjh93UUH596ayRfgQ2MgjNMTth");
+    // wormhole_solana_consts::CORE_BRIDGE_PROGRAM_ID;

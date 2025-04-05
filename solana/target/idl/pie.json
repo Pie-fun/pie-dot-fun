@@ -2547,6 +2547,52 @@
       ]
     },
     {
+      "name": "post_signatures",
+      "discriminator": [
+        138,
+        2,
+        53,
+        166,
+        45,
+        77,
+        137,
+        51
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "guardian_signatures",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "guardian_signatures",
+          "type": {
+            "vec": {
+              "array": [
+                "u8",
+                66
+              ]
+            }
+          }
+        },
+        {
+          "name": "total_signatures",
+          "type": "u8"
+        }
+      ]
+    },
+    {
       "name": "redeem_basket_token",
       "discriminator": [
         207,
@@ -3826,6 +3872,116 @@
       ]
     },
     {
+      "name": "verify_query",
+      "discriminator": [
+        22,
+        200,
+        234,
+        80,
+        124,
+        240,
+        134,
+        83
+      ],
+      "accounts": [
+        {
+          "name": "guardian_set",
+          "docs": [
+            "Guardian set used for signature verification."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  71,
+                  117,
+                  97,
+                  114,
+                  100,
+                  105,
+                  97,
+                  110,
+                  83,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "guardian_set_index"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                14,
+                10,
+                88,
+                154,
+                65,
+                165,
+                95,
+                189,
+                102,
+                197,
+                42,
+                71,
+                95,
+                45,
+                146,
+                166,
+                211,
+                220,
+                155,
+                71,
+                71,
+                17,
+                76,
+                185,
+                175,
+                130,
+                90,
+                152,
+                181,
+                69,
+                211,
+                206
+              ]
+            }
+          }
+        },
+        {
+          "name": "guardian_signatures",
+          "docs": [
+            "Stores unverified guardian signatures as they are too large to fit in the instruction data."
+          ],
+          "writable": true
+        },
+        {
+          "name": "refund_recipient",
+          "relations": [
+            "guardian_signatures"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "bytes",
+          "type": "bytes"
+        },
+        {
+          "name": "guardian_set_index",
+          "type": "u32"
+        }
+      ],
+      "returns": {
+        "defined": {
+          "name": "TokenBalance"
+        }
+      }
+    },
+    {
       "name": "withdraw_component",
       "discriminator": [
         192,
@@ -4327,6 +4483,19 @@
       ]
     },
     {
+      "name": "GuardianSignatures",
+      "discriminator": [
+        203,
+        184,
+        130,
+        157,
+        113,
+        14,
+        184,
+        83
+      ]
+    },
+    {
       "name": "ObservationState",
       "discriminator": [
         122,
@@ -4376,6 +4545,19 @@
         65,
         176,
         30
+      ]
+    },
+    {
+      "name": "WormholeGuardianSet",
+      "discriminator": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
       ]
     }
   ],
@@ -4714,7 +4896,52 @@
     {
       "code": 6019,
       "name": "InvalidTokenProgram",
-      "msg": "Invalid token program"
+      "msg": "Wormhole UseQuery Invalid token program"
+    },
+    {
+      "code": 6020,
+      "name": "WriteAuthorityMismatch",
+      "msg": "Wormhole UseQuery WriteAuthorityMismatch"
+    },
+    {
+      "code": 6021,
+      "name": "GuardianSetExpired",
+      "msg": "Wormhole UseQuery GuardianSetExpired"
+    },
+    {
+      "code": 6022,
+      "name": "InvalidMessageHash",
+      "msg": "Wormhole UseQuery InvalidMessageHash"
+    },
+    {
+      "code": 6023,
+      "name": "NoQuorum",
+      "msg": "Wormhole UseQuery NoQuorum"
+    },
+    {
+      "code": 6024,
+      "name": "InvalidGuardianIndexNonIncreasing",
+      "msg": "Wormhole UseQuery InvalidGuardianIndexNonIncreasing"
+    },
+    {
+      "code": 6025,
+      "name": "InvalidGuardianIndexOutOfRange",
+      "msg": "Wormhole UseQuery InvalidGuardianIndexOutOfRange"
+    },
+    {
+      "code": 6026,
+      "name": "InvalidSignature",
+      "msg": "Wormhole UseQuery InvalidSignature"
+    },
+    {
+      "code": 6027,
+      "name": "InvalidGuardianKeyRecovery",
+      "msg": "Wormhole UseQuery InvalidGuardianKeyRecovery"
+    },
+    {
+      "code": 6028,
+      "name": "FailedToParseResponse",
+      "msg": "Wormhole UseQuery FailedToParseResponse"
     }
   ],
   "types": [
@@ -5046,6 +5273,37 @@
           {
             "name": "final_available_destination_balance",
             "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "GuardianSignatures",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "refund_recipient",
+            "docs": [
+              "Payer of this guardian signatures account.",
+              "Only they may amend signatures.",
+              "Used for reimbursements upon cleanup."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "guardian_signatures",
+            "docs": [
+              "Unverified guardian signatures."
+            ],
+            "type": {
+              "vec": {
+                "array": [
+                  "u8",
+                  66
+                ]
+              }
+            }
           }
         ]
       }
@@ -5469,6 +5727,32 @@
       }
     },
     {
+      "name": "TokenBalance",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "amount",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "token_address",
+            "type": {
+              "array": [
+                "u8",
+                20
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "TransferAdminEvent",
       "type": {
         "kind": "struct",
@@ -5654,6 +5938,49 @@
           {
             "name": "amount",
             "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "WormholeGuardianSet",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "index",
+            "docs": [
+              "Index representing an incrementing version number for this guardian set."
+            ],
+            "type": "u32"
+          },
+          {
+            "name": "keys",
+            "docs": [
+              "Ethereum-style public keys."
+            ],
+            "type": {
+              "vec": {
+                "array": [
+                  "u8",
+                  20
+                ]
+              }
+            }
+          },
+          {
+            "name": "creation_time",
+            "docs": [
+              "Timestamp representing the time this guardian became active."
+            ],
+            "type": "u32"
+          },
+          {
+            "name": "expiration_time",
+            "docs": [
+              "Expiration time when VAAs issued by this set are no longer valid."
+            ],
+            "type": "u32"
           }
         ]
       }

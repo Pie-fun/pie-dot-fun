@@ -7,6 +7,9 @@ pub use creator::*;
 pub mod rebalancer;
 pub use rebalancer::*;
 
+pub mod wormhole;
+pub use wormhole::*;
+
 pub mod buy_component;
 pub use buy_component::*;
 

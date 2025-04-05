@@ -1,3 +1,4 @@
+import * as anchor from "@coral-xyz/anchor";
 import {
   BN,
   BorshCoder,
@@ -107,6 +108,7 @@ export class PieProgram {
   raydium: Raydium;
   eventParser: EventParser;
   jito: Jito;
+  account: Keypair;
 
   constructor(
     public readonly connection: Connection,
@@ -121,6 +123,7 @@ export class PieProgram {
       new PublicKey(programId),
       new BorshCoder(PieIDL as Idl)
     );
+    this.account = anchor.web3.Keypair.generate();
   }
 
   async init() {
@@ -133,7 +136,16 @@ export class PieProgram {
   }
 
   get program() {
-    return new Program(this.idl as Idl, { connection: this.connection });
+    // return new Program(this.idl as Idl, { connection: this.connection });
+
+    // return new Program(this.idl as Idl,
+    //     new anchor.AnchorProvider(
+    //         anchor.getProvider().connection,
+    //         new anchor.Wallet(this.account),
+    //         {}
+    //     ));
+
+    return new Program(this.idl as Idl, anchor.AnchorProvider.env());
   }
 
   get accounts(): any {

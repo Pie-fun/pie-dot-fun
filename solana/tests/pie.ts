@@ -1,460 +1,567 @@
 import * as anchor from "@coral-xyz/anchor";
+import {Program} from "@coral-xyz/anchor";
 import {
-  Connection,
-  Keypair,
-  LAMPORTS_PER_SOL,
-  PublicKey,
-  sendAndConfirmTransaction,
+    Connection,
+    Keypair,
+    LAMPORTS_PER_SOL,
+    PublicKey,
+    sendAndConfirmTransaction,
 } from "@solana/web3.js";
 import devnetAdmin from "../public/devnet-admin.json";
-import { assert, expect } from "chai";
+import {assert, expect} from "chai";
 import {
-  createBasketComponents,
-  getOrCreateTokenAccountTx,
-  getTokenAccount,
-  mintTokenTo,
+    createBasketComponents,
+    getOrCreateTokenAccountTx,
+    getTokenAccount,
+    mintTokenTo,
 } from "../sdk/utils/helper";
-import { CreateBasketArgs, PieProgram } from "../sdk/pie-program";
-import { getMint, mintTo } from "@solana/spl-token";
-import { METADATA_PROGRAM_ID } from "@raydium-io/raydium-sdk-v2";
-import { BN } from "@coral-xyz/anchor";
+import {CreateBasketArgs, PieProgram} from "../sdk/pie-program";
+import {getMint, mintTo} from "@solana/spl-token";
+import {METADATA_PROGRAM_ID} from "@raydium-io/raydium-sdk-v2";
+import {BN} from "@coral-xyz/anchor";
+import {
+    QueryProxyMock,
+    signaturesToSolanaArray,
+} from "@wormhole-foundation/wormhole-query-sdk";
+import {deriveGuardianSetKey} from "./helpers/guardianSet";
+import {
+    extractTokenAddress,
+    extractTokenBalance,
+    getTransactionWithRetry
+} from "./helpers/transaction";
+import {getWormholeBridgeData} from "./helpers/config";
 
 function sleep(s: number) {
-  return new Promise((resolve) => setTimeout(resolve, s * 1000));
+    return new Promise((resolve) => setTimeout(resolve, s * 1000));
 }
 
 describe("pie", () => {
-  // Configure the client to use the local cluster.
-  const defaultProvider = anchor.AnchorProvider.env();
+    // Configure the client to use the local cluster.
+    const defaultProvider = anchor.AnchorProvider.env();
+    anchor.setProvider(defaultProvider);
 
-  const connection = new Connection("http://localhost:8899", "confirmed");
+    const connection = new Connection("http://localhost:8899", "confirmed");
 
-  const admin = Keypair.fromSecretKey(new Uint8Array(devnetAdmin));
-  const newAdmin = Keypair.generate();
-  const rebalancer = Keypair.generate();
-  const creator = Keypair.generate();
-  const newCreator = Keypair.generate();
-  const platformFeeWallet = Keypair.generate();
+    const admin = Keypair.fromSecretKey(new Uint8Array(devnetAdmin));
+    const newAdmin = Keypair.generate();
+    const rebalancer = Keypair.generate();
+    const creator = Keypair.generate();
+    const newCreator = Keypair.generate();
+    const platformFeeWallet = Keypair.generate();
+    const signaturesKeypair = anchor.web3.Keypair.generate();
 
-  const pieProgram = new PieProgram(connection, "devnet", "");
+    const pieProgram = new PieProgram(connection, "devnet", "");
 
-  it("is success deploy without admin change", async () => {
-    await Promise.all([
-      connection.requestAirdrop(admin.publicKey, LAMPORTS_PER_SOL),
-      connection.requestAirdrop(defaultProvider.publicKey, LAMPORTS_PER_SOL),
-      connection.requestAirdrop(newAdmin.publicKey, LAMPORTS_PER_SOL),
-      connection.requestAirdrop(rebalancer.publicKey, LAMPORTS_PER_SOL),
-      connection.requestAirdrop(platformFeeWallet.publicKey, LAMPORTS_PER_SOL),
-      connection.requestAirdrop(creator.publicKey, LAMPORTS_PER_SOL),
-      connection.requestAirdrop(newCreator.publicKey, LAMPORTS_PER_SOL),
-    ]);
-    await sleep(1);
-    let programState = await pieProgram.getProgramState();
-    const initTx = await pieProgram.initialize({
-      initializer: admin.publicKey,
-      admin: admin.publicKey,
-      creator: creator.publicKey,
-      platformFeeWallet: admin.publicKey,
-      platformFeePercentage: new BN(100),
-    });
+    const coreBridgeAddress = new anchor.web3.PublicKey(
+        "worm2ZoG2kUd4vFXhvjh93UUH596ayRfgQ2MgjNMTth"
+    );
 
-    await sendAndConfirmTransaction(connection, initTx, [admin]);
+    const expiredGuardianSetIndex = 2;
+    let guardianSetIndex = 0; // updated to the current index in initialize
+    const mockGuardianSetIndex = 5;
 
-    programState = await pieProgram.getProgramState();
+    async function postQuerySigs(
+        querySignatures: string[],
+        signaturesKeypair: anchor.web3.Keypair,
+        totalSignatures: number = 0,
+    ) {
+        const signatureData = signaturesToSolanaArray(querySignatures);
+        await pieProgram.program.methods
+            .postSignatures(signatureData, totalSignatures || signatureData.length)
+            .accounts({guardianSignatures: signaturesKeypair.publicKey})
+            .signers([signaturesKeypair])
+            .rpc();
+    }
 
-    assert.equal(programState.admin.toBase58(), admin.publicKey.toBase58());
-  });
-
-  describe.skip("transfer_admin", () => {
-    it("should be transfer with new admin", async () => {
-      const transferTx = await pieProgram.transferAdmin({
-        admin: admin.publicKey,
-        newAdmin: newAdmin.publicKey,
-      });
-      await sendAndConfirmTransaction(connection, transferTx, [admin]);
-
-      let programState = await pieProgram.getProgramState();
-      assert.equal(
-        programState.admin.toBase58(),
-        newAdmin.publicKey.toBase58()
-      );
-
-      //transfer back
-      const transferBackTx = await pieProgram.transferAdmin({
-        admin: newAdmin.publicKey,
-        newAdmin: admin.publicKey,
-      });
-      await sendAndConfirmTransaction(connection, transferBackTx, [newAdmin]);
-
-      programState = await pieProgram.getProgramState();
-      assert.equal(programState.admin.toBase58(), admin.publicKey.toBase58());
-    });
-
-    it("should fail if the admin is unauthorized", async () => {
-      try {
-        const transferTx = await pieProgram.transferAdmin({
-          admin: newAdmin.publicKey,
-          newAdmin: admin.publicKey,
-        });
-        await sendAndConfirmTransaction(connection, transferTx, [newAdmin]);
-        assert.fail("Transaction should have failed");
-      } catch (e) {}
-    });
-  });
-
-  describe.skip("update_fee", () => {
-    it("should update fee", async () => {
-      const updateFeeTx = await pieProgram.updateFee({
-        admin: admin.publicKey,
-        newCreatorFeePercentage: 1000,
-        newPlatformFeePercentage: 9000,
-      });
-      await sendAndConfirmTransaction(connection, updateFeeTx, [admin]);
-
-      const programState = await pieProgram.getProgramState();
-      assert.equal(programState.creatorFeePercentage.toNumber(), 1000);
-      assert.equal(programState.platformFeePercentage.toNumber(), 9000);
-    });
-
-    it("should fail if not admin", async () => {
-      try {
-        const updateFeeTx = await pieProgram.updateFee({
-          admin: newAdmin.publicKey,
-          newCreatorFeePercentage: 1000,
-          newPlatformFeePercentage: 1000,
-        });
-        await sendAndConfirmTransaction(connection, updateFeeTx, [newAdmin]);
-        assert.fail("Transaction should have failed");
-      } catch (e) {
-        assert.isNotEmpty(e);
-      }
-    });
-
-    it("should fail if the fee is invalid", async () => {
-      try {
-        const updateFeeTx = await pieProgram.updateFee({
-          admin: admin.publicKey,
-          newCreatorFeePercentage: (1000 * 10 ** 10) ^ 4,
-          newPlatformFeePercentage: 1000,
-        });
-        await sendAndConfirmTransaction(connection, updateFeeTx, [admin]);
-        assert.fail("Transaction should have failed");
-      } catch (e) {
-        assert.isNotEmpty(e);
-      }
-    });
-  });
-
-  describe.skip("update_platform_fee_wallet", () => {
-    it("should update platform fee wallet", async () => {
-      const updatePlatformFeeWalletTx =
-        await pieProgram.updatePlatformFeeWallet({
-          admin: admin.publicKey,
-          newPlatformFeeWallet: platformFeeWallet.publicKey,
-        });
-      await sendAndConfirmTransaction(connection, updatePlatformFeeWalletTx, [
-        admin,
-      ]);
-
-      const programState = await pieProgram.getProgramState();
-      assert.equal(
-        programState.platformFeeWallet.toBase58(),
-        platformFeeWallet.publicKey.toBase58()
-      );
-    });
-
-    it("should fail if not admin", async () => {
-      try {
-        const updatePlatformFeeWalletTx =
-          await pieProgram.updatePlatformFeeWallet({
-            admin: newAdmin.publicKey,
-            newPlatformFeeWallet: platformFeeWallet.publicKey,
-          });
-        await sendAndConfirmTransaction(connection, updatePlatformFeeWalletTx, [
-          newAdmin,
+    it("is success deploy without admin change", async () => {
+        await Promise.all([
+            connection.requestAirdrop(admin.publicKey, LAMPORTS_PER_SOL),
+            connection.requestAirdrop(defaultProvider.publicKey, LAMPORTS_PER_SOL),
+            connection.requestAirdrop(newAdmin.publicKey, LAMPORTS_PER_SOL),
+            connection.requestAirdrop(rebalancer.publicKey, LAMPORTS_PER_SOL),
+            connection.requestAirdrop(platformFeeWallet.publicKey, LAMPORTS_PER_SOL),
+            connection.requestAirdrop(creator.publicKey, LAMPORTS_PER_SOL),
+            connection.requestAirdrop(newCreator.publicKey, LAMPORTS_PER_SOL),
         ]);
-        assert.fail("Transaction should have failed");
-      } catch (e) {
-        assert.isNotEmpty(e);
-      }
-    });
-  });
-
-  describe.skip("create_basket", () => {
-    describe("v1", () => {
-      it("should create a basket with metadata", async () => {
-        const basketComponents = await createBasketComponents(
-          connection,
-          admin,
-          [1, 2, 3]
-        );
-
-        const createBasketArgs: CreateBasketArgs = {
-          name: "Basket Name Test",
-          symbol: "BNS",
-          uri: "test",
-          components: basketComponents,
-          rebalancer: admin.publicKey,
-        };
-        const programState = await pieProgram.getProgramState();
-        const basketId = programState.basketCounter;
-
-        const createBasketTx = await pieProgram.createBasket({
-          creator: creator.publicKey,
-          args: createBasketArgs,
-          basketId,
-        });
-
-        await sendAndConfirmTransaction(connection, createBasketTx, [creator]);
-
-        const basketConfig = pieProgram.basketConfigPDA({ basketId });
-
-        const basketMint = pieProgram.basketMintPDA({ basketId });
-        const basketConfigData = await pieProgram.getBasketConfig({ basketId });
-        assert.equal(
-          basketConfigData.creator.toBase58(),
-          creator.publicKey.toBase58()
-        );
-        assert.equal(basketConfigData.mint.toBase58(), basketMint.toBase58());
-        assert.equal(basketConfigData.components.length, 3);
-
-        const mintData = await getMint(connection, basketMint);
-        assert.equal(mintData.supply.toString(), "0");
-        assert.equal(mintData.decimals, 6);
-        assert.equal(
-          mintData.mintAuthority?.toBase58(),
-          basketConfig.toBase58()
-        );
-      });
-
-      it("should fail if the creator is unauthorized", async () => {
-        const basketComponents = await createBasketComponents(
-          connection,
-          admin,
-          [1, 2, 3]
-        );
-        const createBasketArgs: CreateBasketArgs = {
-          name: "Basket Name Test",
-          symbol: "BNS",
-          uri: "test",
-          components: basketComponents,
-          rebalancer: admin.publicKey,
-        };
-        const programState = await pieProgram.getProgramState();
-        const basketId = programState.basketCounter;
-
-        const createBasketTx = await pieProgram.createBasket({
-          creator: newCreator.publicKey,
-          args: createBasketArgs,
-          basketId,
-        });
-        try {
-          await sendAndConfirmTransaction(connection, createBasketTx, [
-            newCreator,
-          ]);
-          assert.fail("Transaction should have failed");
-        } catch (e) {
-          assert.isNotEmpty(e);
-        }
-      });
-
-      it("should success when the new creator is authorized", async () => {
-        const updateWhitelistedCreatorTx =
-          await pieProgram.updateWhitelistedCreators({
+        await sleep(1);
+        let programState = await pieProgram.getProgramState();
+        const initTx = await pieProgram.initialize({
+            initializer: admin.publicKey,
             admin: admin.publicKey,
-            newWhitelistedCreators: [creator.publicKey, newCreator.publicKey],
-          });
+            creator: creator.publicKey,
+            platformFeeWallet: admin.publicKey,
+            platformFeePercentage: new BN(100),
 
-        await sendAndConfirmTransaction(
-          connection,
-          updateWhitelistedCreatorTx,
-          [admin]
-        );
-
-        const programState = await pieProgram.getProgramState();
-        assert.equal(programState.whitelistedCreators.length, 2);
-        assert.equal(
-          programState.whitelistedCreators[0].toBase58(),
-          creator.publicKey.toBase58()
-        );
-        assert.equal(
-          programState.whitelistedCreators[1].toBase58(),
-          newCreator.publicKey.toBase58()
-        );
-
-        const basketComponents = await createBasketComponents(
-          connection,
-          admin,
-          [1, 2, 3]
-        );
-
-        const createBasketArgs: CreateBasketArgs = {
-          name: "Basket Name Test",
-          symbol: "BNS",
-          uri: "test",
-          components: basketComponents,
-          rebalancer: admin.publicKey,
-        };
-
-        const createBasketTx = await pieProgram.createBasket({
-          creator: newCreator.publicKey,
-          args: createBasketArgs,
-          basketId: programState.basketCounter,
         });
 
-        await sendAndConfirmTransaction(connection, createBasketTx, [
-          newCreator,
-        ]);
-      });
-    });
-  });
+        await sendAndConfirmTransaction(connection, initTx, [admin]);
 
-  describe.skip("update_rebalancer", () => {
-    it("should update with new balancer in basket config state", async () => {
-      const basketComponents = await createBasketComponents(
-        connection,
-        admin,
-        [1, 2, 3]
-      );
-      const createBasketArgs: CreateBasketArgs = {
-        name: "Basket Name Test",
-        symbol: "BNS",
-        uri: "test",
-        components: basketComponents,
-        rebalancer: admin.publicKey,
-      };
-      const programState = await pieProgram.getProgramState();
-      const basketId = programState.basketCounter;
-      const createBasketTx = await pieProgram.createBasket({
-        creator: creator.publicKey,
-        args: createBasketArgs,
-        basketId,
-      });
-      await sendAndConfirmTransaction(connection, createBasketTx, [creator]);
-      const basketState = await pieProgram.getBasketConfig({ basketId });
-      console.assert(
-        basketState.rebalancer.toBase58(),
-        admin.publicKey.toBase58()
-      );
+        programState = await pieProgram.getProgramState();
 
-      const updateRebalancerTx = await pieProgram.updateRebalancer({
-        creator: creator.publicKey,
-        basketId,
-        newRebalancer: rebalancer.publicKey,
-      });
-      await sendAndConfirmTransaction(connection, updateRebalancerTx, [
-        creator,
-      ]);
-      console.assert(
-        basketState.rebalancer.toBase58(),
-        rebalancer.publicKey.toBase58()
-      );
+        assert.equal(programState.admin.toBase58(), admin.publicKey.toBase58());
     });
 
-    it("should fail if unauthorized", async () => {});
-  });
-
-  describe("create_multichain_basket", () => {
-    it("should create a basket with metadata", async () => {
-      const basketComponents = await createBasketComponents(
-        connection,
-        admin,
-        [1000000, 2000000, 3000000]
-      );
-
-      await Promise.all(
-        basketComponents.map(async (component) => {
-          await mintTokenTo(
-            connection,
-            component.mint,
-            admin,
-            admin,
-            admin.publicKey,
-            10
-          );
-        })
-      );
-
-      const multichainComponent = {
-        mint: new PublicKey("1111111111113gA4ULihrhPMjfVMXxpZBW5Beuki"),
-        quantityInSysDecimal: new BN(1),
-      };
-
-      const createBasketArgs: CreateBasketArgs = {
-        name: "Basket Name Test",
-        symbol: "BNS",
-        uri: "test",
-        components: [...basketComponents, multichainComponent],
-        rebalancer: admin.publicKey,
-      };
-      const programState = await pieProgram.getProgramState();
-      const basketId = programState.basketCounter;
-
-      const createBasketTx = await pieProgram.createBasket({
-        creator: creator.publicKey,
-        args: createBasketArgs,
-        basketId,
-      });
-
-      await sendAndConfirmTransaction(connection, createBasketTx, [creator]);
-
-      const basketConfig = pieProgram.basketConfigPDA({ basketId });
-
-      const basketMint = pieProgram.basketMintPDA({ basketId });
-      const basketConfigData = await pieProgram.getBasketConfig({ basketId });
-      assert.equal(
-        basketConfigData.creator.toBase58(),
-        creator.publicKey.toBase58()
-      );
-      assert.equal(basketConfigData.mint.toBase58(), basketMint.toBase58());
-      assert.equal(basketConfigData.components.length, 4);
-
-      const mintData = await getMint(connection, basketMint);
-      assert.equal(mintData.supply.toString(), "0");
-      assert.equal(mintData.decimals, 6);
-      assert.equal(mintData.mintAuthority?.toBase58(), basketConfig.toBase58());
-    });
-
-    it("should deposit component to basket", async () => {
-      const programState = await pieProgram.getProgramState();
-      const basketId = programState.basketCounter.sub(new BN(1));
-
-      const basketConfig = await pieProgram.getBasketConfig({ basketId });
-
-      await Promise.all(
-        basketConfig.components.map(async (component) => {
-          if (component.mint.toBase58().startsWith("111")) return;
-          try {
-            const depositComponentTx = await pieProgram.depositComponent({
-              user: admin.publicKey,
-              basketId,
-              amount: component.quantityInSysDecimal
-                .div(new BN(10 ** 6))
-                .toString(),
-              mint: component.mint,
+    describe.skip("transfer_admin", () => {
+        it("should be transfer with new admin", async () => {
+            const transferTx = await pieProgram.transferAdmin({
+                admin: admin.publicKey,
+                newAdmin: newAdmin.publicKey,
             });
-            await sendAndConfirmTransaction(connection, depositComponentTx, [
-              admin,
-            ]);
-          } catch (e) {
-            console.log(e);
-          }
-        })
-      );
+            await sendAndConfirmTransaction(connection, transferTx, [admin]);
 
-      const mintBasketTokenTx = await pieProgram.mintMultichainBasketToken({
-        user: admin.publicKey,
-        basketId,
-        amount: "1",
-      });
+            let programState = await pieProgram.getProgramState();
+            assert.equal(
+                programState.admin.toBase58(),
+                newAdmin.publicKey.toBase58()
+            );
 
-      await sendAndConfirmTransaction(connection, mintBasketTokenTx, [admin]);
+            //transfer back
+            const transferBackTx = await pieProgram.transferAdmin({
+                admin: newAdmin.publicKey,
+                newAdmin: admin.publicKey,
+            });
+            await sendAndConfirmTransaction(connection, transferBackTx, [newAdmin]);
 
-      const userBaksetTokenBalanceAfter = await pieProgram.getTokenBalance({
-        mint: basketConfig.mint,
-        owner: admin.publicKey,
-      });
-      expect(userBaksetTokenBalanceAfter).to.equal(1);
+            programState = await pieProgram.getProgramState();
+            assert.equal(programState.admin.toBase58(), admin.publicKey.toBase58());
+        });
+
+        it("should fail if the admin is unauthorized", async () => {
+            try {
+                const transferTx = await pieProgram.transferAdmin({
+                    admin: newAdmin.publicKey,
+                    newAdmin: admin.publicKey,
+                });
+                await sendAndConfirmTransaction(connection, transferTx, [newAdmin]);
+                assert.fail("Transaction should have failed");
+            } catch (e) {
+            }
+        });
     });
-  });
+
+    describe.skip("update_fee", () => {
+        it("should update fee", async () => {
+            const updateFeeTx = await pieProgram.updateFee({
+                admin: admin.publicKey,
+                newCreatorFeePercentage: 1000,
+                newPlatformFeePercentage: 9000,
+            });
+            await sendAndConfirmTransaction(connection, updateFeeTx, [admin]);
+
+            const programState = await pieProgram.getProgramState();
+            assert.equal(programState.creatorFeePercentage.toNumber(), 1000);
+            assert.equal(programState.platformFeePercentage.toNumber(), 9000);
+        });
+
+        it("should fail if not admin", async () => {
+            try {
+                const updateFeeTx = await pieProgram.updateFee({
+                    admin: newAdmin.publicKey,
+                    newCreatorFeePercentage: 1000,
+                    newPlatformFeePercentage: 1000,
+                });
+                await sendAndConfirmTransaction(connection, updateFeeTx, [newAdmin]);
+                assert.fail("Transaction should have failed");
+            } catch (e) {
+                assert.isNotEmpty(e);
+            }
+        });
+
+        it("should fail if the fee is invalid", async () => {
+            try {
+                const updateFeeTx = await pieProgram.updateFee({
+                    admin: admin.publicKey,
+                    newCreatorFeePercentage: (1000 * 10 ** 10) ^ 4,
+                    newPlatformFeePercentage: 1000,
+                });
+                await sendAndConfirmTransaction(connection, updateFeeTx, [admin]);
+                assert.fail("Transaction should have failed");
+            } catch (e) {
+                assert.isNotEmpty(e);
+            }
+        });
+    });
+
+    describe.skip("update_platform_fee_wallet", () => {
+        it("should update platform fee wallet", async () => {
+            const updatePlatformFeeWalletTx =
+                await pieProgram.updatePlatformFeeWallet({
+                    admin: admin.publicKey,
+                    newPlatformFeeWallet: platformFeeWallet.publicKey,
+                });
+            await sendAndConfirmTransaction(connection, updatePlatformFeeWalletTx, [
+                admin,
+            ]);
+
+            const programState = await pieProgram.getProgramState();
+            assert.equal(
+                programState.platformFeeWallet.toBase58(),
+                platformFeeWallet.publicKey.toBase58()
+            );
+        });
+
+        it("should fail if not admin", async () => {
+            try {
+                const updatePlatformFeeWalletTx =
+                    await pieProgram.updatePlatformFeeWallet({
+                        admin: newAdmin.publicKey,
+                        newPlatformFeeWallet: platformFeeWallet.publicKey,
+                    });
+                await sendAndConfirmTransaction(connection, updatePlatformFeeWalletTx, [
+                    newAdmin,
+                ]);
+                assert.fail("Transaction should have failed");
+            } catch (e) {
+                assert.isNotEmpty(e);
+            }
+        });
+    });
+
+    describe.skip("create_basket", () => {
+        describe("v1", () => {
+            it("should create a basket with metadata", async () => {
+                const basketComponents = await createBasketComponents(
+                    connection,
+                    admin,
+                    [1, 2, 3]
+                );
+
+                const createBasketArgs: CreateBasketArgs = {
+                    name: "Basket Name Test",
+                    symbol: "BNS",
+                    uri: "test",
+                    components: basketComponents,
+                    rebalancer: admin.publicKey,
+                };
+                const programState = await pieProgram.getProgramState();
+                const basketId = programState.basketCounter;
+
+                const createBasketTx = await pieProgram.createBasket({
+                    creator: creator.publicKey,
+                    args: createBasketArgs,
+                    basketId,
+                });
+
+                await sendAndConfirmTransaction(connection, createBasketTx, [creator]);
+
+                const basketConfig = pieProgram.basketConfigPDA({basketId});
+
+                const basketMint = pieProgram.basketMintPDA({basketId});
+                const basketConfigData = await pieProgram.getBasketConfig({basketId});
+                assert.equal(
+                    basketConfigData.creator.toBase58(),
+                    creator.publicKey.toBase58()
+                );
+                assert.equal(basketConfigData.mint.toBase58(), basketMint.toBase58());
+                assert.equal(basketConfigData.components.length, 3);
+
+                const mintData = await getMint(connection, basketMint);
+                assert.equal(mintData.supply.toString(), "0");
+                assert.equal(mintData.decimals, 6);
+                assert.equal(
+                    mintData.mintAuthority?.toBase58(),
+                    basketConfig.toBase58()
+                );
+            });
+
+            it("should fail if the creator is unauthorized", async () => {
+                const basketComponents = await createBasketComponents(
+                    connection,
+                    admin,
+                    [1, 2, 3]
+                );
+                const createBasketArgs: CreateBasketArgs = {
+                    name: "Basket Name Test",
+                    symbol: "BNS",
+                    uri: "test",
+                    components: basketComponents,
+                    rebalancer: admin.publicKey,
+                };
+                const programState = await pieProgram.getProgramState();
+                const basketId = programState.basketCounter;
+
+                const createBasketTx = await pieProgram.createBasket({
+                    creator: newCreator.publicKey,
+                    args: createBasketArgs,
+                    basketId,
+                });
+                try {
+                    await sendAndConfirmTransaction(connection, createBasketTx, [
+                        newCreator,
+                    ]);
+                    assert.fail("Transaction should have failed");
+                } catch (e) {
+                    assert.isNotEmpty(e);
+                }
+            });
+
+            it("should success when the new creator is authorized", async () => {
+                const updateWhitelistedCreatorTx =
+                    await pieProgram.updateWhitelistedCreators({
+                        admin: admin.publicKey,
+                        newWhitelistedCreators: [creator.publicKey, newCreator.publicKey],
+                    });
+
+                await sendAndConfirmTransaction(
+                    connection,
+                    updateWhitelistedCreatorTx,
+                    [admin]
+                );
+
+                const programState = await pieProgram.getProgramState();
+                assert.equal(programState.whitelistedCreators.length, 2);
+                assert.equal(
+                    programState.whitelistedCreators[0].toBase58(),
+                    creator.publicKey.toBase58()
+                );
+                assert.equal(
+                    programState.whitelistedCreators[1].toBase58(),
+                    newCreator.publicKey.toBase58()
+                );
+
+                const basketComponents = await createBasketComponents(
+                    connection,
+                    admin,
+                    [1, 2, 3]
+                );
+
+                const createBasketArgs: CreateBasketArgs = {
+                    name: "Basket Name Test",
+                    symbol: "BNS",
+                    uri: "test",
+                    components: basketComponents,
+                    rebalancer: admin.publicKey,
+                };
+
+                const createBasketTx = await pieProgram.createBasket({
+                    creator: newCreator.publicKey,
+                    args: createBasketArgs,
+                    basketId: programState.basketCounter,
+                });
+
+                await sendAndConfirmTransaction(connection, createBasketTx, [
+                    newCreator,
+                ]);
+            });
+        });
+    });
+
+    describe.skip("update_rebalancer", () => {
+        it("should update with new balancer in basket config state", async () => {
+            const basketComponents = await createBasketComponents(
+                connection,
+                admin,
+                [1, 2, 3]
+            );
+            const createBasketArgs: CreateBasketArgs = {
+                name: "Basket Name Test",
+                symbol: "BNS",
+                uri: "test",
+                components: basketComponents,
+                rebalancer: admin.publicKey,
+            };
+            const programState = await pieProgram.getProgramState();
+            const basketId = programState.basketCounter;
+            const createBasketTx = await pieProgram.createBasket({
+                creator: creator.publicKey,
+                args: createBasketArgs,
+                basketId,
+            });
+            await sendAndConfirmTransaction(connection, createBasketTx, [creator]);
+            const basketState = await pieProgram.getBasketConfig({basketId});
+            console.assert(
+                basketState.rebalancer.toBase58(),
+                admin.publicKey.toBase58()
+            );
+
+            const updateRebalancerTx = await pieProgram.updateRebalancer({
+                creator: creator.publicKey,
+                basketId,
+                newRebalancer: rebalancer.publicKey,
+            });
+            await sendAndConfirmTransaction(connection, updateRebalancerTx, [
+                creator,
+            ]);
+            console.assert(
+                basketState.rebalancer.toBase58(),
+                rebalancer.publicKey.toBase58()
+            );
+        });
+
+        it("should fail if unauthorized", async () => {
+        });
+    });
+
+    describe("create_multichain_basket", () => {
+        it("should create a basket with metadata", async () => {
+            const basketComponents = await createBasketComponents(
+                connection,
+                admin,
+                [1000000, 2000000, 3000000]
+            );
+
+            await Promise.all(
+                basketComponents.map(async (component) => {
+                    await mintTokenTo(
+                        connection,
+                        component.mint,
+                        admin,
+                        admin,
+                        admin.publicKey,
+                        10
+                    );
+                })
+            );
+
+            const multichainComponent = {
+                mint: new PublicKey("1111111111113gA4ULihrhPMjfVMXxpZBW5Beuki"),
+                quantityInSysDecimal: new BN(1),
+            };
+
+            const createBasketArgs: CreateBasketArgs = {
+                name: "Basket Name Test",
+                symbol: "BNS",
+                uri: "test",
+                components: [...basketComponents, multichainComponent],
+                rebalancer: admin.publicKey,
+            };
+            const programState = await pieProgram.getProgramState();
+            const basketId = programState.basketCounter;
+
+            const createBasketTx = await pieProgram.createBasket({
+                creator: creator.publicKey,
+                args: createBasketArgs,
+                basketId,
+            });
+
+            await sendAndConfirmTransaction(connection, createBasketTx, [creator]);
+
+            const basketConfig = pieProgram.basketConfigPDA({basketId});
+
+            const basketMint = pieProgram.basketMintPDA({basketId});
+            const basketConfigData = await pieProgram.getBasketConfig({basketId});
+            assert.equal(
+                basketConfigData.creator.toBase58(),
+                creator.publicKey.toBase58()
+            );
+            assert.equal(basketConfigData.mint.toBase58(), basketMint.toBase58());
+            assert.equal(basketConfigData.components.length, 4);
+
+            const mintData = await getMint(connection, basketMint);
+            assert.equal(mintData.supply.toString(), "0");
+            assert.equal(mintData.decimals, 6);
+            assert.equal(mintData.mintAuthority?.toBase58(), basketConfig.toBase58());
+        });
+
+        it("should deposit component to basket", async () => {
+            const programState = await pieProgram.getProgramState();
+            const basketId = programState.basketCounter.sub(new BN(1));
+
+            const basketConfig = await pieProgram.getBasketConfig({basketId});
+
+            await Promise.all(
+                basketConfig.components.map(async (component) => {
+                    if (component.mint.toBase58().startsWith("111")) return;
+                    try {
+                        const depositComponentTx = await pieProgram.depositComponent({
+                            user: admin.publicKey,
+                            basketId,
+                            amount: component.quantityInSysDecimal
+                                .div(new BN(10 ** 6))
+                                .toString(),
+                            mint: component.mint,
+                        });
+                        await sendAndConfirmTransaction(connection, depositComponentTx, [
+                            admin,
+                        ]);
+                    } catch (e) {
+                        console.log(e);
+                    }
+                })
+            );
+
+            const mintBasketTokenTx = await pieProgram.mintMultichainBasketToken({
+                user: admin.publicKey,
+                basketId,
+                amount: "1",
+            });
+
+            await sendAndConfirmTransaction(connection, mintBasketTokenTx, [admin]);
+
+            const userBaksetTokenBalanceAfter = await pieProgram.getTokenBalance({
+                mint: basketConfig.mint,
+                owner: admin.publicKey,
+            });
+            expect(userBaksetTokenBalanceAfter).to.equal(1);
+        });
+    });
+
+    describe("wormhole verify queries", () => {
+        it("initialize guardian set"), async () => {
+            await pieProgram.program.methods.initialize().rpc();
+            // fetch current guardian set
+            const p = anchor.getProvider();
+            const info = await getWormholeBridgeData(p.connection, coreBridgeAddress);
+            console.log('info', info);
+            guardianSetIndex = info.guardianSetIndex;
+        }
+
+        it("should return valid token balance", async () => {
+            const getBalanceQueryResponse = {
+                bytes:
+                    "0100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000570100000000010002010000004a00000009307831353263633163011a4b46696b2bb4794eb3d4c26f1c55f9170fa4c50000002470a082310000000000000000000000009ad81859848237a25cda0b8fb4ea4efccbb6ffd00100020100000055000000000152cc1c94a1b10eec47833f7c6ce9d5ccbee92eecf576301cd5bd2b5655a87356f78eb200063209201b04c001000000200000000000000000000000000000000000000000000000000c0a49e8931037c2",
+                signatures: [
+                    "ae047d9489070af5ca163c5d54e92e0a7eed74722ce469b282e2f5bd879b826828d04a4d2dff88806dee38b9b2744ab073dcc5a06bae9d7225bb8a855fc7b0580000"
+                ],
+            };
+
+            await postQuerySigs(getBalanceQueryResponse.signatures, signaturesKeypair);
+
+            try {
+                const txid = await pieProgram.program.methods
+                    .verifyQuery(
+                        Buffer.from(getBalanceQueryResponse.bytes, "hex"),
+                        guardianSetIndex
+                    )
+                    .accountsPartial({
+                        guardianSignatures: signaturesKeypair.publicKey,
+                        guardianSet: deriveGuardianSetKey(
+                            coreBridgeAddress,
+                            guardianSetIndex
+                        ),
+                    })
+                    .preInstructions([
+                        anchor.web3.ComputeBudgetProgram.setComputeUnitLimit({
+                            units: 450_000,
+                        }),
+                    ])
+                    .rpc();
+
+                const tx = await getTransactionWithRetry(pieProgram.program.provider.connection, txid);
+                if (!tx || !tx.meta || !tx.meta.logMessages) {
+                    throw new Error("Failed to retrieve transaction logs");
+                }
+
+                const actualTokenAddress = extractTokenAddress(tx)
+                const actualTokenBalance = extractTokenBalance(tx);
+
+                const expectedValues = {
+                    expectedBalanceHex: "0x0C0A49E8931037C2",
+                    expectedTokenAddress: "0x1a4B46696b2bb4794eb3d4c26f1c55f9170fa4c5"
+                };
+
+                if (!actualTokenBalance || !actualTokenAddress) {
+                    throw new Error("Failed to extract token information");
+                }
+                if (actualTokenBalance !== BigInt(expectedValues.expectedBalanceHex)) {
+                    throw new Error(`Token balance mismatch. Expected: ${expectedValues.expectedBalanceHex}, Got: ${actualTokenBalance}`);
+                }
+
+            } catch (error) {
+                console.error("Error during test:", error);
+                throw error;
+            }
+        });
+
+    });
 });
