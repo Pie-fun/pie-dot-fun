@@ -36,7 +36,7 @@ jobs:
         with:
           node-version: 20
           registry-url: https://npm.pkg.github.com/
-          scope: "@ao-labs"
+          scope: '@pie-fun'
 
       - name: publish typescript-grpcjs
         run: |
@@ -46,7 +46,7 @@ jobs:
           npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-      
+
       - name: publish typescript
         run: |
           cd typescript

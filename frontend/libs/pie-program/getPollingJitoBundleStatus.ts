@@ -2,7 +2,7 @@ import { getHolding } from '@/app/api/backend/v1/holding/requests'
 import { Currency } from '@/app/api/protobuf/typescript_only_types/pie-dot-fun/v1/common'
 import { CustomFetchError } from '@/libs/fetch/types'
 import { FirstParameter } from '@/types/utility'
-import { Jito } from '@ao-labs/pie-dot-fun-solana/dist/sdk/jito'
+import { Jito } from '@pie-fun/pie-dot-fun-solana/dist/sdk/jito'
 
 type GetPollingJitoBundleStatus = {
   bundleId: string

@@ -31,6 +31,7 @@ exports.caculateTotalAmountWithFee = caculateTotalAmountWithFee;
 exports.getTokenFromTokenInfo = getTokenFromTokenInfo;
 exports.simulateTransaction = simulateTransaction;
 exports.findDepositAndRemoveInPlace = findDepositAndRemoveInPlace;
+exports.getSolanaAddressFromEvmAddress = getSolanaAddressFromEvmAddress;
 const web3_js_1 = require("@solana/web3.js");
 const spl_token_1 = require("@solana/spl-token");
 const anchor_1 = require("@coral-xyz/anchor");
@@ -351,5 +352,12 @@ function findDepositAndRemoveInPlace(arr) {
         return arr.splice(index, 1)[0];
     }
     return null;
+}
+function getSolanaAddressFromEvmAddress(evmAddress) {
+    // ex 0xc0041ef357b183448b235a8ea73ce4e4ec8c265f ->  1111111111113gA4ULihrhPMjfVMXxpZBW5Beuki
+    const hexString = evmAddress.slice(2); // Remove 0x and pad to 32 bytes
+    const bytes = Buffer.from(hexString, "hex");
+    const publicKey = new web3_js_1.PublicKey(bytes);
+    return publicKey.toBase58();
 }
 //# sourceMappingURL=helper.js.map

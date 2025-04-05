@@ -2,14 +2,25 @@ import {
   fetchQuote,
   createSwapFromSolanaInstructions,
   ChainName,
+  SwapMessageV0Params,
 } from "@mayanfinance/swap-sdk";
 import {
+  AddressLookupTableAccount,
   clusterApiUrl,
+  Keypair,
   PublicKey,
+  TransactionInstruction,
   TransactionMessage,
   VersionedTransaction,
 } from "@solana/web3.js";
 import { Connection } from "@solana/web3.js";
+
+// type MayanSwapResult = {
+//   instructions: Array<TransactionInstruction>;
+//   signers: Array<Keypair>;
+//   lookupTables: Array<AddressLookupTableAccount>;
+//   swapMessageV0Params: SwapMessageV0Params | null;
+// };
 
 // @TODO: add wrap SOL instruction if needed
 export const getMayanSwapTx = async ({
@@ -32,7 +43,7 @@ export const getMayanSwapTx = async ({
   fromAddress: string;
   toAddress: string;
   slippageBps?: number;
-}) => {
+}): Promise<any> => {
   try {
     const quotes = await fetchQuote({
       amount,
