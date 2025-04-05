@@ -2553,6 +2553,52 @@ export type Pie = {
       ]
     },
     {
+      "name": "postSignatures",
+      "discriminator": [
+        138,
+        2,
+        53,
+        166,
+        45,
+        77,
+        137,
+        51
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "guardianSignatures",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "guardianSignatures",
+          "type": {
+            "vec": {
+              "array": [
+                "u8",
+                66
+              ]
+            }
+          }
+        },
+        {
+          "name": "totalSignatures",
+          "type": "u8"
+        }
+      ]
+    },
+    {
       "name": "redeemBasketToken",
       "discriminator": [
         207,
@@ -3832,6 +3878,116 @@ export type Pie = {
       ]
     },
     {
+      "name": "verifyQuery",
+      "discriminator": [
+        22,
+        200,
+        234,
+        80,
+        124,
+        240,
+        134,
+        83
+      ],
+      "accounts": [
+        {
+          "name": "guardianSet",
+          "docs": [
+            "Guardian set used for signature verification."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  71,
+                  117,
+                  97,
+                  114,
+                  100,
+                  105,
+                  97,
+                  110,
+                  83,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "guardianSetIndex"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                14,
+                10,
+                88,
+                154,
+                65,
+                165,
+                95,
+                189,
+                102,
+                197,
+                42,
+                71,
+                95,
+                45,
+                146,
+                166,
+                211,
+                220,
+                155,
+                71,
+                71,
+                17,
+                76,
+                185,
+                175,
+                130,
+                90,
+                152,
+                181,
+                69,
+                211,
+                206
+              ]
+            }
+          }
+        },
+        {
+          "name": "guardianSignatures",
+          "docs": [
+            "Stores unverified guardian signatures as they are too large to fit in the instruction data."
+          ],
+          "writable": true
+        },
+        {
+          "name": "refundRecipient",
+          "relations": [
+            "guardianSignatures"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "bytes",
+          "type": "bytes"
+        },
+        {
+          "name": "guardianSetIndex",
+          "type": "u32"
+        }
+      ],
+      "returns": {
+        "defined": {
+          "name": "tokenBalance"
+        }
+      }
+    },
+    {
       "name": "withdrawComponent",
       "discriminator": [
         192,
@@ -4333,6 +4489,19 @@ export type Pie = {
       ]
     },
     {
+      "name": "guardianSignatures",
+      "discriminator": [
+        203,
+        184,
+        130,
+        157,
+        113,
+        14,
+        184,
+        83
+      ]
+    },
+    {
       "name": "observationState",
       "discriminator": [
         122,
@@ -4382,6 +4551,19 @@ export type Pie = {
         65,
         176,
         30
+      ]
+    },
+    {
+      "name": "wormholeGuardianSet",
+      "discriminator": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
       ]
     }
   ],
@@ -4720,7 +4902,52 @@ export type Pie = {
     {
       "code": 6019,
       "name": "invalidTokenProgram",
-      "msg": "Invalid token program"
+      "msg": "Wormhole UseQuery Invalid token program"
+    },
+    {
+      "code": 6020,
+      "name": "writeAuthorityMismatch",
+      "msg": "Wormhole UseQuery WriteAuthorityMismatch"
+    },
+    {
+      "code": 6021,
+      "name": "guardianSetExpired",
+      "msg": "Wormhole UseQuery GuardianSetExpired"
+    },
+    {
+      "code": 6022,
+      "name": "invalidMessageHash",
+      "msg": "Wormhole UseQuery InvalidMessageHash"
+    },
+    {
+      "code": 6023,
+      "name": "noQuorum",
+      "msg": "Wormhole UseQuery NoQuorum"
+    },
+    {
+      "code": 6024,
+      "name": "invalidGuardianIndexNonIncreasing",
+      "msg": "Wormhole UseQuery InvalidGuardianIndexNonIncreasing"
+    },
+    {
+      "code": 6025,
+      "name": "invalidGuardianIndexOutOfRange",
+      "msg": "Wormhole UseQuery InvalidGuardianIndexOutOfRange"
+    },
+    {
+      "code": 6026,
+      "name": "invalidSignature",
+      "msg": "Wormhole UseQuery InvalidSignature"
+    },
+    {
+      "code": 6027,
+      "name": "invalidGuardianKeyRecovery",
+      "msg": "Wormhole UseQuery InvalidGuardianKeyRecovery"
+    },
+    {
+      "code": 6028,
+      "name": "failedToParseResponse",
+      "msg": "Wormhole UseQuery FailedToParseResponse"
     }
   ],
   "types": [
@@ -5052,6 +5279,37 @@ export type Pie = {
           {
             "name": "finalAvailableDestinationBalance",
             "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "guardianSignatures",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "refundRecipient",
+            "docs": [
+              "Payer of this guardian signatures account.",
+              "Only they may amend signatures.",
+              "Used for reimbursements upon cleanup."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "guardianSignatures",
+            "docs": [
+              "Unverified guardian signatures."
+            ],
+            "type": {
+              "vec": {
+                "array": [
+                  "u8",
+                  66
+                ]
+              }
+            }
           }
         ]
       }
@@ -5475,6 +5733,32 @@ export type Pie = {
       }
     },
     {
+      "name": "tokenBalance",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "amount",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "tokenAddress",
+            "type": {
+              "array": [
+                "u8",
+                20
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "transferAdminEvent",
       "type": {
         "kind": "struct",
@@ -5660,6 +5944,49 @@ export type Pie = {
           {
             "name": "amount",
             "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "wormholeGuardianSet",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "index",
+            "docs": [
+              "Index representing an incrementing version number for this guardian set."
+            ],
+            "type": "u32"
+          },
+          {
+            "name": "keys",
+            "docs": [
+              "Ethereum-style public keys."
+            ],
+            "type": {
+              "vec": {
+                "array": [
+                  "u8",
+                  20
+                ]
+              }
+            }
+          },
+          {
+            "name": "creationTime",
+            "docs": [
+              "Timestamp representing the time this guardian became active."
+            ],
+            "type": "u32"
+          },
+          {
+            "name": "expirationTime",
+            "docs": [
+              "Expiration time when VAAs issued by this set are no longer valid."
+            ],
+            "type": "u32"
           }
         ]
       }

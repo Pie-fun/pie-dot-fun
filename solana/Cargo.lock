@@ -1058,6 +1058,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "hex"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
+
+[[package]]
 name = "hmac"
 version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1446,9 +1452,14 @@ version = "0.1.0"
 dependencies = [
  "anchor-lang",
  "anchor-spl",
+ "hex",
  "raydium-amm-cpi",
  "raydium-clmm-cpi",
  "raydium-cpmm-cpi",
+ "wormhole-query-sdk",
+ "wormhole-raw-vaas",
+ "wormhole-solana-consts",
+ "wormhole-solana-utils",
 ]
 
 [[package]]
@@ -2675,6 +2686,40 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "36c1fec1a2bb5866f07c25f68c26e565c4c200aebb96d7e55710c19d3e8ac49b"
 dependencies = [
  "memchr",
+]
+
+[[package]]
+name = "wormhole-query-sdk"
+version = "0.0.1"
+source = "git+https://github.com/wormholelabs-xyz/wormhole-query-sdk-rust?rev=0f34cb470f4e3137b53aa91adcbb0c7def280925#0f34cb470f4e3137b53aa91adcbb0c7def280925"
+dependencies = [
+ "byteorder",
+]
+
+[[package]]
+name = "wormhole-raw-vaas"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8ceb9fca372420dc0084581fd9d5f74b30a7462719c9d241d1dd6ae9ddac4c40"
+
+[[package]]
+name = "wormhole-solana-consts"
+version = "0.3.0-alpha.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "95ae70b3233a1d2e799276528ad7ec0a55c9929f8eae41683a5d6f0e8ba37649"
+dependencies = [
+ "cfg-if",
+ "solana-program",
+]
+
+[[package]]
+name = "wormhole-solana-utils"
+version = "0.3.0-alpha.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d49bd1af023d73c6d6538cb6d9ea86111dac109ae134f45f7930425e372bf9cf"
+dependencies = [
+ "anchor-lang",
+ "solana-program",
 ]
 
 [[package]]

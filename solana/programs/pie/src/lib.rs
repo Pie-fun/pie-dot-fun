@@ -237,4 +237,20 @@ pub mod pie {
         instructions::withdraw_component(ctx, amount)?;
         Ok(())
     }
+
+    pub fn post_signatures(
+        ctx: Context<PostSignatures>,
+        guardian_signatures: Vec<[u8; 66]>,
+        total_signatures: u8,
+    ) -> Result<()> {
+        instructions::post_signatures(ctx, guardian_signatures, total_signatures)
+    }
+
+    pub fn verify_query(
+        ctx: Context<VerifyQuery>,
+        bytes: Vec<u8>,
+        guardian_set_index: u32,
+    ) -> Result<TokenBalance> {
+        instructions::verify_query(ctx, bytes, guardian_set_index)
+    }
 }
