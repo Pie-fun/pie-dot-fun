@@ -41,7 +41,7 @@ const spl_token_1 = require("@solana/spl-token");
 const raydium_sdk_v2_1 = require("@raydium-io/raydium-sdk-v2");
 const helper_1 = require("./utils/helper");
 const lookupTable_1 = require("./utils/lookupTable");
-const jito_1 = require("../sdk/jito");
+const jito_1 = require("./jito");
 const constants_1 = require("./constants");
 const PROGRAM_STATE = "program_state";
 const USER_FUND = "user_fund";
@@ -360,6 +360,49 @@ class PieProgram {
             .transaction();
         tx.add(depositWsolTx);
         return tx;
+    }
+    /**
+     * Deposits a component into the basket.
+     * @param user - The user account.
+     * @param basketId - The basket ID.
+     * @param amount - The amount of component to deposit.
+     * @param mint - The mint of the component.
+     * @returns A promise that resolves to a transaction.
+     */
+    async depositComponent({ user, basketId, amount, mint, }) {
+        try {
+            const basketConfig = this.basketConfigPDA({ basketId });
+            const tx = new web3_js_1.Transaction();
+            const { tokenAccount: userTokenAccount, tx: userTokenTx } = await (0, helper_1.getOrCreateTokenAccountTx)(this.connection, mint, user, user);
+            if ((0, helper_1.isValidTransaction)(userTokenTx)) {
+                tx.add(userTokenTx);
+            }
+            const { tokenAccount: outputTokenAccount, tx: outputTx } = await (0, helper_1.getOrCreateTokenAccountTx)(this.connection, mint, user, basketConfig);
+            if ((0, helper_1.isValidTransaction)(outputTx)) {
+                tx.add(outputTx);
+            }
+            const depositComponentTx = await this.program.methods
+                .depositComponent(new anchor_1.BN(amount))
+                .accountsPartial({
+                user,
+                programState: this.programStatePDA,
+                userFund: this.userFundPDA({ user, basketId }),
+                basketConfig: basketConfig,
+                userTokenAccount,
+                vaultTokenAccount: outputTokenAccount,
+                platformFeeTokenAccount: await this.getPlatformFeeTokenAccount(),
+                creatorTokenAccount: await this.getCreatorFeeTokenAccount({
+                    basketId,
+                }),
+            })
+                .transaction();
+            tx.add(depositComponentTx);
+            return tx;
+        }
+        catch (error) {
+            console.log(error);
+            throw error;
+        }
     }
     /**
      * Buys a component.
@@ -758,7 +801,7 @@ class PieProgram {
         return tx;
     }
     /**
-     * Deposits WSOL into the basket.
+     * Withdraws a WSOL from the basket.
      * @param user - The user account.
      * @param basketId - The basket ID.
      * @param amount - The amount of WSOL to deposit.
@@ -788,6 +831,38 @@ class PieProgram {
         return tx;
     }
     /**
+     * Withdraws a component from the basket.
+     * @param user - The user account.
+     * @param basketId - The basket ID.
+     * @param amount - The amount of component to withdraw.
+     * @param mint - The mint of the component.
+     * @returns A promise that resolves to a transaction.
+     */
+    async withdrawComponent({ user, basketId, amount, mint, }) {
+        const basketConfig = this.basketConfigPDA({ basketId });
+        const tx = new web3_js_1.Transaction();
+        const { tokenAccount: vaultTokenAccount } = await (0, helper_1.getOrCreateTokenAccountTx)(this.connection, mint, user, basketConfig);
+        const { tokenAccount: userTokenAccount, tx: createUserTokenAccountTx } = await (0, helper_1.getOrCreateTokenAccountTx)(this.connection, mint, user, user);
+        if ((0, helper_1.isValidTransaction)(createUserTokenAccountTx)) {
+            tx.add(createUserTokenAccountTx);
+        }
+        const withdrawComponentTx = await this.program.methods
+            .withdrawComponent(new anchor_1.BN(amount))
+            .accountsPartial({
+            user,
+            programState: this.programStatePDA,
+            userFund: this.userFundPDA({ user, basketId }),
+            basketConfig: basketConfig,
+            userTokenAccount,
+            vaultTokenAccount,
+            platformFeeTokenAccount: await this.getPlatformFeeTokenAccount(),
+            creatorTokenAccount: await this.getCreatorFeeTokenAccount({ basketId }),
+        })
+            .transaction();
+        tx.add(withdrawComponentTx);
+        return tx;
+    }
+    /**
      * Mints a basket token.
      * @param user - The user account.
      * @param basketId - The basket ID.
@@ -805,6 +880,36 @@ class PieProgram {
         }
         const mintBasketTokenTx = await this.program.methods
             .mintBasketToken(new anchor_1.BN(amount))
+            .accountsPartial({
+            user,
+            programState: this.programStatePDA,
+            basketConfig,
+            userFund,
+            basketMint,
+            userBasketTokenAccount,
+        })
+            .transaction();
+        tx.add(mintBasketTokenTx);
+        return tx;
+    }
+    /**
+     * Mints a multichain basket token.
+     * @param user - The user account.
+     * @param basketId - The basket ID.
+     * @param amount - The amount.
+     * @returns A promise that resolves to a transaction.
+     */
+    async mintMultichainBasketToken({ user, basketId, amount, }) {
+        const tx = new web3_js_1.Transaction();
+        const basketMint = this.basketMintPDA({ basketId });
+        const basketConfig = this.basketConfigPDA({ basketId });
+        const userFund = this.userFundPDA({ user, basketId });
+        const { tokenAccount: userBasketTokenAccount, tx: userBasketTokenTx } = await (0, helper_1.getOrCreateTokenAccountTx)(this.connection, basketMint, user, user);
+        if ((0, helper_1.isValidTransaction)(userBasketTokenTx)) {
+            tx.add(userBasketTokenTx);
+        }
+        const mintBasketTokenTx = await this.program.methods
+            .mintMultichainBasketToken(new anchor_1.BN(amount))
             .accountsPartial({
             user,
             programState: this.programStatePDA,

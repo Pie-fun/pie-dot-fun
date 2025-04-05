@@ -7,7 +7,7 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { BuyAndSellSchema } from '@/app/[locale]/baskets/[chain]/[address]/useBuyAndSellSchema'
 import { useQuery } from '@tanstack/react-query'
 import { getUserFundQuery } from '@/app/api/backend/v1/pieProgram/queries'
-import { BN } from '@ao-labs/pie-dot-fun-solana'
+import { BN } from '@pie-fun/pie-dot-fun-solana'
 import { PublicKey } from '@solana/web3.js'
 import { DUMMY_SVM_ADDRESS } from '@/constants/blockChains'
 import {

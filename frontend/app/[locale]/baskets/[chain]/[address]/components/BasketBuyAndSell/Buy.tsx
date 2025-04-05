@@ -46,7 +46,7 @@ import BigNumber from 'bignumber.js'
 import { getBasketTokenResource } from '@/app/api/backend/v1/basketToken/resource'
 import { getBasketTokenMarket } from '@/app/api/backend/v1/basketTokenMarket/requests'
 import { getBasketTokenMarketResource } from '@/app/api/backend/v1/basketTokenMarket/resource'
-import { PieProgram } from '@ao-labs/pie-dot-fun-solana'
+import { PieProgram } from '@pie-fun/pie-dot-fun-solana'
 import { useToast } from '@/components/Toast/useToast'
 import { getBasketTokenQuery } from '@/app/api/backend/v1/basketToken/queries'
 import {

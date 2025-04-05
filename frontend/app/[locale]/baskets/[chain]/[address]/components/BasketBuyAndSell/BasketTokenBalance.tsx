@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { getTokenBalanceQuery } from '@/app/api/backend/v1/pieProgram/queries'
 import { useSolana } from '@/hooks/useSolana'
 import { FirstParameter } from '@/types/utility'
-import { PieProgram } from '@ao-labs/pie-dot-fun-solana'
+import { PieProgram } from '@pie-fun/pie-dot-fun-solana'
 import { DECIMALS } from '@/constants/blockChains'
 import BigNumber from 'bignumber.js'
 
