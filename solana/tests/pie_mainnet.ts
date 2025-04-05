@@ -26,6 +26,7 @@ import { getMint, NATIVE_MINT } from "@solana/spl-token";
 import {
   getExplorerUrl,
   getOrCreateNativeMintATA,
+  getSolanaAddressFromEvmAddress,
   getTokenListFromSolanaClient,
   isValidTransaction,
   showBasketConfigTable,
@@ -368,6 +369,14 @@ describe("pie", () => {
   });
 
   it.only("Buy components with Mayan and Jito", async () => {
+    const solanaTokens = [
+      "9BB6NFEcjBCtnNLFko2FqVQBq8HHM13kCyYcdQbgpump",
+      "HeLp6NuQkmYB4pYWo2zYs22mESHXPQYzXbB8n4V98jwC",
+      "61V8vBaqAGMpgDQi4JcAwo1dmBGHsyhzodcPqnEVpump",
+      "KMNo3nJsBXfcpJTVhZcXLW7RmTwTt4GVFE7suUBo9sS",
+      "HNg5PYJmtqcmzXrv6S9zP1CDKk5BgDuyFBxbvNApump",
+    ];
+
     const baseTokens = [
       "0x4F9Fd6Be4a90f2620860d680c0d4d5Fb53d1A825",
       "0x0b3e328455c4059EEb9e3f84b5543F74E24e7E1b",
@@ -375,6 +384,14 @@ describe("pie", () => {
       "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
       "0xc0041ef357b183448b235a8ea73ce4e4ec8c265f",
     ];
+
+    const baseTokensBase58 = baseTokens.map((token) =>
+      getSolanaAddressFromEvmAddress(token)
+    );
+
+    console.log(baseTokensBase58);
+
+    return;
 
     const baseAddress = "0xe215E8C50690F2a7Dc7C5A9E907acDCe8A033B97";
 
