@@ -7,7 +7,7 @@ import { BuyAndSellSchema } from '@/app/[locale]/baskets/[chain]/[address]/useBu
 import { useQuery } from '@tanstack/react-query'
 import { getTokenBalanceQuery } from '@/app/api/backend/v1/pieProgram/queries'
 import { useSolana } from '@/hooks/useSolana'
-import { PieProgram } from '@ao-labs/pie-dot-fun-solana'
+import { PieProgram } from '@pie-fun/pie-dot-fun-solana'
 import { FirstParameter } from '@/types/utility'
 import { DECIMALS } from '@/constants/blockChains'
 

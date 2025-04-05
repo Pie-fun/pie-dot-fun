@@ -1,6 +1,6 @@
 import { BaseQueryOptions } from '@/libs/react-query/types'
 import { queryKeys } from '@/libs/react-query/queryKeys'
-import { PieProgram } from '@ao-labs/pie-dot-fun-solana'
+import { PieProgram } from '@pie-fun/pie-dot-fun-solana'
 import { FirstParameter } from '@/types/utility'
 
 type PieProgramConstructorProps = {

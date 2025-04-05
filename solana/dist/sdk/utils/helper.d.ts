@@ -87,4 +87,5 @@ export declare const processBuySwapData: (preVaultBalance: number, swapData: Buy
     insufficientAmount?: number;
 };
 export declare function findDepositAndRemoveInPlace(arr: BuySwapData[]): BuySwapData | null;
+export declare function getSolanaAddressFromEvmAddress(evmAddress: string): string;
 //# sourceMappingURL=helper.d.ts.map
