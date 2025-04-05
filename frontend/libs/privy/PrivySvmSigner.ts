@@ -1,4 +1,4 @@
-import { ConnectedSolanaWallet } from '@privy-io/react-auth'
+import { ConnectedSolanaWallet } from '@privy-io/react-auth/solana'
 import { Connection } from '@solana/web3.js'
 import {
   Chain,
@@ -32,12 +32,19 @@ export class PrivySvmSigner<N extends Network, C extends Chain>
     unsignedTransactions: UnsignedTransaction<N, C>[],
   ): Promise<TxHash[]> {
     const transactions = await Promise.all(
-      unsignedTransactions.map((unsignedTransaction) =>
-        this.wallet.sendTransaction(
-          unsignedTransaction.transaction,
+      unsignedTransactions.map(async (unsignedTransaction) => {
+        const { blockhash } = await this.connection.getLatestBlockhash()
+
+        unsignedTransaction.transaction.transaction.message.recentBlockhash =
+          blockhash
+
+        const tx = await this.wallet.sendTransaction(
+          unsignedTransaction.transaction.transaction,
           this.connection,
-        ),
-      ),
+        )
+
+        return tx
+      }),
     )
 
     return transactions

@@ -2,7 +2,7 @@ import { BN, EventParser, Idl, IdlAccounts, IdlEvents, IdlTypes, Program } from 
 import { AddressLookupTableAccount, Cluster, Commitment, Connection, Keypair, PublicKey, Transaction } from "@solana/web3.js";
 import { Pie } from "../target/types/pie";
 import { Raydium } from "@raydium-io/raydium-sdk-v2";
-import { Jito } from "../sdk/jito";
+import { Jito } from "./jito";
 import { BuySwapData, RebalanceInfo, TokenInfo } from "./types";
 export type ProgramState = IdlAccounts<Pie>["programState"];
 export type BasketConfig = IdlAccounts<Pie>["basketConfig"];
@@ -200,6 +200,26 @@ export declare class PieProgram {
         amount: string;
         userWsolAccount: PublicKey;
     }): Promise<Transaction>;
+    getMayanBaseSwapTxs({ fromAddress, toAddress, baseTokens, amount, }: {
+        fromAddress: string;
+        toAddress: string;
+        baseTokens: string[];
+        amount?: number;
+    }): Promise<string[]>;
+    /**
+     * Deposits a component into the basket.
+     * @param user - The user account.
+     * @param basketId - The basket ID.
+     * @param amount - The amount of component to deposit.
+     * @param mint - The mint of the component.
+     * @returns A promise that resolves to a transaction.
+     */
+    depositComponent({ user, basketId, amount, mint, }: {
+        user: PublicKey;
+        basketId: BN;
+        amount: string;
+        mint: PublicKey;
+    }): Promise<Transaction>;
     /**
      * Buys a component.
      * @param userSourceOwner - The user source owner account.
@@ -308,7 +328,7 @@ export declare class PieProgram {
         unwrapSol?: boolean;
     }): Promise<Transaction>;
     /**
-     * Deposits WSOL into the basket.
+     * Withdraws a WSOL from the basket.
      * @param user - The user account.
      * @param basketId - The basket ID.
      * @param amount - The amount of WSOL to deposit.
@@ -321,6 +341,20 @@ export declare class PieProgram {
         userWsolAccount: PublicKey;
     }): Promise<Transaction>;
     /**
+     * Withdraws a component from the basket.
+     * @param user - The user account.
+     * @param basketId - The basket ID.
+     * @param amount - The amount of component to withdraw.
+     * @param mint - The mint of the component.
+     * @returns A promise that resolves to a transaction.
+     */
+    withdrawComponent({ user, basketId, amount, mint, }: {
+        user: PublicKey;
+        basketId: BN;
+        amount: string;
+        mint: PublicKey;
+    }): Promise<Transaction>;
+    /**
      * Mints a basket token.
      * @param user - The user account.
      * @param basketId - The basket ID.
@@ -328,6 +362,18 @@ export declare class PieProgram {
      * @returns A promise that resolves to a transaction.
      */
     mintBasketToken({ user, basketId, amount, }: {
+        user: PublicKey;
+        basketId: BN;
+        amount: string;
+    }): Promise<Transaction>;
+    /**
+     * Mints a multichain basket token.
+     * @param user - The user account.
+     * @param basketId - The basket ID.
+     * @param amount - The amount.
+     * @returns A promise that resolves to a transaction.
+     */
+    mintMultichainBasketToken({ user, basketId, amount, }: {
         user: PublicKey;
         basketId: BN;
         amount: string;

@@ -5,12 +5,12 @@ import { Deposit } from '@/app/components/Deposit/Deposit'
 import { Button } from '@/components/Button/Button'
 import { Icon } from '@/components/Icon/Icon'
 import { IcDownwardArrawInCutcircleOutline } from '@/components/Icon/Icons'
-import { SolBalance } from '@/app/components/Header/DepositCard/SolBalance'
+// import { SolBalance } from '@/app/components/Header/DepositCard/SolBalance'
 import { Typography } from '@/components/Typography/Typography'
-import { EthBalance } from '@/app/components/Header/DepositCard/EthBalance'
-import { ErrorBoundary } from 'react-error-boundary'
-import { ErrorFallback } from '@/app/components/ErrorFallback/ErrorFallback'
-import { BaseEthBalance } from '@/app/components/Header/DepositCard/BaseEthBalance'
+// import { EthBalance } from '@/app/components/Header/DepositCard/EthBalance'
+// import { ErrorBoundary } from 'react-error-boundary'
+// import { ErrorFallback } from '@/app/components/ErrorFallback/ErrorFallback'
+// import { BaseEthBalance } from '@/app/components/Header/DepositCard/BaseEthBalance'
 
 export function DepositCard() {
   const t = useTranslations()
@@ -29,7 +29,8 @@ export function DepositCard() {
           gap='m'
           align='spaceBetweenCenter'
         >
-          <ErrorBoundary fallback={<ErrorFallback />}>
+          {/* TODO @ted polling timing interference */}
+          {/* <ErrorBoundary fallback={<ErrorFallback />}>
             <SolBalance />
           </ErrorBoundary>
           <ErrorBoundary fallback={<ErrorFallback />}>
@@ -37,7 +38,7 @@ export function DepositCard() {
           </ErrorBoundary>
           <ErrorBoundary fallback={<ErrorFallback />}>
             <BaseEthBalance />
-          </ErrorBoundary>
+          </ErrorBoundary> */}
           <Deposit
             trigger={
               <Typography typography='body2' fontWeight='bold'>

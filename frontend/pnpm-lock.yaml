@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@ao-labs/pie-dot-fun-solana':
-        specifier: ^0.0.49
-        version: 0.0.49(bufferutil@4.0.8)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.6.3)(utf-8-validate@5.0.10)
       '@apollo/server':
         specifier: ^4.11.3
         version: 4.11.3(encoding@0.1.13)(graphql@16.10.0)
@@ -23,12 +20,18 @@ importers:
       '@lukemorales/query-key-factory':
         specifier: ^1.3.4
         version: 1.3.4(@tanstack/query-core@5.59.17)(@tanstack/react-query@5.59.19(react@19.0.0-rc-02c0e824-20241028))
+      '@mayanfinance/swap-sdk':
+        specifier: ^10.4.0
+        version: 10.4.0(bufferutil@4.0.8)(encoding@0.1.13)(typescript@5.6.3)(utf-8-validate@5.0.10)
       '@mayanfinance/wormhole-sdk-route':
         specifier: ^1.12.0
         version: 1.12.0(@solana/web3.js@1.98.0(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10))(@wormhole-foundation/sdk-connect@1.14.1)(@wormhole-foundation/sdk-evm@1.14.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))(@wormhole-foundation/sdk-solana@1.14.1(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10))(@wormhole-foundation/sdk-sui@1.14.1(typescript@5.6.3))(bufferutil@4.0.8)(encoding@0.1.13)(ethers@6.13.5(bufferutil@4.0.8)(utf-8-validate@5.0.10))(typescript@5.6.3)(utf-8-validate@5.0.10)
       '@next/third-parties':
         specifier: ^15.1.6
         version: 15.1.6(next@15.0.2(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@19.0.0-rc-02c0e824-20241028(react@19.0.0-rc-02c0e824-20241028))(react@19.0.0-rc-02c0e824-20241028))(react@19.0.0-rc-02c0e824-20241028)
+      '@pie-fun/pie-dot-fun-solana':
+        specifier: 0.0.6
+        version: 0.0.6(bufferutil@4.0.8)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.6.3)(utf-8-validate@5.0.10)
       '@privy-io/react-auth':
         specifier: ^2.0.1
         version: 2.0.1(@solana/web3.js@1.98.0(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10))(@types/react@18.3.12)(bs58@6.0.0)(bufferutil@4.0.8)(react-dom@19.0.0-rc-02c0e824-20241028(react@19.0.0-rc-02c0e824-20241028))(react@19.0.0-rc-02c0e824-20241028)(typescript@5.6.3)(use-sync-external-store@1.2.0(react@19.0.0-rc-02c0e824-20241028))(utf-8-validate@5.0.10)(zod@3.23.8)
@@ -338,9 +341,6 @@ packages:
   '@ampproject/remapping@2.3.0':
     resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
     engines: {node: '>=6.0.0'}
-
-  '@ao-labs/pie-dot-fun-solana@0.0.49':
-    resolution: {integrity: sha512-XaRPmwGKBko7qAmWItn29OD3dc7oUSM2z1MxxDZZW8fPbSksNDM6sXZyXNmivwAviQx65IiGaTTXOPHQsNmipQ==, tarball: https://npm.pkg.github.com/download/@ao-labs/pie-dot-fun-solana/0.0.49/05f1aa16c9aeac3e35af376b3a864be835ed2112}
 
   '@apollo/cache-control-types@1.0.3':
     resolution: {integrity: sha512-F17/vCp7QVwom9eG7ToauIKdAxpSoadsJnqIfyryLFSkLSOEqu+eC5Z3N8OXcUVStuOMcNHlyraRsA6rRICu4g==}
@@ -2401,6 +2401,9 @@ packages:
   '@mayanfinance/swap-sdk@10.3.0':
     resolution: {integrity: sha512-6wAfjRYQL9726DIUKcsT+hdUURI8QDJVXQ11yhX1IVknK0ypiFpPrFdAY2KcpifhVOE2osFUMZ+YqO95Y5LJ1A==}
 
+  '@mayanfinance/swap-sdk@10.4.0':
+    resolution: {integrity: sha512-OA3IGWS5WnkqgV4YCfR2TCv/zi1gj/tTTxoerXyxFdcdGyF2aeMM4p+5zfsh0Rvh+i+J30scOM2hPG7nIC/ucA==}
+
   '@mayanfinance/wormhole-sdk-route@1.12.0':
     resolution: {integrity: sha512-l1Mfw8nTDxwbQwo5ZeqmwjQnhxL7GelDhhIDtOEZ2rELBwIaVj55i9r/YyqX8c1EAy9b1qKHb0LJIpQ2/IQbtQ==}
     engines: {node: '>=16'}
@@ -2958,6 +2961,9 @@ packages:
 
   '@paulmillr/qr@0.2.1':
     resolution: {integrity: sha512-IHnV6A+zxU7XwmKFinmYjUcwlyK9+xkG3/s9KcQhI9BjQKycrJ1JRO+FbNYPwZiPKW3je/DR0k7w8/gLa5eaxQ==}
+
+  '@pie-fun/pie-dot-fun-solana@0.0.6':
+    resolution: {integrity: sha512-sijIZzVTiI/Z9W472XA5X+CziTvhxFhGKhOen+zLR2U4SP2qSQQTyaRUqU1hDzDJbUCg+TdzSLCF6rQe+2nwiw==, tarball: https://npm.pkg.github.com/download/@pie-fun/pie-dot-fun-solana/0.0.6/f07d551a5fc834d3a3ae95ba16a1672a6e83ef4a}
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -4047,8 +4053,8 @@ packages:
     peerDependencies:
       '@solana/web3.js': ^1.47.4
 
-  '@solana/spl-token@0.4.12':
-    resolution: {integrity: sha512-K6CxzSoO1vC+WBys25zlSDaW0w4UFZO/IvEZquEI35A/PjqXNQHeVigmDCZYEJfESvYarKwsr8tYr/29lPtvaw==}
+  '@solana/spl-token@0.4.13':
+    resolution: {integrity: sha512-cite/pYWQZZVvLbg5lsodSovbetK/eA24gaR0eeUeMuBAMNrT8XFCwaygKy0N2WSg3gSyjjNpIeAGBAKZaY/1w==}
     engines: {node: '>=16'}
     peerDependencies:
       '@solana/web3.js': ^1.95.5
@@ -5320,9 +5326,6 @@ packages:
 
   axios@1.7.7:
     resolution: {integrity: sha512-S4kL7XrjgBmvdGut0sN3yJxqYzrDOnivkBiN0OFs6hLiUam3UPvswUo0kqGyhqUZGEOytHyumEdXsAkgCOUf3Q==}
-
-  axios@1.7.9:
-    resolution: {integrity: sha512-LhLcE7Hbiryz8oMDdDptSrWowmB4Bl6RCt6sIJKpRB4XtVf0iEgewX3au/pJqm+Py1kCASkb/FFKjxQaLtxJvw==}
 
   axios@1.8.4:
     resolution: {integrity: sha512-eBSYY4Y68NNlHbHBMdeDmKNtDgXWhQsJcGqzO3iLUM0GraQFSS9cVgPX5I9b3lbdFKyYoAEGAZF1DwhTaljNAw==}
@@ -10230,24 +10233,6 @@ snapshots:
       '@jridgewell/gen-mapping': 0.3.5
       '@jridgewell/trace-mapping': 0.3.25
 
-  '@ao-labs/pie-dot-fun-solana@0.0.49(bufferutil@4.0.8)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.6.3)(utf-8-validate@5.0.10)':
-    dependencies:
-      '@coral-xyz/anchor': 0.30.1(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
-      '@raydium-io/raydium-sdk-v2': 0.1.99-alpha(bufferutil@4.0.8)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.6.3)(utf-8-validate@5.0.10)
-      '@solana/spl-token': 0.4.12(@solana/web3.js@1.98.0(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10))(bufferutil@4.0.8)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.6.3)(utf-8-validate@5.0.10)
-      '@solana/web3.js': 1.98.0(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
-      axios: 1.7.9
-      bs58: 6.0.0
-      console-table-printer: 2.12.1
-      decimal.js: 10.5.0
-    transitivePeerDependencies:
-      - bufferutil
-      - debug
-      - encoding
-      - fastestsmallesttextencoderdecoder
-      - typescript
-      - utf-8-validate
-
   '@apollo/cache-control-types@1.0.3(graphql@16.10.0)':
     dependencies:
       graphql: 16.10.0
@@ -13078,6 +13063,24 @@ snapshots:
       - typescript
       - utf-8-validate
 
+  '@mayanfinance/swap-sdk@10.4.0(bufferutil@4.0.8)(encoding@0.1.13)(typescript@5.6.3)(utf-8-validate@5.0.10)':
+    dependencies:
+      '@mysten/sui': 1.26.1(typescript@5.6.3)
+      '@solana/buffer-layout': 4.0.1
+      '@solana/web3.js': 1.98.0(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
+      bs58: 6.0.0
+      cross-fetch: 3.1.8(encoding@0.1.13)
+      ethers: 6.13.5(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+      js-sha256: 0.9.0
+      js-sha3: 0.8.0
+    transitivePeerDependencies:
+      - '@gql.tada/svelte-support'
+      - '@gql.tada/vue-support'
+      - bufferutil
+      - encoding
+      - typescript
+      - utf-8-validate
+
   '@mayanfinance/wormhole-sdk-route@1.12.0(@solana/web3.js@1.98.0(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10))(@wormhole-foundation/sdk-connect@1.14.1)(@wormhole-foundation/sdk-evm@1.14.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))(@wormhole-foundation/sdk-solana@1.14.1(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10))(@wormhole-foundation/sdk-sui@1.14.1(typescript@5.6.3))(bufferutil@4.0.8)(encoding@0.1.13)(ethers@6.13.5(bufferutil@4.0.8)(utf-8-validate@5.0.10))(typescript@5.6.3)(utf-8-validate@5.0.10)':
     dependencies:
       '@mayanfinance/swap-sdk': 10.3.0(bufferutil@4.0.8)(encoding@0.1.13)(typescript@5.6.3)(utf-8-validate@5.0.10)
@@ -13797,6 +13800,27 @@ snapshots:
       '@parcel/watcher-win32-x64': 2.5.1
 
   '@paulmillr/qr@0.2.1': {}
+
+  '@pie-fun/pie-dot-fun-solana@0.0.6(bufferutil@4.0.8)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.6.3)(utf-8-validate@5.0.10)':
+    dependencies:
+      '@coral-xyz/anchor': 0.30.1(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
+      '@mayanfinance/swap-sdk': 10.4.0(bufferutil@4.0.8)(encoding@0.1.13)(typescript@5.6.3)(utf-8-validate@5.0.10)
+      '@raydium-io/raydium-sdk-v2': 0.1.99-alpha(bufferutil@4.0.8)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.6.3)(utf-8-validate@5.0.10)
+      '@solana/spl-token': 0.4.13(@solana/web3.js@1.98.0(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10))(bufferutil@4.0.8)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.6.3)(utf-8-validate@5.0.10)
+      '@solana/web3.js': 1.98.0(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
+      axios: 1.8.4
+      bs58: 6.0.0
+      console-table-printer: 2.12.1
+      decimal.js: 10.5.0
+    transitivePeerDependencies:
+      - '@gql.tada/svelte-support'
+      - '@gql.tada/vue-support'
+      - bufferutil
+      - debug
+      - encoding
+      - fastestsmallesttextencoderdecoder
+      - typescript
+      - utf-8-validate
 
   '@pkgjs/parseargs@0.11.0':
     optional: true
@@ -14523,9 +14547,9 @@ snapshots:
   '@raydium-io/raydium-sdk-v2@0.1.99-alpha(bufferutil@4.0.8)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.6.3)(utf-8-validate@5.0.10)':
     dependencies:
       '@solana/buffer-layout': 4.0.1
-      '@solana/spl-token': 0.4.12(@solana/web3.js@1.98.0(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10))(bufferutil@4.0.8)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.6.3)(utf-8-validate@5.0.10)
+      '@solana/spl-token': 0.4.13(@solana/web3.js@1.98.0(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10))(bufferutil@4.0.8)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.6.3)(utf-8-validate@5.0.10)
       '@solana/web3.js': 1.98.0(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
-      axios: 1.7.9
+      axios: 1.8.4
       big.js: 6.2.2
       bn.js: 5.2.1
       dayjs: 1.11.13
@@ -15096,7 +15120,7 @@ snapshots:
       - encoding
       - utf-8-validate
 
-  '@solana/spl-token@0.4.12(@solana/web3.js@1.98.0(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10))(bufferutil@4.0.8)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.6.3)(utf-8-validate@5.0.10)':
+  '@solana/spl-token@0.4.13(@solana/web3.js@1.98.0(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10))(bufferutil@4.0.8)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.6.3)(utf-8-validate@5.0.10)':
     dependencies:
       '@solana/buffer-layout': 4.0.1
       '@solana/buffer-layout-utils': 0.2.0(bufferutil@4.0.8)(encoding@0.1.13)(utf-8-validate@5.0.10)
@@ -17470,14 +17494,6 @@ snapshots:
   axe-core@4.10.2: {}
 
   axios@1.7.7:
-    dependencies:
-      follow-redirects: 1.15.9
-      form-data: 4.0.1
-      proxy-from-env: 1.1.0
-    transitivePeerDependencies:
-      - debug
-
-  axios@1.7.9:
     dependencies:
       follow-redirects: 1.15.9
       form-data: 4.0.1

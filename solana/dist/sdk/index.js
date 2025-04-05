@@ -42,4 +42,6 @@ exports.Jito = __importStar(require("./jito"));
 var anchor_1 = require("@coral-xyz/anchor");
 Object.defineProperty(exports, "BN", { enumerable: true, get: function () { return anchor_1.BN; } });
 __exportStar(require("./types"), exports);
+__exportStar(require("./jupiter"), exports);
+__exportStar(require("./utils/helper"), exports);
 //# sourceMappingURL=index.js.map

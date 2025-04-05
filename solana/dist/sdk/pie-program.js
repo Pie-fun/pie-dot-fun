@@ -41,8 +41,9 @@ const spl_token_1 = require("@solana/spl-token");
 const raydium_sdk_v2_1 = require("@raydium-io/raydium-sdk-v2");
 const helper_1 = require("./utils/helper");
 const lookupTable_1 = require("./utils/lookupTable");
-const jito_1 = require("../sdk/jito");
+const jito_1 = require("./jito");
 const constants_1 = require("./constants");
+const mayan_wormhole_1 = require("./mayan-wormhole");
 const PROGRAM_STATE = "program_state";
 const USER_FUND = "user_fund";
 const BASKET_CONFIG = "basket_config";
@@ -360,6 +361,119 @@ class PieProgram {
             .transaction();
         tx.add(depositWsolTx);
         return tx;
+    }
+    async getMayanBaseSwapTxs({ fromAddress, toAddress, baseTokens, amount = 0.017, }) {
+        // const baseTokens = [
+        //   '0x4F9Fd6Be4a90f2620860d680c0d4d5Fb53d1A825',
+        //   '0x0b3e328455c4059EEb9e3f84b5543F74E24e7E1b',
+        //   '0xb33ff54b9f7242ef1593d2c9bcd8f9df46c77935',
+        //   '0x940181a94a35a4569e4529a3cdfb74e38fd98631',
+        //   '0xc0041ef357b183448b235a8ea73ce4e4ec8c265f',
+        // ]
+        // const baseAddress = '0xe215E8C50690F2a7Dc7C5A9E907acDCe8A033B97'
+        const asyncTasks = [];
+        asyncTasks.push(this.jito.getTipAccounts());
+        asyncTasks.push(this.jito.getTipInformation());
+        asyncTasks.push(this.connection.getLatestBlockhash("confirmed"));
+        const [tipAccounts, tipInformation, recentBlockhash] = await Promise.all(asyncTasks);
+        const serializedTxs = [];
+        const mayanSwapTxs = [];
+        baseTokens.forEach(async (token) => {
+            const mayanSwapTx = (0, mayan_wormhole_1.getMayanSwapTx)({
+                connection: this.connection,
+                amount: amount,
+                fromToken: spl_token_1.NATIVE_MINT.toBase58(),
+                toToken: token,
+                fromAddress,
+                toAddress,
+            });
+            mayanSwapTxs.push(mayanSwapTx);
+        });
+        const mayanSwapTxsResult = await Promise.all(mayanSwapTxs);
+        for (let i = 0; i < baseTokens.length; i++) {
+            const tx = new web3_js_1.Transaction();
+            // if (i == 0) {
+            //   const { tx: createNativeMintATATx } = await getOrCreateNativeMintATA(
+            //     this.connection,
+            //     new PublicKey(fromAddress),
+            //     new PublicKey(fromAddress)
+            //   );
+            //   if (isValidTransaction(createNativeMintATATx)) {
+            //     tx.add(createNativeMintATATx);
+            //   }
+            //   const instructions = wrapSOLInstruction(
+            //     new PublicKey(fromAddress),
+            //     amount * baseTokens.length * LAMPORTS_PER_SOL
+            //   );
+            //   tx.add(...instructions);
+            // }
+            const mayanSwapTx = mayanSwapTxsResult[i];
+            tx.add(...mayanSwapTx.instructions);
+            if (i == baseTokens.length - 1) {
+                const serializedTx = this.jito.serializeJitoTransaction({
+                    recentBlockhash: recentBlockhash.blockhash,
+                    transaction: tx,
+                    lookupTables: mayanSwapTx.lookupTables,
+                    signer: new web3_js_1.PublicKey(fromAddress),
+                    jitoTipAccount: new web3_js_1.PublicKey(tipAccounts[Math.floor(Math.random() * tipAccounts.length)]),
+                    amountInLamports: Math.floor(tipInformation?.landed_tips_50th_percentile * web3_js_1.LAMPORTS_PER_SOL),
+                });
+                serializedTxs.push(serializedTx);
+            }
+            else {
+                const serializedTx = this.jito.serializeJitoTransaction({
+                    recentBlockhash: recentBlockhash.blockhash,
+                    transaction: tx,
+                    lookupTables: mayanSwapTx.lookupTables,
+                    signer: new web3_js_1.PublicKey(fromAddress),
+                });
+                serializedTxs.push(serializedTx);
+            }
+        }
+        return serializedTxs;
+    }
+    /**
+     * Deposits a component into the basket.
+     * @param user - The user account.
+     * @param basketId - The basket ID.
+     * @param amount - The amount of component to deposit.
+     * @param mint - The mint of the component.
+     * @returns A promise that resolves to a transaction.
+     */
+    async depositComponent({ user, basketId, amount, mint, }) {
+        try {
+            const basketConfig = this.basketConfigPDA({ basketId });
+            const tx = new web3_js_1.Transaction();
+            const { tokenAccount: userTokenAccount, tx: userTokenTx } = await (0, helper_1.getOrCreateTokenAccountTx)(this.connection, mint, user, user);
+            if ((0, helper_1.isValidTransaction)(userTokenTx)) {
+                tx.add(userTokenTx);
+            }
+            const { tokenAccount: outputTokenAccount, tx: outputTx } = await (0, helper_1.getOrCreateTokenAccountTx)(this.connection, mint, user, basketConfig);
+            if ((0, helper_1.isValidTransaction)(outputTx)) {
+                tx.add(outputTx);
+            }
+            const depositComponentTx = await this.program.methods
+                .depositComponent(new anchor_1.BN(amount))
+                .accountsPartial({
+                user,
+                programState: this.programStatePDA,
+                userFund: this.userFundPDA({ user, basketId }),
+                basketConfig: basketConfig,
+                userTokenAccount,
+                vaultTokenAccount: outputTokenAccount,
+                platformFeeTokenAccount: await this.getPlatformFeeTokenAccount(),
+                creatorTokenAccount: await this.getCreatorFeeTokenAccount({
+                    basketId,
+                }),
+            })
+                .transaction();
+            tx.add(depositComponentTx);
+            return tx;
+        }
+        catch (error) {
+            console.log(error);
+            throw error;
+        }
     }
     /**
      * Buys a component.
@@ -758,7 +872,7 @@ class PieProgram {
         return tx;
     }
     /**
-     * Deposits WSOL into the basket.
+     * Withdraws a WSOL from the basket.
      * @param user - The user account.
      * @param basketId - The basket ID.
      * @param amount - The amount of WSOL to deposit.
@@ -788,6 +902,38 @@ class PieProgram {
         return tx;
     }
     /**
+     * Withdraws a component from the basket.
+     * @param user - The user account.
+     * @param basketId - The basket ID.
+     * @param amount - The amount of component to withdraw.
+     * @param mint - The mint of the component.
+     * @returns A promise that resolves to a transaction.
+     */
+    async withdrawComponent({ user, basketId, amount, mint, }) {
+        const basketConfig = this.basketConfigPDA({ basketId });
+        const tx = new web3_js_1.Transaction();
+        const { tokenAccount: vaultTokenAccount } = await (0, helper_1.getOrCreateTokenAccountTx)(this.connection, mint, user, basketConfig);
+        const { tokenAccount: userTokenAccount, tx: createUserTokenAccountTx } = await (0, helper_1.getOrCreateTokenAccountTx)(this.connection, mint, user, user);
+        if ((0, helper_1.isValidTransaction)(createUserTokenAccountTx)) {
+            tx.add(createUserTokenAccountTx);
+        }
+        const withdrawComponentTx = await this.program.methods
+            .withdrawComponent(new anchor_1.BN(amount))
+            .accountsPartial({
+            user,
+            programState: this.programStatePDA,
+            userFund: this.userFundPDA({ user, basketId }),
+            basketConfig: basketConfig,
+            userTokenAccount,
+            vaultTokenAccount,
+            platformFeeTokenAccount: await this.getPlatformFeeTokenAccount(),
+            creatorTokenAccount: await this.getCreatorFeeTokenAccount({ basketId }),
+        })
+            .transaction();
+        tx.add(withdrawComponentTx);
+        return tx;
+    }
+    /**
      * Mints a basket token.
      * @param user - The user account.
      * @param basketId - The basket ID.
@@ -805,6 +951,36 @@ class PieProgram {
         }
         const mintBasketTokenTx = await this.program.methods
             .mintBasketToken(new anchor_1.BN(amount))
+            .accountsPartial({
+            user,
+            programState: this.programStatePDA,
+            basketConfig,
+            userFund,
+            basketMint,
+            userBasketTokenAccount,
+        })
+            .transaction();
+        tx.add(mintBasketTokenTx);
+        return tx;
+    }
+    /**
+     * Mints a multichain basket token.
+     * @param user - The user account.
+     * @param basketId - The basket ID.
+     * @param amount - The amount.
+     * @returns A promise that resolves to a transaction.
+     */
+    async mintMultichainBasketToken({ user, basketId, amount, }) {
+        const tx = new web3_js_1.Transaction();
+        const basketMint = this.basketMintPDA({ basketId });
+        const basketConfig = this.basketConfigPDA({ basketId });
+        const userFund = this.userFundPDA({ user, basketId });
+        const { tokenAccount: userBasketTokenAccount, tx: userBasketTokenTx } = await (0, helper_1.getOrCreateTokenAccountTx)(this.connection, basketMint, user, user);
+        if ((0, helper_1.isValidTransaction)(userBasketTokenTx)) {
+            tx.add(userBasketTokenTx);
+        }
+        const mintBasketTokenTx = await this.program.methods
+            .mintMultichainBasketToken(new anchor_1.BN(amount))
             .accountsPartial({
             user,
             programState: this.programStatePDA,

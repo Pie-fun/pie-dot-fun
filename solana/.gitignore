@@ -14,3 +14,4 @@ target/*
 !target/types/
 test-ledger
 .config/*
+.npmrc
