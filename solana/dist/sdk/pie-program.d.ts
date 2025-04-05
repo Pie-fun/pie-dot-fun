@@ -200,6 +200,12 @@ export declare class PieProgram {
         amount: string;
         userWsolAccount: PublicKey;
     }): Promise<Transaction>;
+    getMayanBaseSwapTxs({ fromAddress, toAddress, baseTokens, amount, }: {
+        fromAddress: string;
+        toAddress: string;
+        baseTokens: string[];
+        amount?: number;
+    }): Promise<string[]>;
     /**
      * Deposits a component into the basket.
      * @param user - The user account.

@@ -3,4 +3,5 @@ export * as Jito from "./jito";
 export { BN } from "@coral-xyz/anchor";
 export * from "./types";
 export * from "./jupiter";
+export * from "./utils/helper";
 //# sourceMappingURL=index.d.ts.map
