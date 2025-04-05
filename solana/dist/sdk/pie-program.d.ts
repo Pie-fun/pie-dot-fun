@@ -200,7 +200,7 @@ export declare class PieProgram {
         amount: string;
         userWsolAccount: PublicKey;
     }): Promise<Transaction>;
-    getMayanWsolSwapTx({ fromAddress, toAddress, baseTokens, amount, }: {
+    getMayanBaseSwapTxs({ fromAddress, toAddress, baseTokens, amount, }: {
         fromAddress: string;
         toAddress: string;
         baseTokens: string[];

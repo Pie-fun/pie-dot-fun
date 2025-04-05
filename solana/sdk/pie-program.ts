@@ -673,7 +673,7 @@ export class PieProgram {
     return tx;
   }
 
-  async getMayanWsolSwapTx({
+  async getMayanBaseSwapTxs({
     fromAddress,
     toAddress,
     baseTokens,
@@ -726,24 +726,24 @@ export class PieProgram {
     for (let i = 0; i < baseTokens.length; i++) {
       const tx = new Transaction();
 
-      if (i == 0) {
-        const { tx: createNativeMintATATx } = await getOrCreateNativeMintATA(
-          this.connection,
-          new PublicKey(fromAddress),
-          new PublicKey(fromAddress)
-        );
+      // if (i == 0) {
+      //   const { tx: createNativeMintATATx } = await getOrCreateNativeMintATA(
+      //     this.connection,
+      //     new PublicKey(fromAddress),
+      //     new PublicKey(fromAddress)
+      //   );
 
-        if (isValidTransaction(createNativeMintATATx)) {
-          tx.add(createNativeMintATATx);
-        }
+      //   if (isValidTransaction(createNativeMintATATx)) {
+      //     tx.add(createNativeMintATATx);
+      //   }
 
-        const instructions = wrapSOLInstruction(
-          new PublicKey(fromAddress),
-          amount * baseTokens.length * LAMPORTS_PER_SOL
-        );
+      //   const instructions = wrapSOLInstruction(
+      //     new PublicKey(fromAddress),
+      //     amount * baseTokens.length * LAMPORTS_PER_SOL
+      //   );
 
-        tx.add(...instructions);
-      }
+      //   tx.add(...instructions);
+      // }
 
       const mayanSwapTx = mayanSwapTxsResult[i];
 

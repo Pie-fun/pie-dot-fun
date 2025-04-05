@@ -362,7 +362,7 @@ class PieProgram {
         tx.add(depositWsolTx);
         return tx;
     }
-    async getMayanWsolSwapTx({ fromAddress, toAddress, baseTokens, amount = 0.017, }) {
+    async getMayanBaseSwapTxs({ fromAddress, toAddress, baseTokens, amount = 0.017, }) {
         // const baseTokens = [
         //   '0x4F9Fd6Be4a90f2620860d680c0d4d5Fb53d1A825',
         //   '0x0b3e328455c4059EEb9e3f84b5543F74E24e7E1b',
@@ -392,14 +392,21 @@ class PieProgram {
         const mayanSwapTxsResult = await Promise.all(mayanSwapTxs);
         for (let i = 0; i < baseTokens.length; i++) {
             const tx = new web3_js_1.Transaction();
-            if (i == 0) {
-                const { tx: createNativeMintATATx } = await (0, helper_1.getOrCreateNativeMintATA)(this.connection, new web3_js_1.PublicKey(fromAddress), new web3_js_1.PublicKey(fromAddress));
-                if ((0, helper_1.isValidTransaction)(createNativeMintATATx)) {
-                    tx.add(createNativeMintATATx);
-                }
-                const instructions = (0, helper_1.wrapSOLInstruction)(new web3_js_1.PublicKey(fromAddress), amount * baseTokens.length * web3_js_1.LAMPORTS_PER_SOL);
-                tx.add(...instructions);
-            }
+            // if (i == 0) {
+            //   const { tx: createNativeMintATATx } = await getOrCreateNativeMintATA(
+            //     this.connection,
+            //     new PublicKey(fromAddress),
+            //     new PublicKey(fromAddress)
+            //   );
+            //   if (isValidTransaction(createNativeMintATATx)) {
+            //     tx.add(createNativeMintATATx);
+            //   }
+            //   const instructions = wrapSOLInstruction(
+            //     new PublicKey(fromAddress),
+            //     amount * baseTokens.length * LAMPORTS_PER_SOL
+            //   );
+            //   tx.add(...instructions);
+            // }
             const mayanSwapTx = mayanSwapTxsResult[i];
             tx.add(...mayanSwapTx.instructions);
             if (i == baseTokens.length - 1) {
