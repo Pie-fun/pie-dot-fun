@@ -20,7 +20,9 @@ import {getMint, mintTo} from "@solana/spl-token";
 import {METADATA_PROGRAM_ID} from "@raydium-io/raydium-sdk-v2";
 import {BN} from "@coral-xyz/anchor";
 import {
-    QueryProxyMock,
+    EthCallQueryRequest,
+    PerChainQueryRequest,
+    QueryProxyMock, QueryRequest,
     signaturesToSolanaArray,
 } from "@wormhole-foundation/wormhole-query-sdk";
 import {deriveGuardianSetKey} from "./helpers/guardianSet";
@@ -30,6 +32,7 @@ import {
     getTransactionWithRetry
 } from "./helpers/transaction";
 import {getWormholeBridgeData} from "./helpers/config";
+import {eth, Web3} from "web3";
 
 function sleep(s: number) {
     return new Promise((resolve) => setTimeout(resolve, s * 1000));
@@ -504,13 +507,40 @@ describe("pie", () => {
         });
 
         it("should return valid token balance", async () => {
-            const getBalanceQueryResponse = {
-                bytes:
-                    "0100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000570100000000010002010000004a00000009307831353263633163011a4b46696b2bb4794eb3d4c26f1c55f9170fa4c50000002470a082310000000000000000000000009ad81859848237a25cda0b8fb4ea4efccbb6ffd00100020100000055000000000152cc1c94a1b10eec47833f7c6ce9d5ccbee92eecf576301cd5bd2b5655a87356f78eb200063209201b04c001000000200000000000000000000000000000000000000000000000000c0a49e8931037c2",
-                signatures: [
-                    "ae047d9489070af5ca163c5d54e92e0a7eed74722ce469b282e2f5bd879b826828d04a4d2dff88806dee38b9b2744ab073dcc5a06bae9d7225bb8a855fc7b0580000"
-                ],
+            const rpc = 'https://ethereum.publicnode.com';
+            const web3 = new Web3(rpc);
+            const tokenAddress = '0xB0fFa8000886e57F86dd5264b9582b2Ad87b2b91';  // Wormhole Token (W)
+            const walletAddress = '0xB01665C07C58086603EAcb1E7c488fb99bad0c28'; // Wormhole Whale
+
+            const minABI = [
+                {
+                    "constant": true,
+                    "inputs": [{"name": "_owner", "type": "address"}],
+                    "name": "balanceOf",
+                    "outputs": [{"name": "balance", "type": "uint256"}],
+                    "type": "function"
+                }
+            ];
+            const tokenContract = new web3.eth.Contract(minABI, tokenAddress);
+            const data = tokenContract.methods.balanceOf(walletAddress).encodeABI();
+            const callData = {
+                to: tokenAddress,
+                data: data
             };
+            const latestBlock = 22204780; // 22204780
+
+            const request = new QueryRequest(
+                0, // Nonce
+                [
+                    new PerChainQueryRequest(
+                        2, // Ethereum Wormhole Chain ID
+                        new EthCallQueryRequest(latestBlock, [callData])
+                    ),
+                ]
+            );
+            const queryProxyMock = new QueryProxyMock({2: rpc});
+            const getBalanceQueryResponse = await queryProxyMock.mock(request);
+            console.log("getBalanceQueryResponse", getBalanceQueryResponse);
 
             await postQuerySigs(getBalanceQueryResponse.signatures, signaturesKeypair);
 
@@ -543,15 +573,15 @@ describe("pie", () => {
                 const actualTokenBalance = extractTokenBalance(tx);
 
                 const expectedValues = {
-                    expectedBalanceHex: "0x0C0A49E8931037C2",
-                    expectedTokenAddress: "0x1a4B46696b2bb4794eb3d4c26f1c55f9170fa4c5"
+                    expectedBalanceHex: "0x129c8f71ad02e2a6800000",
+                    expectedTokenAddress: tokenAddress  // Wormhole Token (W)
                 };
 
                 if (!actualTokenBalance || !actualTokenAddress) {
                     throw new Error("Failed to extract token information");
                 }
                 if (actualTokenBalance !== BigInt(expectedValues.expectedBalanceHex)) {
-                    throw new Error(`Token balance mismatch. Expected: ${expectedValues.expectedBalanceHex}, Got: ${actualTokenBalance}`);
+                    throw new Error(`Token balance mismatch. Expected: ${BigInt(expectedValues.expectedBalanceHex)}, Got: ${actualTokenBalance}`);
                 }
 
             } catch (error) {
