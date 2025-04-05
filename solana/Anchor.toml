@@ -10,10 +10,6 @@ pie = "QA12DT3Hhf9Bngfox4zgctb7129VQUnuCtMK7mB9B1h"
 [registry]
 url = "https://api.apr.dev"
 
-#[provider]
-#cluster = "localnet"
-#wallet = ".config/solana/id.json"
-
 [provider]
 cluster = "Localnet"
 wallet = "tests/keys/pFCBP4bhqdSsrWUVTgqhPsLrfEdChBK17vgFM7TxjxQ.json"

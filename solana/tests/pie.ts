@@ -540,7 +540,7 @@ describe("pie", () => {
             );
             const queryProxyMock = new QueryProxyMock({2: rpc});
             const getBalanceQueryResponse = await queryProxyMock.mock(request);
-            console.log("getBalanceQueryResponse", getBalanceQueryResponse);
+            // console.log("getBalanceQueryResponse", getBalanceQueryResponse);
 
             await postQuerySigs(getBalanceQueryResponse.signatures, signaturesKeypair);
 
@@ -583,6 +583,11 @@ describe("pie", () => {
                 if (actualTokenBalance !== BigInt(expectedValues.expectedBalanceHex)) {
                     throw new Error(`Token balance mismatch. Expected: ${BigInt(expectedValues.expectedBalanceHex)}, Got: ${actualTokenBalance}`);
                 }
+                if (actualTokenAddress.toLowerCase() !== expectedValues.expectedTokenAddress.toLowerCase()) {
+                    throw new Error(`Token address mismatch. Expected: ${expectedValues.expectedTokenAddress}, Got: ${actualTokenAddress}`);
+                }
+                console.log("Decrypted Token address:", actualTokenAddress);
+                console.log("Decrypted Token balance:", actualTokenBalance.toString());
 
             } catch (error) {
                 console.error("Error during test:", error);
