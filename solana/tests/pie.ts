@@ -497,14 +497,11 @@ describe("pie", () => {
     });
 
     describe("wormhole verify queries", () => {
-        it("initialize guardian set"), async () => {
-            await pieProgram.program.methods.initialize().rpc();
-            // fetch current guardian set
-            const p = anchor.getProvider();
-            const info = await getWormholeBridgeData(p.connection, coreBridgeAddress);
-            console.log('info', info);
+        it("initialize guardian set index", async () => {
+            const info = await getWormholeBridgeData(anchor.getProvider().connection, coreBridgeAddress);
             guardianSetIndex = info.guardianSetIndex;
-        }
+            console.log('guardianSetIndex', guardianSetIndex);
+        });
 
         it("should return valid token balance", async () => {
             const getBalanceQueryResponse = {
@@ -521,13 +518,13 @@ describe("pie", () => {
                 const txid = await pieProgram.program.methods
                     .verifyQuery(
                         Buffer.from(getBalanceQueryResponse.bytes, "hex"),
-                        guardianSetIndex
+                        mockGuardianSetIndex
                     )
                     .accountsPartial({
                         guardianSignatures: signaturesKeypair.publicKey,
                         guardianSet: deriveGuardianSetKey(
                             coreBridgeAddress,
-                            guardianSetIndex
+                            mockGuardianSetIndex
                         ),
                     })
                     .preInstructions([
