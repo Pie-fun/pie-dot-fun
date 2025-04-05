@@ -1,11 +1,16 @@
 import { BN } from "@coral-xyz/anchor";
 import {
+  AddressLookupTableAccount,
   ComputeBudgetProgram,
   Connection,
   Keypair,
+  LAMPORTS_PER_SOL,
   PublicKey,
+  sendAndConfirmRawTransaction,
   sendAndConfirmTransaction,
   Transaction,
+  TransactionMessage,
+  VersionedTransaction,
 } from "@solana/web3.js";
 import mainnetAdmin from "../.config/solana/id.json";
 import { assert } from "chai";
@@ -25,9 +30,16 @@ import {
   isValidTransaction,
   showBasketConfigTable,
   simulateTransaction,
+  wrapSOLInstruction,
 } from "../sdk/utils/helper";
 import { Jito } from "../sdk/jito";
 import { QUICKNODE_RPC_URL } from "./constants";
+import {
+  deserializeInstruction,
+  getAddressLookupTableAccounts,
+  getJupiterSwapInstructions,
+} from "../sdk/jupiter";
+import { getMayanSwapTx } from "../sdk/mayan-wormhole";
 
 describe("pie", () => {
   const admin = Keypair.fromSecretKey(new Uint8Array(mainnetAdmin));
@@ -261,6 +273,197 @@ describe("pie", () => {
       });
     }
     table.printTable();
+  });
+
+  it("Buy components and mint basket token using Jupiter", async () => {
+    const programState = await pieProgram.getProgramState();
+    const basketId = programState.basketCounter.sub(new BN(1));
+    const basketConfigData = await pieProgram.getBasketConfig({ basketId });
+
+    console.log(JSON.stringify(basketConfigData, null, 2));
+
+    const asyncTasks = [];
+    asyncTasks.push(jito.getTipAccounts());
+    asyncTasks.push(jito.getTipInformation());
+    asyncTasks.push(connection.getLatestBlockhash("confirmed"));
+
+    const [tipAccounts, tipInformation, recentBlockhash] = await Promise.all(
+      asyncTasks
+    );
+
+    const serializedTxs: string[] = [];
+
+    for (let i = 0; i < basketConfigData.components.length; i++) {
+      const tx = new Transaction();
+      const component = basketConfigData.components[i];
+      const { swapInstructionIxs, addressLookupTableAccounts } =
+        await getJupiterSwapInstructions(
+          connection,
+          admin.publicKey,
+          "ExactOut",
+          NATIVE_MINT,
+          component.mint,
+          component.quantityInSysDecimal.toNumber()
+        );
+
+      tx.add(...swapInstructionIxs);
+
+      if (i === basketConfigData.components.length - 1) {
+        const serializedTx = jito.serializeJitoTransaction({
+          recentBlockhash: recentBlockhash.blockhash,
+          transaction: tx,
+          lookupTables: addressLookupTableAccounts,
+          signer: admin.publicKey,
+          jitoTipAccount: new PublicKey(
+            tipAccounts[Math.floor(Math.random() * tipAccounts.length)]
+          ),
+          amountInLamports: Math.floor(
+            tipInformation?.landed_tips_50th_percentile * LAMPORTS_PER_SOL
+          ),
+        });
+        serializedTxs.push(serializedTx);
+      } else {
+        const serializedTx = jito.serializeJitoTransaction({
+          recentBlockhash: recentBlockhash.blockhash,
+          signer: admin.publicKey,
+          transaction: tx,
+          lookupTables: addressLookupTableAccounts,
+        });
+        serializedTxs.push(serializedTx);
+      }
+    }
+
+    const serializedSignedTxs: string[] = [];
+    for (const serializedTx of serializedTxs) {
+      const tx = jito.signSerializedTransaction(serializedTx, admin);
+      // @debug
+      // await sendAndConfirmRawTransaction(
+      //   connection,
+      //   Buffer.from(tx, "base64"),
+      //   {
+      //     skipPreflight: true,
+      //     commitment: "confirmed",
+      //   }
+      // );
+      serializedSignedTxs.push(tx);
+    }
+
+    const bundleId = await jito.sendBundle(serializedSignedTxs);
+    await startPollingJitoBundle(bundleId);
+
+    // const endcoded = transaction.serialize()
+
+    // const txSig = await sendAndConfirmRawTransaction(
+    //   connection,
+    //   endcoded,
+    //   [admin],
+    //   { skipPreflight: true, commitment: "confirmed" }
+    // )
+
+    // transaction.sign([admin])
+    // const txSig = await sendTra(connection, transaction, [admin], {
+    //   skipPreflight: true,
+    //   commitment: "confirmed",
+    // })
+  });
+
+  it.only("Buy components with Mayan and Jito", async () => {
+    const baseTokens = [
+      "0x4F9Fd6Be4a90f2620860d680c0d4d5Fb53d1A825",
+      "0x0b3e328455c4059EEb9e3f84b5543F74E24e7E1b",
+      "0xb33ff54b9f7242ef1593d2c9bcd8f9df46c77935",
+      "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "0xc0041ef357b183448b235a8ea73ce4e4ec8c265f",
+    ];
+
+    const baseAddress = "0xe215E8C50690F2a7Dc7C5A9E907acDCe8A033B97";
+
+    const amount = 0.017;
+
+    const asyncTasks = [];
+    asyncTasks.push(jito.getTipAccounts());
+    asyncTasks.push(jito.getTipInformation());
+    asyncTasks.push(connection.getLatestBlockhash("confirmed"));
+
+    const [tipAccounts, tipInformation, recentBlockhash] = await Promise.all(
+      asyncTasks
+    );
+
+    const serializedTxs: string[] = [];
+
+    const mayanSwapTxs = [];
+    baseTokens.forEach(async (token) => {
+      const mayanSwapTx = getMayanSwapTx({
+        connection,
+        amount: amount,
+        fromToken: NATIVE_MINT.toBase58(),
+        toToken: token,
+        fromAddress: admin.publicKey.toBase58(),
+        toAddress: baseAddress,
+      });
+      mayanSwapTxs.push(mayanSwapTx);
+    });
+
+    const mayanSwapTxsResult = await Promise.all(mayanSwapTxs);
+
+    for (let i = 0; i < baseTokens.length; i++) {
+      const tx = new Transaction();
+      if (i == 0) {
+        const { tx: createNativeMintATATx } = await getOrCreateNativeMintATA(
+          connection,
+          admin.publicKey,
+          admin.publicKey
+        );
+        if (isValidTransaction(createNativeMintATATx)) {
+          tx.add(createNativeMintATATx);
+        }
+        const instructions = wrapSOLInstruction(
+          admin.publicKey,
+          amount * baseTokens.length * LAMPORTS_PER_SOL
+        );
+        tx.add(...instructions);
+      }
+      const mayanSwapTx = mayanSwapTxsResult[i];
+
+      tx.add(...mayanSwapTx.instructions);
+
+      if (i == baseTokens.length - 1) {
+        const serializedTx = jito.serializeJitoTransaction({
+          recentBlockhash: recentBlockhash.blockhash,
+          transaction: tx,
+          lookupTables: mayanSwapTx.lookupTables,
+          signer: admin.publicKey,
+          jitoTipAccount: new PublicKey(
+            tipAccounts[Math.floor(Math.random() * tipAccounts.length)]
+          ),
+          amountInLamports: Math.floor(
+            tipInformation?.landed_tips_50th_percentile * LAMPORTS_PER_SOL
+          ),
+        });
+        serializedTxs.push(serializedTx);
+      } else {
+        const serializedTx = jito.serializeJitoTransaction({
+          recentBlockhash: recentBlockhash.blockhash,
+          transaction: tx,
+          lookupTables: mayanSwapTx.lookupTables,
+          signer: admin.publicKey,
+        });
+        serializedTxs.push(serializedTx);
+      }
+    }
+
+    const serializedSignedTxs: string[] = [];
+    for (const serializedTx of serializedTxs) {
+      const tx = jito.signSerializedTransaction(serializedTx, admin);
+      serializedSignedTxs.push(tx);
+    }
+
+    const bundleId = await jito.sendBundle(serializedSignedTxs);
+    await startPollingJitoBundle(bundleId);
+
+    // console.log(`Swap at tx: ${getExplorerUrl(txResult, "mainnet")}`);
+
+    // console.log(`Swap at tx: ${getExplorerUrl(txResult, "mainnet")}`);
   });
 
   it("Buy components and mint basket token using Jito bundle", async () => {

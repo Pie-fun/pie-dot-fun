@@ -644,3 +644,11 @@ export function findDepositAndRemoveInPlace(
   }
   return null;
 }
+
+export function getSolanaAddressFromEvmAddress(evmAddress: string) {
+  // ex 0xc0041ef357b183448b235a8ea73ce4e4ec8c265f ->  1111111111113gA4ULihrhPMjfVMXxpZBW5Beuki
+  const hexString = evmAddress.slice(2); // Remove 0x and pad to 32 bytes
+  const bytes = Buffer.from(hexString, "hex");
+  const publicKey = new PublicKey(bytes);
+  return publicKey.toBase58();
+}

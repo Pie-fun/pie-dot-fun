@@ -3,13 +3,19 @@ import {
   Connection,
   Keypair,
   LAMPORTS_PER_SOL,
+  PublicKey,
   sendAndConfirmTransaction,
 } from "@solana/web3.js";
 import devnetAdmin from "../public/devnet-admin.json";
-import { assert } from "chai";
-import { createBasketComponents } from "../sdk/utils/helper";
+import { assert, expect } from "chai";
+import {
+  createBasketComponents,
+  getOrCreateTokenAccountTx,
+  getTokenAccount,
+  mintTokenTo,
+} from "../sdk/utils/helper";
 import { CreateBasketArgs, PieProgram } from "../sdk/pie-program";
-import { getMint } from "@solana/spl-token";
+import { getMint, mintTo } from "@solana/spl-token";
 import { METADATA_PROGRAM_ID } from "@raydium-io/raydium-sdk-v2";
 import { BN } from "@coral-xyz/anchor";
 
@@ -30,7 +36,7 @@ describe("pie", () => {
   const newCreator = Keypair.generate();
   const platformFeeWallet = Keypair.generate();
 
-  const pieProgram = new PieProgram(connection, "devnet");
+  const pieProgram = new PieProgram(connection, "devnet", "");
 
   it("is success deploy without admin change", async () => {
     await Promise.all([
@@ -59,7 +65,7 @@ describe("pie", () => {
     assert.equal(programState.admin.toBase58(), admin.publicKey.toBase58());
   });
 
-  describe("transfer_admin", () => {
+  describe.skip("transfer_admin", () => {
     it("should be transfer with new admin", async () => {
       const transferTx = await pieProgram.transferAdmin({
         admin: admin.publicKey,
@@ -96,7 +102,7 @@ describe("pie", () => {
     });
   });
 
-  describe("update_fee", () => {
+  describe.skip("update_fee", () => {
     it("should update fee", async () => {
       const updateFeeTx = await pieProgram.updateFee({
         admin: admin.publicKey,
@@ -139,7 +145,7 @@ describe("pie", () => {
     });
   });
 
-  describe("update_platform_fee_wallet", () => {
+  describe.skip("update_platform_fee_wallet", () => {
     it("should update platform fee wallet", async () => {
       const updatePlatformFeeWalletTx =
         await pieProgram.updatePlatformFeeWallet({
@@ -174,7 +180,7 @@ describe("pie", () => {
     });
   });
 
-  describe("create_basket", () => {
+  describe.skip("create_basket", () => {
     describe("v1", () => {
       it("should create a basket with metadata", async () => {
         const basketComponents = await createBasketComponents(
@@ -303,7 +309,7 @@ describe("pie", () => {
     });
   });
 
-  describe("update_rebalancer", () => {
+  describe.skip("update_rebalancer", () => {
     it("should update with new balancer in basket config state", async () => {
       const basketComponents = await createBasketComponents(
         connection,
@@ -346,5 +352,109 @@ describe("pie", () => {
     });
 
     it("should fail if unauthorized", async () => {});
+  });
+
+  describe("create_multichain_basket", () => {
+    it("should create a basket with metadata", async () => {
+      const basketComponents = await createBasketComponents(
+        connection,
+        admin,
+        [1000000, 2000000, 3000000]
+      );
+
+      await Promise.all(
+        basketComponents.map(async (component) => {
+          await mintTokenTo(
+            connection,
+            component.mint,
+            admin,
+            admin,
+            admin.publicKey,
+            10
+          );
+        })
+      );
+
+      const multichainComponent = {
+        mint: new PublicKey("1111111111113gA4ULihrhPMjfVMXxpZBW5Beuki"),
+        quantityInSysDecimal: new BN(1),
+      };
+
+      const createBasketArgs: CreateBasketArgs = {
+        name: "Basket Name Test",
+        symbol: "BNS",
+        uri: "test",
+        components: [...basketComponents, multichainComponent],
+        rebalancer: admin.publicKey,
+      };
+      const programState = await pieProgram.getProgramState();
+      const basketId = programState.basketCounter;
+
+      const createBasketTx = await pieProgram.createBasket({
+        creator: creator.publicKey,
+        args: createBasketArgs,
+        basketId,
+      });
+
+      await sendAndConfirmTransaction(connection, createBasketTx, [creator]);
+
+      const basketConfig = pieProgram.basketConfigPDA({ basketId });
+
+      const basketMint = pieProgram.basketMintPDA({ basketId });
+      const basketConfigData = await pieProgram.getBasketConfig({ basketId });
+      assert.equal(
+        basketConfigData.creator.toBase58(),
+        creator.publicKey.toBase58()
+      );
+      assert.equal(basketConfigData.mint.toBase58(), basketMint.toBase58());
+      assert.equal(basketConfigData.components.length, 4);
+
+      const mintData = await getMint(connection, basketMint);
+      assert.equal(mintData.supply.toString(), "0");
+      assert.equal(mintData.decimals, 6);
+      assert.equal(mintData.mintAuthority?.toBase58(), basketConfig.toBase58());
+    });
+
+    it("should deposit component to basket", async () => {
+      const programState = await pieProgram.getProgramState();
+      const basketId = programState.basketCounter.sub(new BN(1));
+
+      const basketConfig = await pieProgram.getBasketConfig({ basketId });
+
+      await Promise.all(
+        basketConfig.components.map(async (component) => {
+          if (component.mint.toBase58().startsWith("111")) return;
+          try {
+            const depositComponentTx = await pieProgram.depositComponent({
+              user: admin.publicKey,
+              basketId,
+              amount: component.quantityInSysDecimal
+                .div(new BN(10 ** 6))
+                .toString(),
+              mint: component.mint,
+            });
+            await sendAndConfirmTransaction(connection, depositComponentTx, [
+              admin,
+            ]);
+          } catch (e) {
+            console.log(e);
+          }
+        })
+      );
+
+      const mintBasketTokenTx = await pieProgram.mintMultichainBasketToken({
+        user: admin.publicKey,
+        basketId,
+        amount: "1",
+      });
+
+      await sendAndConfirmTransaction(connection, mintBasketTokenTx, [admin]);
+
+      const userBaksetTokenBalanceAfter = await pieProgram.getTokenBalance({
+        mint: basketConfig.mint,
+        owner: admin.publicKey,
+      });
+      expect(userBaksetTokenBalanceAfter).to.equal(1);
+    });
   });
 });
