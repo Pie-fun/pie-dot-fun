@@ -450,7 +450,7 @@ export function Buy({ chain, address }: Readonly<BuyProps>) {
           throw CommonFrontError.notFound({ entity: 'evmWallet' })
         }
 
-        let swapAmount = ''
+        let swapCalculatedAmount = ''
 
         if (
           !(
@@ -458,10 +458,38 @@ export function Buy({ chain, address }: Readonly<BuyProps>) {
             buyMethod?.type === 'native'
           )
         ) {
-          swapAmount = (await swap()) ?? ''
+          const swapAmount = await swap()
+
+          if (!swapAmount) {
+            throw CommonFrontError.notFound({ entity: 'swapAmount' })
+          }
+
+          const feeCalculatedSwapAmount = new BigNumber(swapAmount)
+            .minus(
+              getLamportsToSol({
+                lamports: new BigNumber(extraFeeInLamports).toNumber(),
+              }),
+            )
+            .toString()
+
+          if (balanceInLamports) {
+            const hasEnoughBalance = new BigNumber(
+              balanceInLamports,
+            ).isGreaterThan(extraFeeInLamports)
+
+            if (!hasEnoughBalance) {
+              swapCalculatedAmount = feeCalculatedSwapAmount
+            } else {
+              swapCalculatedAmount = swapAmount
+            }
+          } else {
+            swapCalculatedAmount = feeCalculatedSwapAmount
+          }
         }
 
-        const userInputInLamports = new BigNumber(swapAmount || buyAmount)
+        const userInputInLamports = new BigNumber(
+          swapCalculatedAmount || buyAmount,
+        )
           .multipliedBy(LAMPORTS_PER_SOL)
           .toString()
 
