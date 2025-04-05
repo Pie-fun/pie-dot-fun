@@ -25,7 +25,10 @@ import {
   ChainType,
   Currency,
 } from '@/app/api/protobuf/typescript_only_types/pie-dot-fun/v1/common'
-import { useSendTransaction, useSolanaWallets } from '@privy-io/react-auth'
+import {
+  useSendTransaction as useEvmSendTransaction,
+  useSolanaWallets,
+} from '@privy-io/react-auth'
 import { PrivyLoginButton } from '@/app/components/PrivyLoginButton/PrivyLoginButton'
 import { Slippage } from '@/app/[locale]/baskets/[chain]/[address]/components/BasketBuyAndSell/Slippage'
 import { CurrencyWithQuantity } from '@/components/CurrencyWithQuantity/CurrencyWithQuantity'
@@ -112,7 +115,7 @@ export function Buy({ chain, address }: Readonly<BuyProps>) {
   const bufferPct = searchParams.get('bufferPct')
   const { pollUntilChange } = usePolling()
   const extraFeeInLamports = '17500000'
-  const { sendTransaction } = useSendTransaction()
+  const { sendTransaction: evmSendTransaction } = useEvmSendTransaction()
   const queryClient = getQueryClient()
 
   const pieProgram = useMemo(() => {
@@ -298,7 +301,7 @@ export function Buy({ chain, address }: Readonly<BuyProps>) {
     const privyEvmSigner = new PrivyEvmSigner(
       evmWallet.address,
       buyMethodChain,
-      sendTransaction,
+      evmSendTransaction,
     )
 
     const privySvmSigner = new PrivySvmSigner(
@@ -640,12 +643,6 @@ export function Buy({ chain, address }: Readonly<BuyProps>) {
           queryClient.invalidateQueries({
             queryKey: queryKeys.proxy.getBalancesEVMQuery({
               address: evmWallet.address,
-            }).queryKey,
-          })
-
-          queryClient.invalidateQueries({
-            queryKey: queryKeys.solana.getBalanceQuery({
-              address: svmWallet.address,
             }).queryKey,
           })
         }

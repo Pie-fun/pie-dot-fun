@@ -7,7 +7,10 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { Input } from '@/components/Input/Input'
 import { Button } from '@/components/Button/Button'
 import { Typography } from '@/components/Typography/Typography'
-import { useSendTransaction, useSolanaWallets } from '@privy-io/react-auth'
+import {
+  useSendTransaction as useEvmSendTransaction,
+  useSolanaWallets,
+} from '@privy-io/react-auth'
 import { PrivyLoginButton } from '@/app/components/PrivyLoginButton/PrivyLoginButton'
 import { Slippage } from '@/app/[locale]/baskets/[chain]/[address]/components/BasketBuyAndSell/Slippage'
 import { TokenAvatar } from '@/components/TokenAvatar/TokenAvatar'
@@ -48,7 +51,7 @@ import {
   SLIPPAGE_PERCENTAGE,
   WRAPPED_NATIVE_TOKEN_ADDRESSES,
 } from '@/constants/blockChains'
-import { FirstParameter } from '@/types/utility'
+import { FirstParameter, PromiseReturnType } from '@/types/utility'
 import { useSolana } from '@/hooks/useSolana'
 import { getHoldingResource } from '@/app/api/backend/v1/holding/resource'
 import { sendGTMEvent } from '@/libs/next-third-parties/sendGTMEvent'
@@ -79,6 +82,7 @@ import solana from '@wormhole-foundation/sdk/solana'
 import { MayanRouteSWIFT } from '@mayanfinance/wormhole-sdk-route'
 import { PrivyEvmSigner } from '@/libs/privy/PrivyEvmSigner'
 import { PrivySvmSigner } from '@/libs/privy/PrivySvmSigner'
+import { getQueryClient } from '@/providers/QueryClientProvider/getQueryClient'
 
 type SellProps = {
   chain: ChainType
@@ -93,7 +97,7 @@ export function Sell({ chain, address }: Readonly<SellProps>) {
   const { wallet: svmWallet } = useUser({ vmType: 'SVM' })
   const { wallet: evmWallet } = useUser({ vmType: 'EVM' })
   const { wallets: svmWallets } = useSolanaWallets()
-  const { sendTransaction } = useSendTransaction()
+  const { sendTransaction: evmSendTransaction } = useEvmSendTransaction()
   const form = useFormContext<BuyAndSellSchema>()
   const { sellAmount, slippage, sellMethod } = useWatch({
     control: form.control,
@@ -102,6 +106,7 @@ export function Sell({ chain, address }: Readonly<SellProps>) {
   const [step, setStep] =
     useState<ComponentProps<typeof TransactionStatus>['step']>('idle')
   const { pollUntilChange } = usePolling()
+  const queryClient = getQueryClient()
 
   const pieProgram = useMemo(() => {
     return new PieProgram(
@@ -211,7 +216,7 @@ export function Sell({ chain, address }: Readonly<SellProps>) {
     .dividedBy(baseUsdtBalance?.decimals ? 10 ** baseUsdtBalance?.decimals : 1)
     .toString()
 
-  const swap = async () => {
+  const swap = async ({ amount }: { amount: string }) => {
     if (!sellMethod?.address) {
       throw CommonFrontError.notFound({ entity: 'sellMethodAddress' })
     }
@@ -226,10 +231,6 @@ export function Sell({ chain, address }: Readonly<SellProps>) {
 
     if (!privySvmEmbeddedWallet) {
       throw CommonFrontError.notFound({ entity: 'privySvmEmbeddedWallet' })
-    }
-
-    if (!sellAmount) {
-      throw CommonFrontError.notFound({ entity: 'sellAmount' })
     }
 
     const chains = {
@@ -261,7 +262,7 @@ export function Sell({ chain, address }: Readonly<SellProps>) {
     const privyEvmSigner = new PrivyEvmSigner(
       evmWallet.address,
       sellMethodChain,
-      sendTransaction,
+      evmSendTransaction,
     )
 
     const privySvmSigner = new PrivySvmSigner(
@@ -273,11 +274,7 @@ export function Sell({ chain, address }: Readonly<SellProps>) {
 
     const sendChain = wh.getChain('Solana')
     const receiveChain = wh.getChain(sellMethodChain)
-
-    const source = Wormhole.tokenId(
-      sendChain.chain,
-      sellMethod?.type === 'native' ? 'native' : sellMethod?.address,
-    )
+    const source = Wormhole.tokenId(sendChain.chain, 'native')
 
     const destination = Wormhole.tokenId(
       receiveChain.chain,
@@ -292,7 +289,7 @@ export function Sell({ chain, address }: Readonly<SellProps>) {
     const [bestRoute] = await resolver.findRoutes(transferRequest)
 
     const validated = await bestRoute.validate(transferRequest, {
-      amount: sellAmount,
+      amount,
       options: bestRoute.getDefaultOptions(),
     })
 
@@ -396,6 +393,10 @@ export function Sell({ chain, address }: Readonly<SellProps>) {
           throw CommonFrontError.notFound({ entity: 'svmWallet' })
         }
 
+        if (!evmWallet) {
+          throw CommonFrontError.notFound({ entity: 'evmWallet' })
+        }
+
         flushSync(() => setStep('creatingTransaction'))
 
         const amount = new BigNumber(sellAmount)
@@ -480,14 +481,39 @@ export function Sell({ chain, address }: Readonly<SellProps>) {
         }
 
         if (bundleStatus === 'Landed') {
+          pollUntilChange({
+            queryKey: queryKeys.pieProgram.getTokenBalanceQuery({
+              mint: basketTokenPublicKey,
+              owner: svmWalletPublicKey,
+            }).queryKey,
+          })
+
+          const { previousData, newData } = await pollUntilChange<
+            PromiseReturnType<typeof connection.getBalance>
+          >({
+            queryKey: queryKeys.solana.getBalanceQuery({
+              address: svmWallet.address,
+            }).queryKey,
+          })
+
           if (
             !(
               sellMethod?.chain === ChainType.SOLANA &&
               sellMethod?.type === 'native'
             )
           ) {
-            await swap()
+            await swap({
+              amount: getLamportsToSol({
+                lamports: newData - previousData,
+              }).toString(),
+            })
           }
+
+          queryClient.invalidateQueries({
+            queryKey: queryKeys.proxy.getBalancesEVMQuery({
+              address: evmWallet.address,
+            }).queryKey,
+          })
 
           form.setValue('sellAmount', '')
 
@@ -496,19 +522,6 @@ export function Sell({ chain, address }: Readonly<SellProps>) {
               amount: sellAmount,
               ticker: basketToken?.symbol,
             }),
-          })
-
-          pollUntilChange({
-            queryKey: queryKeys.pieProgram.getTokenBalanceQuery({
-              mint: basketTokenPublicKey,
-              owner: svmWalletPublicKey,
-            }).queryKey,
-          })
-
-          pollUntilChange({
-            queryKey: queryKeys.solana.getBalanceQuery({
-              address: svmWallet.address,
-            }).queryKey,
           })
         }
 
@@ -915,7 +928,7 @@ export function Sell({ chain, address }: Readonly<SellProps>) {
             size='m'
             color='alertPrimary'
             shape='round'
-            disabled={!form.formState.isValid}
+            // disabled={!form.formState.isValid}
             isLoading={isLoading}
             onClick={sell}
           >
