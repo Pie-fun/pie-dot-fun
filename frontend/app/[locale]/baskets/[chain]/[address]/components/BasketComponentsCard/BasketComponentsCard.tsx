@@ -66,7 +66,7 @@ export function BasketComponentsCard({
         <BasketProfile.Root size='s'>
           <BasketProfile.TokenAvatar
             src={row.original.fungibleToken.iconImageUrl}
-            chain={chain}
+            chain={row.original.fungibleToken.chain}
           />
           <BasketProfile.Content>
             <BasketProfile.Name>

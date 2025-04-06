@@ -100,12 +100,14 @@ export class CombinedResolver {
 
     const filter = getFilter([
       { field: 'chain', operator: '=', value: chain },
-      ...basketToken.components.map<OperatorCondition>(({ address }) => ({
-        join: 'AND',
-        field: 'name',
-        operator: '=',
-        value: `"${getFungibleTokenResource({ address, chain })}"`,
-      })),
+      ...basketToken.components.map<OperatorCondition>(
+        ({ address, chain }) => ({
+          join: 'AND',
+          field: 'name',
+          operator: '=',
+          value: `"${getFungibleTokenResource({ address, chain })}"`,
+        }),
+      ),
     ])
 
     const { fungibleTokens, nextPageToken } = await listFungibleTokens({
