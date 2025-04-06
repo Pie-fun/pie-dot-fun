@@ -79,7 +79,7 @@ export function BasketComponentsCard({
         </BasketProfile.Root>
       )
     },
-    [chain],
+    [],
   )
 
   const columns: DataTable.ColumnDef<
