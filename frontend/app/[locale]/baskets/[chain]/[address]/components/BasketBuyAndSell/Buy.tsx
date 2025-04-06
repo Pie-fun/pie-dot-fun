@@ -417,122 +417,6 @@ export function Buy({ chain, address }: Readonly<BuyProps>) {
     return bundleSimluationResult?.value.summary
   }
 
-  const buyMultichain = async () => {
-    if (!buyAmount) {
-      throw CommonFrontError.notFound({ entity: 'buyAmount' })
-    }
-
-    if (!privySvmEmbeddedWallet) {
-      throw CommonFrontError.notFound({ entity: 'privySvmEmbeddedWallet' })
-    }
-
-    if (!basketToken) return
-
-    flushSync(() => setStep('creatingTransaction'))
-
-    const tx = new Transaction()
-
-    const { tx: createNativeMintATATx } = await getOrCreateNativeMintATA(
-      connection,
-      walletPublicKey!,
-      walletPublicKey!,
-    )
-
-    if (isValidTransaction(createNativeMintATATx)) {
-      tx.add(createNativeMintATATx)
-    }
-
-    const instructions = wrapSOLInstruction(
-      walletPublicKey!,
-      Number(buyAmount) * LAMPORTS_PER_SOL,
-    )
-
-    tx.add(...instructions)
-
-    tx.feePayer = walletPublicKey!
-
-    tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash
-
-    const txHash = await privySvmEmbeddedWallet.sendTransaction(tx, connection)
-
-    const baseTokens = [
-      '0x4F9Fd6Be4a90f2620860d680c0d4d5Fb53d1A825',
-      '0x0b3e328455c4059EEb9e3f84b5543F74E24e7E1b',
-      '0xb33ff54b9f7242ef1593d2c9bcd8f9df46c77935',
-      '0x940181a94a35a4569e4529a3cdfb74e38fd98631',
-      '0xc0041ef357b183448b235a8ea73ce4e4ec8c265f',
-    ]
-
-    const baseAddress = '0xe215E8C50690F2a7Dc7C5A9E907acDCe8A033B97'
-
-    const mayanSwapTxs = await pieProgram.getMayanBaseSwapTxs({
-      fromAddress: walletPublicKey?.toBase58() ?? '',
-      toAddress: baseAddress,
-      baseTokens,
-      amount: Number(buyAmount) / 5,
-    })
-
-    const signedTransactions = await Promise.all(
-      mayanSwapTxs.map((serializedTx: string) => {
-        const transaction = VersionedTransaction.deserialize(
-          getUint8ArrayFromBase64({ string: serializedTx }),
-        )
-
-        return privySvmEmbeddedWallet.signTransaction(transaction)
-      }),
-    )
-
-    const serializedSignedTransactions = signedTransactions.map(
-      (signedTransaction: VersionedTransaction) => {
-        const serialized = signedTransaction.serialize()
-        const base64 = btoa(String.fromCharCode(...serialized))
-
-        return base64
-      },
-    )
-
-    const result = await jitoSimulateBundle({
-      signedTransactions,
-      encodedTransactions: serializedSignedTransactions,
-    })
-
-    console.info({ result })
-
-    const bundleId = await pieProgram.jito.sendBundle(
-      serializedSignedTransactions,
-    )
-
-    console.info({ bundleId })
-    flushSync(() => setStep('waitingForConfirmation'))
-
-    const mintTx = await pieProgram.mintMultichainBasketToken({
-      basketId: new BN(19),
-      amount: new BigNumber(buyAmount).multipliedBy(10 ** 6).toString(),
-      user: walletPublicKey!,
-    })
-
-    mintTx.feePayer = walletPublicKey!
-
-    mintTx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash
-
-    const mintTxHash = await privySvmEmbeddedWallet.sendTransaction(
-      mintTx,
-      connection,
-    )
-
-    console.info({ mintTxHash })
-
-    toast({
-      title: t('basketBuy.toastMessge.success', {
-        amount: getFormattedNumber({
-          value: Number(buyAmount) * 10 ** 6,
-          decimalDivisor: 10 ** DECIMALS.BASKET_TOKEN,
-        }),
-        ticker: basketToken?.symbol,
-      }),
-    })
-  }
-
   const buy = () => {
     startLoading(async () => {
       try {
@@ -565,6 +449,10 @@ export function Buy({ chain, address }: Readonly<BuyProps>) {
         }
 
         let swapCalculatedAmount = ''
+
+        if (basketToken.onchainId === '20') {
+          return buyMultichain()
+        }
 
         if (
           !(
@@ -830,6 +718,124 @@ export function Buy({ chain, address }: Readonly<BuyProps>) {
 
         throw error
       }
+    })
+  }
+
+  const buyMultichain = async () => {
+    if (!buyAmount) {
+      throw CommonFrontError.notFound({ entity: 'buyAmount' })
+    }
+
+    if (!privySvmEmbeddedWallet) {
+      throw CommonFrontError.notFound({ entity: 'privySvmEmbeddedWallet' })
+    }
+
+    if (!basketToken) return
+
+    flushSync(() => setStep('creatingTransaction'))
+
+    const tx = new Transaction()
+
+    const { tx: createNativeMintATATx } = await getOrCreateNativeMintATA(
+      connection,
+      walletPublicKey!,
+      walletPublicKey!,
+    )
+
+    if (isValidTransaction(createNativeMintATATx)) {
+      tx.add(createNativeMintATATx)
+    }
+
+    const instructions = wrapSOLInstruction(
+      walletPublicKey!,
+      Number(buyAmount) * LAMPORTS_PER_SOL,
+    )
+
+    tx.add(...instructions)
+
+    tx.feePayer = walletPublicKey!
+
+    tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash
+
+    const txHash = await privySvmEmbeddedWallet.sendTransaction(tx, connection)
+
+    console.info({ txHash })
+
+    const baseTokens = [
+      '0x4F9Fd6Be4a90f2620860d680c0d4d5Fb53d1A825',
+      '0x0b3e328455c4059EEb9e3f84b5543F74E24e7E1b',
+      '0xb33ff54b9f7242ef1593d2c9bcd8f9df46c77935',
+      '0x940181a94a35a4569e4529a3cdfb74e38fd98631',
+      '0xc0041ef357b183448b235a8ea73ce4e4ec8c265f',
+    ]
+
+    const baseAddress = '0xe215E8C50690F2a7Dc7C5A9E907acDCe8A033B97'
+
+    const mayanSwapTxs = await pieProgram.getMayanBaseSwapTxs({
+      fromAddress: walletPublicKey?.toBase58() ?? '',
+      toAddress: baseAddress,
+      baseTokens,
+      amount: Number(buyAmount) / 5,
+    })
+
+    const signedTransactions = await Promise.all(
+      mayanSwapTxs.map((serializedTx: string) => {
+        const transaction = VersionedTransaction.deserialize(
+          getUint8ArrayFromBase64({ string: serializedTx }),
+        )
+
+        return privySvmEmbeddedWallet.signTransaction(transaction)
+      }),
+    )
+
+    const serializedSignedTransactions = signedTransactions.map(
+      (signedTransaction: VersionedTransaction) => {
+        const serialized = signedTransaction.serialize()
+        const base64 = btoa(String.fromCharCode(...serialized))
+
+        return base64
+      },
+    )
+
+    const result = await jitoSimulateBundle({
+      signedTransactions,
+      encodedTransactions: serializedSignedTransactions,
+    })
+
+    console.info({ result })
+
+    const bundleId = await pieProgram.jito.sendBundle(
+      serializedSignedTransactions,
+    )
+
+    console.info({ bundleId })
+    flushSync(() => setStep('waitingForConfirmation'))
+
+    const mintTx = await pieProgram.mintMultichainBasketToken({
+      basketId: new BN(19),
+      amount: new BigNumber(buyAmount).multipliedBy(10 ** 6).toString(),
+      user: walletPublicKey!,
+    })
+
+    mintTx.feePayer = walletPublicKey!
+
+    mintTx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash
+
+    const mintTxHash = await privySvmEmbeddedWallet.sendTransaction(
+      mintTx,
+      connection,
+    )
+
+    console.info({ mintTxHash })
+
+    toast({
+      title: t('basketBuy.toastMessge.success', {
+        amount: getFormattedNumber({
+          value: Number(buyAmount) * 10 ** 6,
+          decimalDivisor: 10 ** DECIMALS.BASKET_TOKEN,
+        }),
+        ticker: basketToken?.symbol,
+      }),
     })
   }
 
@@ -1249,7 +1255,7 @@ export function Buy({ chain, address }: Readonly<BuyProps>) {
             shape='round'
             disabled={!isValidBuyAmount}
             isLoading={isLoading}
-            onClick={buyMultichain}
+            onClick={buy}
           >
             <Typography typography='body1' fontWeight='bold'>
               {t('common.buy')}
